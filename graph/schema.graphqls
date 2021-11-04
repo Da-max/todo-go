@@ -1,0 +1,32 @@
+# Schema for my todo app (inspirate by the tuto)
+
+type Todo {
+  id: ID!
+  text: String!
+  done: Boolean!
+  user: User!
+}
+
+type User {
+  id: ID!
+  username: String!
+  email: String!
+  password: String!
+  isActive: Boolean!
+  isAdmin: Boolean!
+}
+
+type Query {
+  todos: [Todo!]!
+}
+
+input NewTodo {
+  text: String!
+  userId: String!
+}
+
+type Mutation {
+  createTodo(input: NewTodo!): Todo!
+  removeTodo(todoId: ID!): Todo!
+  updateTodo(input: NewTodo!, todoId: ID!): Todo!
+}

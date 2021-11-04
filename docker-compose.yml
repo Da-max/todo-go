@@ -1,0 +1,29 @@
+version: "3.4"
+
+services:
+    db:
+        image: postgres:latest
+        restart: always
+        env_file: .env
+        ports:
+            - 5432:5432
+        volumes:
+            - postgresdata:/var/lib/postgresql/data
+    
+    server:
+        build:
+            context: .
+            dockerfile: docker/images/Dockerfile.server
+        env_file: .env
+        volumes:
+            - .:/go/app/src
+        ports:
+            - 8080:8080
+        command: go run server.go
+        links:
+            - db
+        depends_on:
+            - db
+
+volumes:
+    postgresdata:
