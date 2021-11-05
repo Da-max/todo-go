@@ -27,6 +27,8 @@ func main() {
 		DB: db,
 	}}
 
+	postgres.Migrate()
+
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
