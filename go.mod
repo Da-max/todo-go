@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/99designs/gqlgen v0.14.0
+	github.com/golang-migrate/migrate/v4 v4.15.1 // indirect
 	github.com/uptrace/bun v1.0.15
 	github.com/uptrace/bun/dialect/pgdialect v1.0.15
 	github.com/uptrace/bun/driver/pgdriver v1.0.15
