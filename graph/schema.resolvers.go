@@ -25,20 +25,14 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, 
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	todos := make([]*model.Todo, 0)
-	if err := r.DB.NewSelect().Model(&todos).Scan(ctx); err != nil {
-		panic(err)
-	}
-	return todos, nil
+	err := r.DB.NewSelect().Model(&todos).Scan(ctx)
+	return todos, err
 }
 
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
 	user := new(model.User)
-
-	if err := r.DB.NewSelect().Model(user).Where("id = ?", *obj.UserId).Scan(ctx); err != nil {
-		panic(err)
-	}
-
-	return user, nil
+	err := r.DB.NewSelect().Model(user).Where("id = ?", *obj.UserId).Scan(ctx)
+	return user, err
 }
 
 // Mutation returns generated.MutationResolver implementation.
