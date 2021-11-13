@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/Da-max/todo-go/graph/generated"
 	"github.com/Da-max/todo-go/graph/model"
@@ -14,23 +13,23 @@ import (
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	var (
-		user *model.User = new(model.User)
+		user model.User
 		todo *model.Todo = &model.Todo{
 			Text: input.Text,
+			Done: false,
 		}
 	)
 
-	if err := r.DB.NewSelect().Model(user).Where("id = ?", input.UserID).Scan(ctx); err != nil {
-		panic("The user with id " + input.UserID + "is not found.")
+	if res := r.DB.Find(&user).Where("id = ?", input.UserID); res.Error != nil {
+		panic("The user with id " + string(input.UserID) + "is not found.")
 	}
 
-	todo.UserId = &user.ID
-	todo.Done = false // By default a todo is not done.
+	todo.User = user
+	todo.UserID = int(user.ID)
 
-	if _, err := r.DB.NewInsert().Model(todo).Exec(ctx); err != nil {
+	if res := r.DB.Create(todo); res.Error != nil {
 		panic("The todo " + todo.Text + " cannot be add.")
 	}
-
 	return todo, nil
 }
 
@@ -40,37 +39,71 @@ func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (*model.T
 
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, todoID int) (*model.Todo, error) {
 	var (
-		todo *model.Todo = new(model.Todo)
-		// user *model.User = new(model.User)
+		user model.User
+		todo *model.Todo = &model.Todo{}
 	)
 
-	if _, err := r.DB.NewSelect().Model(todo).Where("id = ?", todoID).Exec(ctx); err != nil {
-		log.Println(err)
-		panic("The todo is not found")
+	if res := r.DB.Find(todo).Where("id = ?", todoID); res.Error != nil {
+		panic("The todo with id " + string(todoID) + " is not found")
 	}
 
-	// todo.Text = input.Text
+	todo.Text = input.Text
 
-	log.Println(todo.UserId)
+	if res := r.DB.Find(&user).Where("id = ?", input.UserID); res.Error != nil {
+		panic("The user with id " + string(input.UserID) + " is not found")
+	}
 
-	if _, err := r.DB.NewUpdate().Model(todo).Where("id = ?", todoID).Exec(ctx); err != nil {
-		panic("The todo cannot be update.")
+	todo.UserID = int(user.ID)
+
+	if res := r.DB.Save(todo); res.Error != nil {
+		panic("The todo with id " + string(todo.ID) + "cannot be update")
 	}
 
 	return todo, nil
+}
 
+func (r *mutationResolver) MarkDoneTodo(ctx context.Context, todoID int) (*model.Todo, error) {
+	var (
+		todo *model.Todo = &model.Todo{}
+	)
+
+	if res := r.DB.Find(todo).Where("id = ?", todoID); res.Error != nil {
+		panic("The todo with id " + string(todoID) + " cannot be found.")
+	}
+
+	todo.Done = true
+
+	if res := r.DB.Save(todo); res.Error != nil {
+		panic("The todo with id " + string(todo.ID) + " cannot be update")
+	}
+
+	return todo, nil
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	todos := make([]*model.Todo, 0)
-	err := r.DB.NewSelect().Model(&todos).Scan(ctx)
-	return todos, err
+	var (
+		todos []*model.Todo
+	)
+
+	result := r.DB.Find(&todos)
+
+	return todos, result.Error
 }
 
-func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
-	user := new(model.User)
-	err := r.DB.NewSelect().Model(user).Where("id = ?", *obj.UserId).Scan(ctx)
-	return user, err
+func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
+	if result := r.DB.Find(&model.Todo{}).Where("id = ?", obj.ID); result.Error != nil {
+		return -1, result.Error
+	} else {
+		return int(obj.ID), result.Error
+	}
+}
+
+func (r *userResolver) ID(ctx context.Context, obj *model.User) (int, error) {
+	if result := r.DB.Find(&model.User{}).Where("id = ?", obj.ID); result.Error != nil {
+		return -1, result.Error
+	} else {
+		return int(obj.ID), result.Error
+	}
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -82,6 +115,10 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // Todo returns generated.TodoResolver implementation.
 func (r *Resolver) Todo() generated.TodoResolver { return &todoResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type todoResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }
