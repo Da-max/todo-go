@@ -25,5 +25,16 @@ services:
         depends_on:
             - db
 
+    app:
+        build:
+            context: .
+            dockerfile: docker/images/Dockerfile.app
+        env_file: .env
+        volumes:
+            - .:/usr/src/app
+        ports:
+            - 3000:3000
+        command: yarn dev --host 0.0.0.0
+
 volumes:
     postgresdata:
