@@ -6,21 +6,59 @@ package graph
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/Da-max/todo-go/graph/generated"
 	"github.com/Da-max/todo-go/graph/model"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+	var (
+		user *model.User = new(model.User)
+		todo *model.Todo = &model.Todo{
+			Text: input.Text,
+		}
+	)
+
+	if err := r.DB.NewSelect().Model(user).Where("id = ?", input.UserID).Scan(ctx); err != nil {
+		panic("The user with id " + input.UserID + "is not found.")
+	}
+
+	todo.UserId = &user.ID
+	todo.Done = false // By default a todo is not done.
+
+	if _, err := r.DB.NewInsert().Model(todo).Exec(ctx); err != nil {
+		panic("The todo " + todo.Text + " cannot be add.")
+	}
+
+	return todo, nil
+}
+
+func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (*model.Todo, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID string) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
-}
+func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, todoID int) (*model.Todo, error) {
+	var (
+		todo *model.Todo = new(model.Todo)
+		// user *model.User = new(model.User)
+	)
 
-func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, todoID string) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+	if _, err := r.DB.NewSelect().Model(todo).Where("id = ?", todoID).Exec(ctx); err != nil {
+		log.Println(err)
+		panic("The todo is not found")
+	}
+
+	// todo.Text = input.Text
+
+	log.Println(todo.UserId)
+
+	if _, err := r.DB.NewUpdate().Model(todo).Where("id = ?", todoID).Exec(ctx); err != nil {
+		panic("The todo cannot be update.")
+	}
+
+	return todo, nil
+
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
