@@ -1,10 +1,9 @@
 package model
 
-import "github.com/uptrace/bun"
+import "gorm.io/gorm"
 
 type User struct {
-	bun.BaseModel
-	ID       int    `json:"id"`
+	gorm.Model
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`

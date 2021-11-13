@@ -1,45 +1,51 @@
 package postgres
 
 import (
-	"database/sql"
-	"log"
 	"os"
 
-	"github.com/golang-migrate/migrate/v4"
-	postgresDriver "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
+	"github.com/Da-max/todo-go/graph/model"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func getDsn() string {
-	return "postgres://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@db:5432" + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
+func getDsn(gormForm bool) string {
+	var (
+		res string
+	)
+	if gormForm {
+		res = "host=db user=" + os.Getenv("POSTGRES_USER") + " password=" + os.Getenv("POSTGRES_PASSWORD") + " dbname=" + os.Getenv("POSTGRES_DB") + " sslmode=disable"
+	} else {
+		res = "postgres://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@db:5432" + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
+	}
+	return res
 }
+func New() *gorm.DB {
+	if db, err := gorm.Open(postgres.Open(getDsn(true)), &gorm.Config{}); err != nil {
+		panic(err)
+	} else {
+		return db
+	}
 
-func New() *bun.DB {
-
-	sqldb := sql.OpenDB(pgdriver.NewConnector(
-		pgdriver.WithDSN(getDsn()),
-	))
-
-	return bun.NewDB(sqldb, pgdialect.New())
 }
 
 func Migrate() {
-	db, err := sql.Open("postgres", getDsn())
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	driver, err := postgresDriver.WithInstance(db, &postgresDriver.Config{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := New()
 
-	m, err := migrate.NewWithDatabaseInstance("file://postgres/migrations", "postgres", driver)
-	if err := m.Up(); err != nil {
-		log.Println(err)
-	}
+	db.AutoMigrate(&model.User{}, &model.Todo{})
+
+	// db, err := sql.Open("postgres", getDsn(false))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	// }
+	//
+	// driver, err := postgresDriver.WithInstance(db, &postgresDriver.Config{})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	// }
+	//
+	// m, err := migrate.NewWithDatabaseInstance("file://postgres/migrations", "postgres", driver)
+	// if err := m.Up(); err != nil {
+	// 	log.Println(err)
+	// }
 }

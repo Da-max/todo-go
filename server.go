@@ -10,21 +10,20 @@ import (
 	"github.com/Da-max/todo-go/graph"
 	"github.com/Da-max/todo-go/graph/generated"
 	"github.com/Da-max/todo-go/postgres"
-	"github.com/uptrace/bun"
 )
 
 const defaultPort = "8080"
 
 func main() {
-	var db *bun.DB = postgres.New()
 
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = defaultPort
 	}
 
 	c := generated.Config{Resolvers: &graph.Resolver{
-		DB: db,
+		DB: postgres.New(),
 	}}
 
 	postgres.Migrate()

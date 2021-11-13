@@ -1,11 +1,11 @@
 package model
 
-import "github.com/uptrace/bun"
+import "gorm.io/gorm"
 
 type Todo struct {
-	bun.BaseModel
-	ID     int    `json:"id"`
+	gorm.Model
 	Text   string `json:"text"`
 	Done   bool   `json:"done"`
-	UserId *int   `json:"userId"`
+	UserID int
+	User   User
 }
