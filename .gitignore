@@ -1,1 +1,10 @@
 .env
+
+# APP
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.yarn
+*.cjs
