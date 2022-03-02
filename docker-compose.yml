@@ -1,4 +1,4 @@
-version: "3.4"
+version: '3.4'
 
 services:
     db:
@@ -9,14 +9,14 @@ services:
             - 5432:5432
         volumes:
             - postgresdata:/var/lib/postgresql/data
-    
+
     server:
         build:
             context: .
             dockerfile: docker/images/Dockerfile.server
         env_file: .env
         volumes:
-            - .:/go/app/src
+            - .:/go/app/src:z
         ports:
             - 8080:8080
         command: go run server.go
@@ -31,10 +31,9 @@ services:
             dockerfile: docker/images/Dockerfile.app
         env_file: .env
         volumes:
-            - .:/usr/src/app
+            - .:/usr/src/app:z
         ports:
             - 3000:3000
-        command: yarn dev --host 0.0.0.0
 
 volumes:
     postgresdata:
