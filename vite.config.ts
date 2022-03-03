@@ -3,6 +3,6 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  root: "app",
+  root: 'app',
   plugins: [vue()]
 })

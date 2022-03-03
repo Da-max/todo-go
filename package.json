@@ -5,12 +5,18 @@
         "dev": "vite",
         "build": "vue-tsc --noEmit && vite build",
         "serve": "vite preview",
-        "lint": "eslint --ext .ts,.js,.vue app/src"
+        "lint": "eslint --ext .ts,.js,.vue app/src",
+        "gen": "graphql-codegen --config codegen.yml"
     },
     "dependencies": {
+        "@graphql-codegen/cli": "^2.6.2",
+        "@urql/vue": "^0.6.1",
+        "graphql": "^16.3.0",
         "vue": "^3.2.16"
     },
     "devDependencies": {
+        "@graphql-codegen/cli": "2.6.2",
+        "@graphql-codegen/typescript": "2.4.5",
         "@typescript-eslint/eslint-plugin": "^5.13.0",
         "@typescript-eslint/parser": "^5.13.0",
         "@vitejs/plugin-vue": "^1.9.3",
