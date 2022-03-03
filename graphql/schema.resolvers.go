@@ -1,4 +1,4 @@
-package graph
+package graphql
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Da-max/todo-go/graph/generated"
-	"github.com/Da-max/todo-go/graph/model"
+	"github.com/Da-max/todo-go/graphql/generated"
+	"github.com/Da-max/todo-go/graphql/model"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {

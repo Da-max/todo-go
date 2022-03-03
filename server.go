@@ -7,8 +7,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/Da-max/todo-go/graph"
-	"github.com/Da-max/todo-go/graph/generated"
+	"github.com/Da-max/todo-go/graphql"
+	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/postgres"
 )
 
@@ -22,7 +22,7 @@ func main() {
 		port = defaultPort
 	}
 
-	c := generated.Config{Resolvers: &graph.Resolver{
+	c := generated.Config{Resolvers: &graphql.Resolver{
 		DB: postgres.New(),
 	}}
 

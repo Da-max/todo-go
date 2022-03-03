@@ -1,4 +1,4 @@
-package graph
+package graphql
 
 import (
 	"gorm.io/gorm"

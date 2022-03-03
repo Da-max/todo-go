@@ -3,7 +3,7 @@ package postgres
 import (
 	"os"
 
-	"github.com/Da-max/todo-go/graph/model"
+	"github.com/Da-max/todo-go/graphql/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
