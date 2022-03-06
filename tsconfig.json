@@ -9,7 +9,15 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "lib": ["esnext", "dom"]
+    "lib": [
+      "esnext",
+      "dom"
+    ]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": [
+    "app/src/**/*.ts",
+    "app/src/**/*.d.ts",
+    "app/src/**/*.tsx",
+    "app/src/**/*.vue"
+  ]
 }
