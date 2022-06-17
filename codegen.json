@@ -1,0 +1,17 @@
+{
+    "schema": "./graph/schema.graphqls",
+    "documents": "./app/src/**/*.gql",
+    "generates": {
+        "./app/src/types/graphql.ts": {
+            "plugins": [
+                "typescript",
+                "typescript-operations",
+                "typescript-vue-apollo"
+            ],
+            "config": {
+                "withCompositionFunctions": true,
+                "vueCompositionApiImportFrom": "vue"
+            }
+        }
+    }
+}

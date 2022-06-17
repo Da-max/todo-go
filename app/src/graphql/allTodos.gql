@@ -1,0 +1,12 @@
+query allTodos {
+    todos {
+        text
+        id
+        done
+        user {
+            username
+            id
+            email
+        }
+    }
+}
