@@ -27,7 +27,7 @@ func main() {
 	}
 
 	var (
-		c = generated.Config{Resolvers: &graph.Resolver{
+		c = generated.Config{Resolvers: &graphql.Resolver{
 			DB: postgres.New(),
 		}}
 		router = chi.NewRouter()

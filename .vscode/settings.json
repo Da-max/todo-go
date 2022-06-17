@@ -1,0 +1,9 @@
+{
+    "eslint.alwaysShowStatus": true,
+    "eslint.format.enable": true,
+    "eslint.lintTask.enable": true,
+    "eslint.packageManager": "yarn",
+    "emmet.includeLanguages": {
+        "vue-html": "html"
+    }
+}

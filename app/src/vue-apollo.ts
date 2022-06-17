@@ -1,4 +1,4 @@
-import { createHttpLink, InMemoryCache, ApolloClient, HttpLink, ApolloLink, NormalizedCacheObject } from "@apollo/client/core";
+import { createHttpLink, InMemoryCache, ApolloClient, ApolloLink, NormalizedCacheObject } from '@apollo/client/core'
 
 const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT as string
 

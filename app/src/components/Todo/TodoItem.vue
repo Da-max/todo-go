@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Todo } from "../../types/graphql"
-
+import { Todo } from '../../types/graphql'
 
 defineProps<{ todo: Todo }>()
 
@@ -8,6 +7,8 @@ defineProps<{ todo: Todo }>()
 
 <template>
     <article class="todo__item">
-        <h2 class="todo__item__title">{{ todo.text }}</h2>
+        <h2 class="todo__item__title">
+            {{ todo.text }}
+        </h2>
     </article>
 </template>

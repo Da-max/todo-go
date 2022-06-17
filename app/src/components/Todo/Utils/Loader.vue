@@ -5,7 +5,10 @@ defineProps<{ display: boolean }>()
 </script>
 
 <template>
-    <div class="loader" v-show="display"></div>
+    <div
+        v-show="display"
+        class="loader"
+    />
 </template>
 
 <style scoped>

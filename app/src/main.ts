@@ -8,18 +8,17 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { apolloClient } from './vue-apollo'
 
 import App from './App.vue'
-import "./assets/style/style.css"
-
-library.add(faPlus)
+import './assets/style/style.css'
 
 const app = createApp({
-    setup() {
+    setup () {
         provide(DefaultApolloClient, apolloClient)
     },
-
     render: () => h(App)
 })
 
-app.component('font-awesome-icon', FontAwesomeIcon)
+library.add(faPlus)
 
-app.mount("#app")
+app.component('FontAwesomeIcon', FontAwesomeIcon)
+
+app.mount('#app')
