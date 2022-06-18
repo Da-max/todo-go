@@ -2,6 +2,6 @@
 
 mutation addTodo($input: NewTodo!) {
     createTodo(input: $input) {
-        ...TodoFragment
+        ...Todo
     }
 }

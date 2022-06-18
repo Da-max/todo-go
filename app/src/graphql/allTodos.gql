@@ -1,12 +1,7 @@
+#import "./fragments/todo.gql"
+
 query allTodos {
     todos {
-        text
-        id
-        done
-        user {
-            username
-            id
-            email
-        }
+        ...Todo
     }
 }

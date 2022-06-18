@@ -1,5 +1,10 @@
+#import "./user.gql"
+
 fragment Todo on Todo {
     id
     text
     done
+    user {
+        ...User
+    }
 }

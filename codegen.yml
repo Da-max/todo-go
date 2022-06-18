@@ -1,6 +1,9 @@
 overwrite: true
-schema: "graph/schema.graphqls"
+schema: "graphql/schema.graphqls"
+documents: "app/src/graphql/**/*.gql"
 generates:
-    app/src/types/generated/graphql.ts:
+    app/src/types/graphql.ts:
         plugins:
-            - "typescript"
+            - typescript
+            - typescript-operations
+            - typed-document-node

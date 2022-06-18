@@ -1,24 +1,35 @@
-import { ApolloQueryResult } from '@apollo/client'
-import { UseQueryReturn, useResult } from '@vue/apollo-composable'
-import { Ref } from 'vue-demi'
-import { AllTodosQuery, Todo, useAllTodosQuery } from '../types/graphql'
+import { useMutation, useQuery } from '@vue/apollo-composable'
+import { AllTodosDocument, RemoveTodoDocument, TodoFragment } from '../types/graphql'
 
 export default function () {
+    const { mutate: removeMutate, onDone: onDoneMutate } = useMutation(RemoveTodoDocument)
 
-    const allTodo = function () {
+    const getAll = function () {
+        let todos: TodoFragment[] = []
 
-        const res = useAllTodosQuery()
-        const todos = useResult(res.result, [])
+        const { onResult, refetch, loading } = useQuery(AllTodosDocument)
+        onResult((result) => {
+            todos = result.data.todos
+        })
 
         return {
             todos,
-            loading: res.loading,
-            refetch: res.refetch
+            loading,
+            refetch,
+            onResult
         }
     }
 
+    const removeOne = function (todoId: string) {
+        const result = removeMutate({
+            todoId
+        })
 
-    return { allTodo }
+        return {
+            result,
+            onDoneMutate
+        }
+    }
 
-
+    return { getAll, removeOne }
 }
