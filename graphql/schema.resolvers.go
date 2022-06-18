@@ -5,7 +5,6 @@ package graphql
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/model"
@@ -34,7 +33,20 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 }
 
 func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+	var (
+		todo *model.Todo = &model.Todo{}
+	)
+
+	if res := r.DB.Find(todo).Where("id = ?", todoID); res.Error != nil {
+		panic("The todo with id" + string(todoID) + " is not found")
+	}
+
+	if res := r.DB.Delete(todo); res.Error != nil {
+		panic("The todo cannot be delete")
+	}
+
+	return todo, nil
+
 }
 
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, todoID int) (*model.Todo, error) {
