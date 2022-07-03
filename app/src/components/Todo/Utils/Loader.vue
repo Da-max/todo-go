@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { defineProps } from 'vue'
 
 defineProps<{ display: boolean }>()
 
@@ -15,9 +16,7 @@ defineProps<{ display: boolean }>()
 .loader {
     background-image: url("/src/assets/images/loader.svg");
     background-position: 50%;
-    background-size: 100px;
     background-repeat: no-repeat;
-    height: 100px;
     filter: invert(29%) sepia(91%) saturate(7500%) hue-rotate(359deg)
         brightness(90%) contrast(127%);
 }

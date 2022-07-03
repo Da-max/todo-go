@@ -1,15 +1,18 @@
+import { ref, Ref } from 'vue'
 import { useMutation, useQuery } from '@vue/apollo-composable'
-import { AllTodosDocument, RemoveTodoDocument, TodoFragment } from '../types/graphql'
+import { AddTodoDocument, AllTodosDocument, NewTodo, RemoveTodoDocument, TodoFragment, UpdateTodoDocument } from '../types/graphql'
 
 export default function () {
-    const { mutate: removeMutate, onDone: onDoneMutate } = useMutation(RemoveTodoDocument)
+    const { mutate: removeMutate, onDone: onDoneRemoveMutate, loading: removeLoading } = useMutation(RemoveTodoDocument)
+    const { mutate: updateMutate, onDone: onDoneUpdateMutate, loading: updateLoading } = useMutation(UpdateTodoDocument)
+    const { mutate: saveTodo, onDone: onDoneSaveTodo } = useMutation(AddTodoDocument)
 
     const getAll = function () {
-        let todos: TodoFragment[] = []
+        const todos: Ref<TodoFragment[]> = ref([])
 
         const { onResult, refetch, loading } = useQuery(AllTodosDocument)
         onResult((result) => {
-            todos = result.data.todos
+            todos.value = result.data.todos
         })
 
         return {
@@ -20,16 +23,37 @@ export default function () {
         }
     }
 
+    const addOne = function (todo: NewTodo) {
+        const result = saveTodo({ input: todo })
+        return result
+    }
+
     const removeOne = function (todoId: string) {
         const result = removeMutate({
             todoId
         })
 
-        return {
-            result,
-            onDoneMutate
-        }
+        return result
     }
 
-    return { getAll, removeOne }
+    const updateOne = function (todo: NewTodo, todoId: string) {
+        const result = updateMutate({
+            input: todo,
+            todoId
+        })
+
+        return result
+    }
+
+    return {
+        getAll,
+        addOne,
+        removeOne,
+        updateOne,
+        onDoneRemoveMutate,
+        onDoneUpdateMutate,
+        onDoneSaveTodo,
+        removeLoading,
+        updateLoading
+    }
 }

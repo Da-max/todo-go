@@ -22,10 +22,10 @@ todoStore.getAll()
         <TodoInput />
         <section class="todo__list">
             <Loader
-                v-if="loading"
                 :display="loading"
+                class="todo__list__loader"
             />
-            <div v-else-if="todos">
+            <div v-show="todos && !loading">
                 <todo-item
                     v-for="todo in todos"
                     :key="todo.id"
@@ -43,5 +43,9 @@ todoStore.getAll()
 
 .todo__list {
     @apply mt-10;
+}
+
+.todo__list__loader {
+    @apply w-full h-24;
 }
 </style>

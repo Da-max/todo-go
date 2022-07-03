@@ -2,7 +2,7 @@ import { DefaultApolloClient, provideApolloClient } from '@vue/apollo-composable
 import { createApp, provide, h } from 'vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faClose, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faClose, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import { apolloClient } from './vue-apollo'
@@ -21,6 +21,7 @@ const pinia = createPinia()
 
 library.add(faPlus)
 library.add(faClose)
+library.add(faPencil)
 provideApolloClient(apolloClient)
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)

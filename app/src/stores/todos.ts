@@ -23,6 +23,12 @@ const useTodoStore = defineStore('todo', {
                 mainStore.addAlert('Les tâches n’ont pas pu être récupéré.', AlertStatus.Warning)
             }
         }
+    },
+
+    getters: {
+        todoById (state) {
+            return (id: string): TodoFragment | undefined => state.todos.find((todo) => todo.id === id)
+        }
     }
 })
 
