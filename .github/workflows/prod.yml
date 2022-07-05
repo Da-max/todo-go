@@ -15,10 +15,6 @@ jobs:
                   registry: ghcr.io
                   username: ${{ github.repository_owner }}
                   password: ${{ secrets.GITHUB_TOKEN }}
-
-    build_push:
-        runs-on: ubuntu-latest
-        steps:
             - name: Build and push app
               uses: docker/build-push-action@v3
               with:
