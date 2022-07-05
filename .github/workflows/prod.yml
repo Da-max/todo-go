@@ -33,7 +33,7 @@ jobs:
                       ghcr.io/${{ github.repository }}-server:${{ github.ref_name }}
 
     deploy:
-        needs: [build_push, login]
+        needs: build_push
         runs-on: ubuntu-latest
         steps:
             - name: Deploy image
