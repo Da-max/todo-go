@@ -35,6 +35,7 @@ jobs:
     deploy:
         needs: build_push
         runs-on: ubuntu-latest
+        environment: prod
         steps:
             - name: Deploy image
               uses: appleboy/ssh-action@master
