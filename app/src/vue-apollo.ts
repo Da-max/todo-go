@@ -1,9 +1,15 @@
-import { createHttpLink, InMemoryCache, ApolloClient, ApolloLink, NormalizedCacheObject } from '@apollo/client/core'
+import {
+    createHttpLink,
+    InMemoryCache,
+    ApolloClient,
+    ApolloLink,
+    NormalizedCacheObject
+} from '@apollo/client/core'
 
-const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT as string
+const GRAPHQL_ENDPOINT = (import.meta.env.VITE_GRAPHQL_ENDPOINT) as string
 
 const httpLink: ApolloLink = createHttpLink({
-    uri: GRAPHQL_ENDPOINT
+    uri: GRAPHQL_ENDPOINT || '/query'
 })
 
 const cache: InMemoryCache = new InMemoryCache()
