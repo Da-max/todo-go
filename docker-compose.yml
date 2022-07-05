@@ -11,7 +11,7 @@ services:
     server:
         build:
             context: .
-            dockerfile: docker/images/Dockerfile.server
+            dockerfile: docker/images/dev/Dockerfile.server
         env_file: .env
         volumes:
             - .:/go/app/src:z
@@ -26,7 +26,7 @@ services:
     app:
         build:
             context: .
-            dockerfile: docker/images/Dockerfile.app
+            dockerfile: docker/images/dev/Dockerfile.app
         env_file: .env
         volumes:
             - .:/usr/src/app:z
