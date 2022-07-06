@@ -18,6 +18,7 @@ jobs:
             - name: Build and push app
               uses: docker/build-push-action@v3
               with:
+                  platforms: linux/amd64
                   push: true
                   file: docker/images/prod/Dockerfile.app
                   tags: |
@@ -25,6 +26,7 @@ jobs:
             - name: Build and push server
               uses: docker/build-push-action@v3
               with:
+                  platforms: linux/amd64
                   push: true
                   file: docker/images/prod/Dockerfile.server
                   tags: |
