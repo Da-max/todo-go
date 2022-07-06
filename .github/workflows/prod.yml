@@ -41,16 +41,15 @@ jobs:
               uses: appleboy/ssh-action@master
               env:
                   REPOSITORY: ${{ github.repository }}
-                  owner: ${{ github.repository_owner }}
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  OWNER: ${{ github.repository_owner }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   host: ${{ secrets.DEPLOY_HOST }}
                   username: ${{ secrets.DEPLOY_USERNAME }}
                   key: ${{ secrets.DEPLOY_PASSWORD }}
-                  envs: REPOSITORY,owner,github_token,
+                  envs: REPOSITORY,OWNER,GITHUB_TOKEN,
                   script: |
-                      echo "$REPOSITORY $owner"
-                      compose_file=`echo $repository | sed -r "s/$owner\///g"`/docker-compose.yml
-                      docker login -u "$owner" -p "$github_token" ghcr.io
+                      compose_file=`echo $REPOSITORY | sed -r "s/$OWNER\///g"`/docker-compose.yml
+                      docker login -u "$OWNER" -p "$GITHUB_TOKEN" ghcr.io
                       docker-compose -f "$compose_file" pull
                       docker-compose -f "$compose_file" stop && docker-compose -f "$compose_file" up -d
