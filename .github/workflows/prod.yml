@@ -20,7 +20,6 @@ jobs:
               with:
                   push: true
                   file: docker/images/prod/Dockerfile.app
-                  plateforms: linux/amd64
                   tags: |
                       ghcr.io/${{ github.repository }}-app:${{ github.ref_name }}
             - name: Build and push server
@@ -28,7 +27,6 @@ jobs:
               with:
                   push: true
                   file: docker/images/prod/Dockerfile.server
-                  plateforms: linux/amd64
                   tags: |
                       ghcr.io/${{ github.repository }}-server:${{ github.ref_name }}
 
@@ -40,17 +38,16 @@ jobs:
             - name: Deploy image
               uses: appleboy/ssh-action@master
               env:
-                  repository: ${{ github.repository }}
+                  REPOSITORY: ${{ github.repository }}
                   owner: ${{ github.repository_owner }}
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  FOO: "BAR"
               with:
                   host: ${{ secrets.DEPLOY_HOST }}
                   username: ${{ secrets.DEPLOY_USERNAME }}
                   key: ${{ secrets.DEPLOY_PASSWORD }}
-                  envs: repository,owner,github_token,FOO
+                  envs: REPOSITORY,owner,github_token,
                   script: |
-                      echo "$repository $owner $FOO"
+                      echo "$REPOSITORY $owner"
                       compose_file=`echo $repository | sed -r "s/$owner\///g"`/docker-compose.yml
                       docker login -u "$owner" -p "$github_token" ghcr.io
                       docker-compose -f "$compose_file" pull
