@@ -43,14 +43,15 @@ jobs:
                   repository: ${{ github.repository }}
                   owner: ${{ github.repository_owner }}
                   github_token: ${{ secrets.GITHUB_TOKEN }}
+                  FOO: "BAR"
               with:
                   host: ${{ secrets.DEPLOY_HOST }}
                   username: ${{ secrets.DEPLOY_USERNAME }}
                   key: ${{ secrets.DEPLOY_PASSWORD }}
-                  envs: repository, owner, github_token
+                  envs: repository,owner,github_token,FOO
                   script: |
+                      echo "$repository $owner $FOO"
                       compose_file=`echo $repository | sed -r "s/$owner\///g"`/docker-compose.yml
-                      echo $compose_file $repository $owner
                       docker login -u "$owner" -p "$github_token" ghcr.io
                       docker-compose -f "$compose_file" pull
                       docker-compose -f "$compose_file" stop && docker-compose -f "$compose_file" up -d
