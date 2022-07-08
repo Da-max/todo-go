@@ -19,6 +19,7 @@ func getDsn(gormForm bool) string {
 	}
 	return res
 }
+
 func New() *gorm.DB {
 	if db, err := gorm.Open(postgres.Open(getDsn(true)), &gorm.Config{}); err != nil {
 		panic(err)

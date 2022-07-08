@@ -5,6 +5,7 @@ package graphql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/model"
@@ -12,19 +13,18 @@ import (
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	var (
-		user model.User
+		user *model.User = &model.User{}
 		todo *model.Todo = &model.Todo{
 			Text: input.Text,
 			Done: false,
 		}
 	)
-
-	if res := r.DB.Find(&user).Where("id = ?", input.UserID); res.Error != nil {
-		panic("The user with id " + string(input.UserID) + "is not found.")
+	if res := r.DB.First(user, input.UserID); res.Error != nil {
+		panic("The user with id " + fmt.Sprint(input.UserID) + " is not found.")
 	}
 
-	todo.User = user
-	todo.UserID = int(user.ID)
+	todo.UserID = input.UserID
+	todo.User = *user
 
 	if res := r.DB.Create(todo); res.Error != nil {
 		panic("The todo " + todo.Text + " cannot be add.")
@@ -32,43 +32,42 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	return todo, nil
 }
 
-func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (*model.Todo, error) {
+func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (int, error) {
 	var (
 		todo *model.Todo = &model.Todo{}
 	)
 
-	if res := r.DB.Find(todo).Where("id = ?", todoID); res.Error != nil {
-		panic("The todo with id" + string(todoID) + " is not found")
+	if res := r.DB.First(todo, todoID); res.Error != nil {
+		panic("The todo with id " + fmt.Sprint(todoID) + " is not found")
 	}
 
 	if res := r.DB.Delete(todo); res.Error != nil {
 		panic("The todo cannot be delete")
 	}
 
-	return todo, nil
-
+	return todoID, nil
 }
 
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, todoID int) (*model.Todo, error) {
 	var (
-		user model.User
+		user *model.User = &model.User{}
 		todo *model.Todo = &model.Todo{}
 	)
 
-	if res := r.DB.Find(todo).Where("id = ?", todoID); res.Error != nil {
-		panic("The todo with id " + string(todoID) + " is not found")
+	if res := r.DB.Find(user).Where("id = ?", input.UserID); res.Error != nil {
+		panic("The user with id " + fmt.Sprint(input.UserID) + " is not found")
+	}
+
+	if res := r.DB.First(todo, todoID); res.Error != nil {
+		panic("The todo with id " + fmt.Sprint(todoID) + " is not found")
 	}
 
 	todo.Text = input.Text
-
-	if res := r.DB.Find(&user).Where("id = ?", input.UserID); res.Error != nil {
-		panic("The user with id " + string(input.UserID) + " is not found")
-	}
-
-	todo.UserID = int(user.ID)
+	todo.UserID = input.UserID
 
 	if res := r.DB.Save(todo); res.Error != nil {
-		panic("The todo with id " + string(todo.ID) + "cannot be update")
+		fmt.Println(res.Error)
+		panic("The todo with id " + fmt.Sprint(todoID) + " cannot be saved")
 	}
 
 	return todo, nil
@@ -79,14 +78,14 @@ func (r *mutationResolver) MarkDoneTodo(ctx context.Context, todoID int) (*model
 		todo *model.Todo = &model.Todo{}
 	)
 
-	if res := r.DB.Find(todo).Where("id = ?", todoID); res.Error != nil {
-		panic("The todo with id " + string(todoID) + " cannot be found.")
+	if res := r.DB.First(todo, todoID); res.Error != nil {
+		panic("The todo with id " + fmt.Sprint(todoID) + " cannot be found.")
 	}
 
 	todo.Done = true
 
 	if res := r.DB.Save(todo); res.Error != nil {
-		panic("The todo with id " + string(todo.ID) + " cannot be update")
+		panic("The todo with id " + fmt.Sprint(todo.ID) + " cannot be update")
 	}
 
 	return todo, nil
@@ -94,28 +93,47 @@ func (r *mutationResolver) MarkDoneTodo(ctx context.Context, todoID int) (*model
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	var (
-		todos []*model.Todo
+		todos []*model.Todo = []*model.Todo{}
+		// users []*model.User
 	)
 
-	result := r.DB.Find(&todos)
+	if result := r.DB.Find(&todos); result.Error != nil {
+		panic("The todos cannot be query.")
+	}
 
-	return todos, result.Error
+	return todos, nil
+}
+
+func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
+	var users []*model.User
+	if res := r.DB.Find(&users); res.Error != nil {
+		panic("The users cannot be found.")
+	}
+	return users, nil
 }
 
 func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
-	if result := r.DB.Find(&model.Todo{}).Where("id = ?", obj.ID); result.Error != nil {
-		return -1, result.Error
-	} else {
-		return int(obj.ID), result.Error
+	if result := r.DB.First(&model.Todo{}, obj.ID); result.Error != nil {
+		fmt.Println(result.Error)
+		panic("The todo with id " + fmt.Sprint(obj.ID) + " cannot be found.")
 	}
+
+	return int(obj.ID), nil
+}
+
+func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
+	var user *model.User = &model.User{}
+	if res := r.DB.First(user, obj.UserID); res.Error != nil {
+		panic("The user cannot be found.")
+	}
+	return user, nil
 }
 
 func (r *userResolver) ID(ctx context.Context, obj *model.User) (int, error) {
-	if result := r.DB.Find(&model.User{}).Where("id = ?", obj.ID); result.Error != nil {
+	if result := r.DB.First(&model.User{}, obj.ID); result.Error != nil {
 		return -1, result.Error
-	} else {
-		return int(obj.ID), result.Error
 	}
+	return int(obj.ID), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
