@@ -30,6 +30,7 @@ const props = withDefaults(defineProps<TodoInputProps>(), {
 const emits = defineEmits<TodoInputEmit>()
 
 if (props.todoId) {
+    console.log(props.todoId)
     findedTodo = todoStore.todoById(props.todoId)
 }
 
@@ -70,7 +71,10 @@ onDoneUpdateMutate((res) => {
     pushNotification('Une todo est été mise à jour !')
     todoStore.$patch((state) => {
         if (res.data) {
-            state.todos = [res.data.updateTodo, ...state.todos.filter(t => t.id !== res.data?.updateTodo.id)]
+            state.todos = [{ ...res.data.updateTodo },
+                ...state.todos.filter(t => t.id !== res.data?.updateTodo.id)]
+                .sort((a, b) => parseInt(a.id) - parseInt(b.id))
+
             emits('save', true)
         }
     })

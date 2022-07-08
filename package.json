@@ -1,18 +1,18 @@
 {
     "name": "app",
     "version": "0.0.0",
+    "license": "AGPL-3.0-or-later",
     "scripts": {
         "dev": "vite",
         "build": "vue-tsc --noEmit && vite build",
         "serve": "vite preview",
-        "lint": "eslint --ext .ts,.js,.vue app/src",
+        "lint": "eslint --ext .ts,.js,.vue --fix app/src",
         "gen": "graphql-codegen --config codegen.yml"
     },
     "dependencies": {
         "@apollo/client": "^3.6.8",
         "@fortawesome/free-brands-svg-icons": "^6.1.1",
         "@fortawesome/free-regular-svg-icons": "^6.1.1",
-        "@graphql-codegen/cli": "^2.6.2",
         "@graphql-codegen/typed-document-node": "^2.2.13",
         "@graphql-codegen/typescript-operations": "^2.4.2",
         "@graphql-codegen/typescript-vue-apollo": "^3.2.14",

@@ -1,7 +1,5 @@
 #import "./fragments/todo.gql"
 
 mutation removeTodo($todoId: ID!) {
-    removeTodo(todoId: $todoId) {
-        ...Todo
-    }
+    removeTodo(todoId: $todoId)
 }

@@ -615,7 +615,7 @@
   resolved "https://registry.yarnpkg.com/@fortawesome/vue-fontawesome/-/vue-fontawesome-3.0.0.tgz#33b1853a18282f7022d18b7156bde6f9ac861c9f"
   integrity sha512-VAnPH09+DTrdLmmOVP6Xw3+0psJViPjIqVEieXeihMvlpsTE9N/yWEDqkKmaHxjCkeUjoPEg90TNQbhTmtQK/A==
 
-"@graphql-codegen/cli@^2.6.2":
+"@graphql-codegen/cli@2.6.2":
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/cli/-/cli-2.6.2.tgz#a9aa4656141ee0998cae8c7ad7d0bf9ca8e0c9ae"
   integrity sha512-UO75msoVgvLEvfjCezM09cQQqp32+mR8Ma1ACsBpr7nroFvHbgcu2ulx1cMovg4sxDBCsvd9Eq/xOOMpARUxtw==

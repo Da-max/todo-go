@@ -17,7 +17,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createTodo: Todo;
   markDoneTodo: Todo;
-  removeTodo: Todo;
+  removeTodo: Scalars['ID'];
   updateTodo: Todo;
 };
 
@@ -46,6 +46,7 @@ export type NewTodo = {
 export type Query = {
   __typename?: 'Query';
   todos: Array<Todo>;
+  users: Array<User>;
 };
 
 export type Todo = {
@@ -84,7 +85,7 @@ export type RemoveTodoMutationVariables = Exact<{
   todoId: Scalars['ID'];
 }>;
 
-export type RemoveTodoMutation = { __typename?: 'Mutation', removeTodo: { __typename?: 'Todo', id: string, text: string, done: boolean, user: { __typename?: 'User', id: string, username: string, isAdmin: boolean, email: string, isActive: boolean } } };
+export type RemoveTodoMutation = { __typename?: 'Mutation', removeTodo: string };
 
 export type UpdateTodoMutationVariables = Exact<{
   input: NewTodo;
@@ -97,5 +98,5 @@ export const UserFragmentDoc = { kind: 'Document', definitions: [{ kind: 'Fragme
 export const TodoFragmentDoc = { kind: 'Document', definitions: [{ kind: 'FragmentDefinition', name: { kind: 'Name', value: 'Todo' }, typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Todo' } }, selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }, { kind: 'Field', name: { kind: 'Name', value: 'text' } }, { kind: 'Field', name: { kind: 'Name', value: 'done' } }, { kind: 'Field', name: { kind: 'Name', value: 'user' }, selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'User' } }] } }] } }, ...UserFragmentDoc.definitions] } as unknown as DocumentNode<TodoFragment, unknown>
 export const AddTodoDocument = { kind: 'Document', definitions: [{ kind: 'OperationDefinition', operation: 'mutation', name: { kind: 'Name', value: 'addTodo' }, variableDefinitions: [{ kind: 'VariableDefinition', variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } }, type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'NewTodo' } } } }], selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'createTodo' }, arguments: [{ kind: 'Argument', name: { kind: 'Name', value: 'input' }, value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } } }], selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Todo' } }] } }] } }, ...TodoFragmentDoc.definitions] } as unknown as DocumentNode<AddTodoMutation, AddTodoMutationVariables>
 export const AllTodosDocument = { kind: 'Document', definitions: [{ kind: 'OperationDefinition', operation: 'query', name: { kind: 'Name', value: 'allTodos' }, selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'todos' }, selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Todo' } }] } }] } }, ...TodoFragmentDoc.definitions] } as unknown as DocumentNode<AllTodosQuery, AllTodosQueryVariables>
-export const RemoveTodoDocument = { kind: 'Document', definitions: [{ kind: 'OperationDefinition', operation: 'mutation', name: { kind: 'Name', value: 'removeTodo' }, variableDefinitions: [{ kind: 'VariableDefinition', variable: { kind: 'Variable', name: { kind: 'Name', value: 'todoId' } }, type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } } }], selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'removeTodo' }, arguments: [{ kind: 'Argument', name: { kind: 'Name', value: 'todoId' }, value: { kind: 'Variable', name: { kind: 'Name', value: 'todoId' } } }], selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Todo' } }] } }] } }, ...TodoFragmentDoc.definitions] } as unknown as DocumentNode<RemoveTodoMutation, RemoveTodoMutationVariables>
+export const RemoveTodoDocument = { kind: 'Document', definitions: [{ kind: 'OperationDefinition', operation: 'mutation', name: { kind: 'Name', value: 'removeTodo' }, variableDefinitions: [{ kind: 'VariableDefinition', variable: { kind: 'Variable', name: { kind: 'Name', value: 'todoId' } }, type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } } }], selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'removeTodo' }, arguments: [{ kind: 'Argument', name: { kind: 'Name', value: 'todoId' }, value: { kind: 'Variable', name: { kind: 'Name', value: 'todoId' } } }] }] } }] } as unknown as DocumentNode<RemoveTodoMutation, RemoveTodoMutationVariables>
 export const UpdateTodoDocument = { kind: 'Document', definitions: [{ kind: 'OperationDefinition', operation: 'mutation', name: { kind: 'Name', value: 'updateTodo' }, variableDefinitions: [{ kind: 'VariableDefinition', variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } }, type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'NewTodo' } } } }, { kind: 'VariableDefinition', variable: { kind: 'Variable', name: { kind: 'Name', value: 'todoId' } }, type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } } }], selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'updateTodo' }, arguments: [{ kind: 'Argument', name: { kind: 'Name', value: 'input' }, value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } } }, { kind: 'Argument', name: { kind: 'Name', value: 'todoId' }, value: { kind: 'Variable', name: { kind: 'Name', value: 'todoId' } } }], selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Todo' } }] } }] } }, ...TodoFragmentDoc.definitions] } as unknown as DocumentNode<UpdateTodoMutation, UpdateTodoMutationVariables>

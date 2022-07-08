@@ -18,7 +18,7 @@ const useTodoStore = defineStore('todo', {
             const res = await refetch()
             mainStore.$patch((state) => { state.loading = false })
             if (res) {
-                this.todos = res.data.todos
+                this.todos = [...res.data.todos].sort((a, b) => parseInt(a.id) - parseInt(b.id))
             } else {
                 mainStore.addAlert('Les tâches n’ont pas pu être récupéré.', AlertStatus.Warning)
             }
@@ -27,7 +27,7 @@ const useTodoStore = defineStore('todo', {
 
     getters: {
         todoById (state) {
-            return (id: string): TodoFragment | undefined => state.todos.find((todo) => todo.id === id)
+            return (id: string): TodoFragment | undefined => state.todos.find((todo) => todo.id.toString() === id)
         }
     }
 })

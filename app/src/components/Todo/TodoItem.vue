@@ -26,7 +26,7 @@ const remove = async function () {
     onDoneRemoveMutate((res) => {
         todoStore.$patch((state) => {
             if (res.data) {
-                state.todos = [...state.todos.filter((todo) => todo.id !== res.data?.removeTodo.id)]
+                state.todos = [...state.todos.filter((todo) => todo.id !== res.data?.removeTodo)]
             } else if (res.errors) {
                 console.log(res.errors)
             }
@@ -73,7 +73,7 @@ const remove = async function () {
     <TodoInput
         v-if="state.edit"
         :update="true"
-        :todo-id="props.todo.id"
+        :todo-id="props.todo.id.toString()"
         @keyup.escape="toggleEdit"
         @save="toggleEdit"
     />
@@ -84,15 +84,19 @@ const remove = async function () {
     @apply flex justify-center;
 }
 
-.todo__item:hover .todo__item__remove, .todo__item:hover .todo__item__update {
+.todo__item:hover .todo__item__remove,
+.todo__item:hover .todo__item__update {
     @apply opacity-100 text-gray-600;
 }
 
-.todo__item__remove,  .todo__item__update, .todo__item__loader {
+.todo__item__remove,
+.todo__item__update,
+.todo__item__loader {
     @apply ml-5;
 }
 
-.todo__item__remove, .todo__item__update {
+.todo__item__remove,
+.todo__item__update {
     @apply opacity-0 transition-all duration-500;
 }
 
