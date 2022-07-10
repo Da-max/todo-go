@@ -7,10 +7,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Da-max/todo-go/auth"
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/model"
 )
 
+// CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	var (
 		user *model.User = &model.User{}
@@ -32,6 +34,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	return todo, nil
 }
 
+// RemoveTodo is the resolver for the removeTodo field.
 func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (int, error) {
 	var (
 		todo *model.Todo = &model.Todo{}
@@ -48,6 +51,7 @@ func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (int, err
 	return todoID, nil
 }
 
+// UpdateTodo is the resolver for the updateTodo field.
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, todoID int) (*model.Todo, error) {
 	var (
 		user *model.User = &model.User{}
@@ -73,10 +77,9 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, 
 	return todo, nil
 }
 
+// MarkDoneTodo is the resolver for the markDoneTodo field.
 func (r *mutationResolver) MarkDoneTodo(ctx context.Context, todoID int) (*model.Todo, error) {
-	var (
-		todo *model.Todo = &model.Todo{}
-	)
+	var todo *model.Todo = &model.Todo{}
 
 	if res := r.DB.First(todo, todoID); res.Error != nil {
 		panic("The todo with id " + fmt.Sprint(todoID) + " cannot be found.")
@@ -91,19 +94,49 @@ func (r *mutationResolver) MarkDoneTodo(ctx context.Context, todoID int) (*model
 	return todo, nil
 }
 
+// SignUp is the resolver for the signUp field.
+func (r *mutationResolver) SignUp(ctx context.Context, input model.Identifier) (*model.Tokens, error) {
+	var (
+		user   *model.User   = &model.User{}
+		tokens *model.Tokens = &model.Tokens{}
+	)
+
+	if result := r.DB.Where(&model.User{Username: input.Username, Password: input.Password}).First(user); result.Error != nil {
+		panic("Cannot find user with " + input.Username)
+	}
+
+	_, tokenString, err := auth.TokenAuth.Encode(map[string]interface{}{"Username": user.Username})
+
+	if err != nil {
+		panic("Cannot create token")
+	}
+
+	tokens.AccessToken = tokenString
+	tokens.RefreshToken = tokenString
+
+	return tokens, nil
+
+}
+
+// Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	var (
 		todos []*model.Todo = []*model.Todo{}
-		// users []*model.User
+		user  *model.User   = &model.User{}
 	)
 
-	if result := r.DB.Find(&todos); result.Error != nil {
+	if res := r.DB.Where(&model.User{Username: ctx.Value("Username").(string)}).First(user); res.Error != nil || res.RowsAffected == 0 {
+		panic("The username cannot be found.")
+	}
+
+	if result := r.DB.Where(&model.Todo{UserID: int(user.ID)}).Find(&todos); result.Error != nil {
 		panic("The todos cannot be query.")
 	}
 
 	return todos, nil
 }
 
+// Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	var users []*model.User
 	if res := r.DB.Find(&users); res.Error != nil {
@@ -112,6 +145,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	return users, nil
 }
 
+// ID is the resolver for the id field.
 func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
 	if result := r.DB.First(&model.Todo{}, obj.ID); result.Error != nil {
 		fmt.Println(result.Error)
@@ -121,6 +155,7 @@ func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
 	return int(obj.ID), nil
 }
 
+// User is the resolver for the user field.
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
 	var user *model.User = &model.User{}
 	if res := r.DB.First(user, obj.UserID); res.Error != nil {
@@ -129,6 +164,7 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 	return user, nil
 }
 
+// ID is the resolver for the id field.
 func (r *userResolver) ID(ctx context.Context, obj *model.User) (int, error) {
 	if result := r.DB.First(&model.User{}, obj.ID); result.Error != nil {
 		return -1, result.Error

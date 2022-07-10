@@ -2,7 +2,17 @@
 
 package model
 
+type Identifier struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type NewTodo struct {
 	Text   string `json:"text"`
 	UserID int    `json:"userId"`
+}
+
+type Tokens struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }

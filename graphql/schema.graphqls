@@ -16,6 +16,11 @@ type User {
     isAdmin: Boolean!
 }
 
+type Tokens {
+    accessToken: String!
+    refreshToken: String!
+}
+
 type Query {
     todos: [Todo!]!
     users: [User!]!
@@ -26,9 +31,15 @@ input NewTodo {
     userId: ID!
 }
 
+input Identifier {
+    username: String!
+    password: String!
+}
+
 type Mutation {
     createTodo(input: NewTodo!): Todo!
     removeTodo(todoId: ID!): ID!
     updateTodo(input: NewTodo!, todoId: ID!): Todo!
     markDoneTodo(todoId: ID!): Todo!
+    signUp(input: Identifier!): Tokens!
 }

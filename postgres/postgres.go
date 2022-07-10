@@ -13,9 +13,9 @@ func getDsn(gormForm bool) string {
 		res string
 	)
 	if gormForm {
-		res = "host=db user=" + os.Getenv("POSTGRES_USER") + " password=" + os.Getenv("POSTGRES_PASSWORD") + " dbname=" + os.Getenv("POSTGRES_DB") + " sslmode=disable"
+		res = "host=" + os.Getenv("POSTGRES_HOST") + " user=" + os.Getenv("POSTGRES_USER") + " password=" + os.Getenv("POSTGRES_PASSWORD") + " dbname=" + os.Getenv("POSTGRES_DB") + " port=5432 sslmode=disable"
 	} else {
-		res = "postgres://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@db:5432" + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
+		res = "postgres://" + os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PASSWORD") + "@" + os.Getenv("POSTGRES_HOST") + ":5432" + "/" + os.Getenv("POSTGRES_DB") + "?sslmode=disable"
 	}
 	return res
 }
