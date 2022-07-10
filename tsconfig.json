@@ -18,6 +18,7 @@
     "app/src/**/*.ts",
     "app/src/**/*.d.ts",
     "app/src/**/*.tsx",
-    "app/src/**/*.vue"
+    "app/src/**/*.vue",
+    "vite.config.ts"
   ]
 }
