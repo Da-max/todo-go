@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 ENV GOARCH=amd64
 ENV GOOS=linux
 
-COPY go.mod go.sum .
+COPY go.mod go.sum ./
 
 RUN go mod download
 

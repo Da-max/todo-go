@@ -8,3 +8,4 @@ dist-ssr
 *.local
 .yarn
 *.cjs
+tmp
