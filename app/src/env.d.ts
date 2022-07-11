@@ -9,7 +9,7 @@ declare module '*.vue' {
 
 interface ImportMetaEnv {
   readonly VITE_GRAPHQL_ENDPOINT: string
-  readonly VITE_PORT: number
+  readonly VITE_PORT: string
 }
 
 interface ImportMeta {
