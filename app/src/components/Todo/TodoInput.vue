@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { reactive, defineProps, withDefaults, defineEmits } from 'vue'
+import { reactive, defineProps, withDefaults, defineEmits, onMounted, Ref, ref, computed } from 'vue'
 
 import useTodoStore from '../../stores/todos'
 
-import { NewTodo } from '../../types/graphql'
+import { NewTodo, TodoFragment } from '../../types/graphql'
 import useNotification from '../../hooks/notification'
 import useLoading from '../../hooks/loading'
 import useTodo from '../../hooks/todo'
@@ -20,7 +20,7 @@ type TodoInputEmit = {
 }
 
 const todoStore = useTodoStore()
-let findedTodo
+const findedTodo: Ref<TodoFragment | undefined> = ref(undefined)
 
 const props = withDefaults(defineProps<TodoInputProps>(), {
     update: false,
@@ -29,21 +29,24 @@ const props = withDefaults(defineProps<TodoInputProps>(), {
 
 const emits = defineEmits<TodoInputEmit>()
 
-if (props.todoId) {
-    console.log(props.todoId)
-    findedTodo = todoStore.todoById(props.todoId)
-}
+onMounted(() => {
+    if (props.todoId) {
+        findedTodo.value = todoStore.todoById(props.todoId)
+    }
+})
 
-const state = reactive({
-    newTodo: props.todoId && findedTodo
+const newTodo = computed(() =>
+    props.todoId && findedTodo.value
         ? {
-            text: findedTodo.text,
-            userId: findedTodo.user.id
+            text: findedTodo.value.text,
+            userId: findedTodo.value.user.id
         }
         : {
             text: '',
             userId: '1'
-        }as NewTodo,
+        }as NewTodo)
+
+const state = reactive({
     error: false
 })
 
@@ -52,22 +55,22 @@ const { pushNotification } = useNotification()
 const { loading, startLoading, endLoading } = useLoading()
 
 const addTodo = function () {
-    if (state.newTodo.text === '') {
+    if (newTodo.value.text === '') {
         state.error = true
         pushNotification('La todo que vous souhaitez ajouter semble vide.')
     } else {
         startLoading()
 
         if (props.update && props.todoId) {
-            updateOne(state.newTodo, props.todoId)
+            updateOne(newTodo.value, props.todoId)
         } else {
-            addOne(state.newTodo)
+            addOne(newTodo.value)
         }
     }
 }
 
 onDoneUpdateMutate((res) => {
-    state.newTodo.text = ''
+    newTodo.value.text = ''
     pushNotification('Une todo est été mise à jour !')
     todoStore.$patch((state) => {
         if (res.data) {
@@ -81,7 +84,7 @@ onDoneUpdateMutate((res) => {
 })
 
 onDoneSaveTodo((res) => {
-    state.newTodo.text = ''
+    newTodo.value.text = ''
     pushNotification('Une todo a été ajouté !')
     todoStore.$patch((state) => {
         if (res.data) {
@@ -111,7 +114,7 @@ onDoneSaveTodo((res) => {
         </button>
         <input
             id="todo"
-            v-model="state.newTodo.text"
+            v-model="newTodo.text"
             type="text"
             name="todo"
             placeholder="Your futur todo"

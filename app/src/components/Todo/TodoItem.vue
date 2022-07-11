@@ -71,7 +71,7 @@ const remove = async function () {
         </button>
     </article>
     <TodoInput
-        v-if="state.edit"
+        v-else
         :update="true"
         :todo-id="props.todo.id.toString()"
         @keyup.escape="toggleEdit"
