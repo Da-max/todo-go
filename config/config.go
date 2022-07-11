@@ -27,7 +27,7 @@ func getEnv[T string | int | bool](key string, def T) T {
 	_, isBool := any(value).(bool)
 	_, isInt := any(value).(int)
 
-	if initial == "" {
+	if initial == "" || initial == nil {
 		value = def
 	} else if isString {
 		value = initial.(T)

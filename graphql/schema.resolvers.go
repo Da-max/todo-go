@@ -122,14 +122,14 @@ func (r *mutationResolver) SignUp(ctx context.Context, input model.Identifier) (
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	var (
 		todos []*model.Todo = []*model.Todo{}
-		user  *model.User   = &model.User{}
+		// user  *model.User   = &model.User{}
 	)
 
-	if res := r.DB.Where(&model.User{Username: ctx.Value("Username").(string)}).First(user); res.Error != nil || res.RowsAffected == 0 {
-		panic("The username cannot be found.")
-	}
+	// if res := r.DB.Where(&model.User{Username: ctx.Value("Username").(string)}).First(user); res.Error != nil || res.RowsAffected == 0 {
+	// 	panic("The username cannot be found.")
+	// }
 
-	if result := r.DB.Where(&model.Todo{UserID: int(user.ID)}).Find(&todos); result.Error != nil {
+	if result := r.DB/*.Where(&model.Todo{UserID: int(user.ID)})*/.Find(&todos); result.Error != nil {
 		panic("The todos cannot be query.")
 	}
 
