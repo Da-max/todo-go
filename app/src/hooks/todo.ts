@@ -1,59 +1,117 @@
-import { ref, Ref } from 'vue'
-import { useMutation, useQuery } from '@vue/apollo-composable'
-import { AddTodoDocument, AllTodosDocument, NewTodo, RemoveTodoDocument, TodoFragment, UpdateTodoDocument } from '../types/graphql'
+import { useMutation } from 'villus'
+import {
+    AddTodoMutation,
+    AddTodoMutationVariables,
+    NewTodo,
+    UpdateTodoMutation,
+    UpdateTodoMutationVariables,
+} from '../types/generated'
+import {
+    addTodo as addTodoMutation,
+    updateTodo as updateTodoMutation,
+} from '../graphql/todos'
+import { useUtils } from './utils'
+import { useTodoStore } from '../stores/todo'
+import { onMounted, ref } from 'vue'
 
-export default function () {
-    const { mutate: removeMutate, onDone: onDoneRemoveMutate, loading: removeLoading } = useMutation(RemoveTodoDocument)
-    const { mutate: updateMutate, onDone: onDoneUpdateMutate, loading: updateLoading } = useMutation(UpdateTodoDocument)
-    const { mutate: saveTodo, onDone: onDoneSaveTodo } = useMutation(AddTodoDocument)
+export function useTodo(todoId?: string) {
+    const todoStore = useTodoStore()
+    const { execute: addTodoExecute } = useMutation<
+        AddTodoMutation,
+        AddTodoMutationVariables
+    >(addTodoMutation)
+    const { execute: updateTodoExecute } = useMutation<
+        UpdateTodoMutation,
+        UpdateTodoMutationVariables
+    >(updateTodoMutation)
+    const { loading, startLoading, endLoading } = useUtils()
 
-    const getAll = function () {
-        const todos: Ref<TodoFragment[]> = ref([])
+    const newTodo = ref({
+        text: '',
+        userId: '1',
+    } as NewTodo)
+    const error = ref<boolean>(false)
 
-        const { onResult, refetch, loading } = useQuery(AllTodosDocument)
-        onResult((result) => {
-            todos.value = result.data.todos
+    if (todoId) {
+        onMounted(() => {
+            const findedTodo = todoStore.findById(todoId)
+
+            if (findedTodo) {
+                newTodo.value = {
+                    text: findedTodo.text,
+                    userId: findedTodo.user.id,
+                }
+            }
         })
+    }
 
-        return {
-            todos,
-            loading,
-            refetch,
-            onResult
+    function onInput(e: Event) {
+        newTodo.value.text = (e.target as HTMLInputElement).value
+        if ((e.target as HTMLInputElement).value === '') {
+            error.value = true
+        } else {
+            error.value = false
         }
     }
 
-    const addOne = function (todo: NewTodo) {
-        const result = saveTodo({ input: todo })
-        return result
+    async function addTodo() {
+        if (!error.value) {
+            startLoading()
+            try {
+                const { data } = await addTodoExecute({ input: newTodo.value })
+                todoStore.$patch((state) =>
+                    state.todos.push({ ...data.createTodo })
+                )
+                newTodo.value.text = ''
+            } catch (error) {
+                console.log('error', error)
+            } finally {
+                endLoading()
+            }
+        }
     }
 
-    const removeOne = function (todoId: string) {
-        const result = removeMutate({
-            todoId
-        })
-
-        return result
+    async function updateTodo() {
+        if (!error.value && todoId) {
+            const { data } = await updateTodoExecute({
+                input: newTodo.value,
+                todoId: todoId,
+            })
+            todoStore.$patch((state) => {
+                state.todos = [
+                    ...state.todos.filter(
+                        (t) => t.id.toString() !== data.updateTodo.id.toString()
+                    ),
+                    data.updateTodo,
+                ]
+            })
+        }
     }
 
-    const updateOne = function (todo: NewTodo, todoId: string) {
-        const result = updateMutate({
-            input: todo,
-            todoId
-        })
-
-        return result
+    const saveTodo = async (emit: any) => {
+        startLoading()
+        try {
+            if (todoId) {
+                await updateTodo()
+            } else {
+                await addTodo()
+            }
+            emit('save', true)
+        } catch (error) {
+            console.log('error', error)
+            emit('save', false)
+        } finally {
+            endLoading()
+        }
     }
 
     return {
-        getAll,
-        addOne,
-        removeOne,
-        updateOne,
-        onDoneRemoveMutate,
-        onDoneUpdateMutate,
-        onDoneSaveTodo,
-        removeLoading,
-        updateLoading
+        loading,
+        addTodo,
+        onInput,
+        newTodo,
+        error,
+        updateTodo,
+        saveTodo,
     }
 }

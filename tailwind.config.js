@@ -1,16 +1,9 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: [
-        './app/index.html',
-        './app/src/**/*.{vue,js,ts,jsx,tsx}'
-    ],
-    mode: 'jit',
-    darkMode: false, // or 'media' or 'class'
+    content: ['./app/index.html', './app/src/**/*.{vue,js,ts,jsx,tsx}'],
     theme: {
-        extend: {}
-    },
-    variants: {
-        extend: {}
+        extend: {},
     },
     plugins: [],
-    purge: ['./app/index.html', './app/src/**/*.{vue,js,ts,jsx,tsx}']
+    purge: ['./app/index.html', './app/src/**/*.{vue,js,ts,jsx,tsx}'],
 }

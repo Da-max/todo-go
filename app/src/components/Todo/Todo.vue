@@ -1,36 +1,32 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-
-import useStore from '../../stores/index'
-import useTodoStore from '../../stores/todos'
-
-import Loader from './Utils/Loader.vue'
-import TodoItem from './TodoItem.vue'
+import { onMounted, ref } from 'vue'
+import { useTodoStore } from '../../stores/todo'
 import TodoInput from './TodoInput.vue'
+import Loader from '../Utils/Loader.vue'
+import TodoItem from './TodoItem.vue'
 
-const mainStore = useStore()
 const todoStore = useTodoStore()
-
-const { loading } = storeToRefs(mainStore)
 const { todos } = storeToRefs(todoStore)
 
-todoStore.getAll()
+const loading = ref<boolean>(true)
+
+onMounted(() => {
+    todoStore.getAll().then(() => {
+        loading.value = false
+    })
+})
 </script>
 
 <template>
     <section class="todo">
-        <TodoInput />
+        <TodoInput :update="false" />
         <section class="todo__list">
-            <Loader
-                :display="loading"
-                class="todo__list__loader"
-            />
-            <div v-show="todos && !loading">
-                <todo-item
-                    v-for="todo in todos"
-                    :key="todo.id"
-                    :todo="todo"
-                />
+            <Loader class="todo__list__loader" v-show="loading" />
+            <div>
+                <div v-for="todo in todos" :key="todo.id">
+                    <TodoItem :todo="todo" />
+                </div>
             </div>
         </section>
     </section>

@@ -1,30 +1,27 @@
-import { DefaultApolloClient, provideApolloClient } from '@vue/apollo-composable'
-import { createApp, provide, h } from 'vue'
-
+import { createApp } from 'vue'
+import App from './App.vue'
+import { createClient } from 'villus'
+import { createPinia } from 'pinia'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faClose, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-import { apolloClient } from './vue-apollo'
+import './assets/style/index.css'
 
-import App from './App.vue'
-import './assets/style/style.css'
-import { createPinia } from 'pinia'
+const app = createApp(App)
 
-const app = createApp({
-    setup () {
-        provide(DefaultApolloClient, apolloClient)
-    },
-    render: () => h(App)
+const client = createClient({
+    url: import.meta.env.VITE_GRAPHQL_ENDPOINT || '/query', // your endpoint.
 })
+
 const pinia = createPinia()
+
+app.use(client)
+app.use(pinia)
 
 library.add(faPlus)
 library.add(faClose)
 library.add(faPencil)
-provideApolloClient(apolloClient)
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)
-app.use(pinia)
-
 app.mount('#app')
