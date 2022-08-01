@@ -20,12 +20,14 @@
         "@graphql-codegen/typescript": "^2.7.1",
         "@graphql-codegen/typescript-operations": "^2.5.1",
         "@graphql-codegen/typescript-vue-urql": "^2.3.1",
+        "@vueuse/core": "^9.0.2",
         "graphql": "^16.5.0",
         "graphql-tag": "^2.12.6",
         "pinia": "^2.0.15",
         "villus": "^1.2.4",
         "vite-plugin-graphql": "^0.1.0",
-        "vue": "^3.2.25"
+        "vue": "^3.2.25",
+        "vue-router": "4"
     },
     "devDependencies": {
         "@rollup/plugin-graphql": "^1.1.0",
