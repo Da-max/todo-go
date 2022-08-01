@@ -33,3 +33,21 @@ export const addTodo = gql`
     }
     ${todoFragment}
 `
+
+export const markDoneTodo = gql`
+    mutation markDoneTodo($todoId: ID!) {
+        markDoneTodo(todoId: $todoId) {
+            ...Todo
+        }
+    }
+    ${todoFragment}
+`
+
+export const markUndoneTodo = gql`
+    mutation markUndoneTodo($todoId: ID!) {
+        markUndoneTodo(todoId: $todoId) {
+            ...Todo
+        }
+    }
+    ${todoFragment}
+`

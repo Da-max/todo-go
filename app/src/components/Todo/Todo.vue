@@ -34,7 +34,7 @@ onMounted(() => {
 
 <style scoped>
 .todo {
-    @apply bg-gray-100 rounded-md p-10 text-center;
+    @apply bg-gray-100 rounded-md p-10 ml-96;
 }
 
 .todo__list {
