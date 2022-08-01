@@ -94,6 +94,23 @@ func (r *mutationResolver) MarkDoneTodo(ctx context.Context, todoID int) (*model
 	return todo, nil
 }
 
+// MarkUndoneTodo is the resolver for the markUndoneTodo field.
+func (r *mutationResolver) MarkUndoneTodo(ctx context.Context, todoID int) (*model.Todo, error) {
+	var todo *model.Todo = &model.Todo{}
+
+	if res := r.DB.First(todo, todoID); res.Error != nil {
+		panic("The todo with id " + fmt.Sprint(todoID) + " cannot be found.")
+	}
+
+	todo.Done = false
+
+	if res := r.DB.Save(todo); res.Error != nil {
+		panic("The todo with id " + fmt.Sprint(todo.ID) + " cannot be update")
+	}
+
+	return todo, nil
+}
+
 // SignUp is the resolver for the signUp field.
 func (r *mutationResolver) SignUp(ctx context.Context, input model.Identifier) (*model.Tokens, error) {
 	var (
@@ -115,7 +132,6 @@ func (r *mutationResolver) SignUp(ctx context.Context, input model.Identifier) (
 	tokens.RefreshToken = tokenString
 
 	return tokens, nil
-
 }
 
 // Todos is the resolver for the todos field.
@@ -129,7 +145,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	// 	panic("The username cannot be found.")
 	// }
 
-	if result := r.DB/*.Where(&model.Todo{UserID: int(user.ID)})*/.Find(&todos); result.Error != nil {
+	if result := r.DB. /*.Where(&model.Todo{UserID: int(user.ID)})*/ Order("done, updated_at desc").Find(&todos); result.Error != nil {
 		panic("The todos cannot be query.")
 	}
 

@@ -38,7 +38,7 @@ func router(config config.Config) *chi.Mux {
 
 	if config.Debug {
 		r.Use(cors.New(cors.Options{
-			AllowedOrigins:   []string{"http://localhost:" + fmt.Sprint(config.FrontendPort)},
+			AllowedOrigins:   []string{"http://localhost:" + fmt.Sprint(config.FrontendPort), "http://localhost:5500"},
 			AllowCredentials: true,
 			Debug:            true,
 		}).Handler)
