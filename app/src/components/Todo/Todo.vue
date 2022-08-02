@@ -20,23 +20,28 @@ onMounted(() => {
 
 <template>
     <section class="todo">
-        <TodoInput :update="false" />
-        <section class="todo__list">
-            <Loader class="todo__list__loader" v-show="loading" />
-            <div>
-                <div v-for="todo in todos" :key="todo.id">
-                    <TodoItem :todo="todo" />
+        <div>
+            <TodoInput :update="false" />
+            <section class="todo__list">
+                <Loader class="todo__list__loader" v-show="loading" />
+                <div>
+                    <div v-for="todo in todos" :key="todo.id">
+                        <TodoItem :todo="todo" />
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </section>
 </template>
 
 <style scoped>
 .todo {
-    @apply bg-gray-100 rounded-md p-10 ml-96;
+    @apply flex-1 flex justify-center bg-gray-100 rounded-md p-10;
 }
 
+.todo > div {
+    @apply sm:w-2/3;
+}
 .todo__list {
     @apply mt-10;
 }

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import NavbarUser from './NavbarUser.vue';
-
+import NavbarUser from './NavbarUser.vue'
 </script>
 
 <template>
@@ -14,7 +13,7 @@ import NavbarUser from './NavbarUser.vue';
 
 <style scoped>
 .navbar {
-    @apply p-5 bg-primary drop-shadow-lg flex justify-between align-middle;
+    @apply z-10 p-5 bg-primary drop-shadow-lg flex justify-between align-middle;
 }
 
 .navbar__title {
