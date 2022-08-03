@@ -20,16 +20,21 @@ export type Identifier = {
 export type Mutation = {
   __typename?: 'Mutation';
   createTodo: Todo;
+  login: Tokens;
   markDoneTodo: Todo;
   markUndoneTodo: Todo;
   removeTodo: Scalars['ID'];
-  signUp: Tokens;
   updateTodo: Todo;
 };
 
 
 export type MutationCreateTodoArgs = {
   input: NewTodo;
+};
+
+
+export type MutationLoginArgs = {
+  input: Identifier;
 };
 
 
@@ -45,11 +50,6 @@ export type MutationMarkUndoneTodoArgs = {
 
 export type MutationRemoveTodoArgs = {
   todoId: Scalars['ID'];
-};
-
-
-export type MutationSignUpArgs = {
-  input: Identifier;
 };
 
 
@@ -92,6 +92,13 @@ export type User = {
   password: Scalars['String'];
   username: Scalars['String'];
 };
+
+export type LoginMutationVariables = Exact<{
+  input: Identifier;
+}>;
+
+
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'Tokens', accessToken: string, refreshToken: string } };
 
 export type TodoFragment = { __typename?: 'Todo', id: string, text: string, done: boolean, user: { __typename?: 'User', id: string, username: string, isAdmin: boolean, email: string, isActive: boolean } };
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
-import { onClickOutside } from '@vueuse/core'
+import { onClickOutside, useTimeoutFn } from '@vueuse/core'
 import { computed } from '@vue/reactivity'
 
 type State = {
@@ -20,7 +20,7 @@ const show = computed<boolean>({
             component.value.style.display = 'block'
         }
         state.showInfo = val
-        setTimeout(() => {
+        useTimeoutFn(() => {
             if (!show.value && component.value) {
                 component.value.style.removeProperty('display')
             }

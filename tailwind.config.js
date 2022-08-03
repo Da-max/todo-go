@@ -8,6 +8,7 @@ module.exports = {
             colors: {
                 primary: colors.indigo[700],
                 secondary: colors.blue[100],
+                error: colors.red[500],
             },
         },
     },
