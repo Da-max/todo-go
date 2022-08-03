@@ -42,5 +42,5 @@ type Mutation {
     updateTodo(input: NewTodo!, todoId: ID!): Todo!
     markDoneTodo(todoId: ID!): Todo!
     markUndoneTodo(todoId: ID!): Todo!
-    signUp(input: Identifier!): Tokens!
+    login(input: Identifier!): Tokens!
 }

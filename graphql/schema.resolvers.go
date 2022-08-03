@@ -111,21 +111,21 @@ func (r *mutationResolver) MarkUndoneTodo(ctx context.Context, todoID int) (*mod
 	return todo, nil
 }
 
-// SignUp is the resolver for the signUp field.
-func (r *mutationResolver) SignUp(ctx context.Context, input model.Identifier) (*model.Tokens, error) {
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input model.Identifier) (*model.Tokens, error) {
 	var (
 		user   *model.User   = &model.User{}
 		tokens *model.Tokens = &model.Tokens{}
 	)
 
 	if result := r.DB.Where(&model.User{Username: input.Username, Password: input.Password}).First(user); result.Error != nil {
-		panic("Cannot find user with " + input.Username)
+		return nil, result.Error
 	}
 
 	_, tokenString, err := auth.TokenAuth.Encode(map[string]interface{}{"Username": user.Username})
 
 	if err != nil {
-		panic("Cannot create token")
+		return nil, err
 	}
 
 	tokens.AccessToken = tokenString
