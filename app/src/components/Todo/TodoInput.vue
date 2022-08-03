@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTodo } from '../../hooks/todo'
 import Loader from '../Utils/Loader.vue'
+import FormInput from '../Utils/Form/FormInput.vue'
 
 type TodoInputProps = {
     update: boolean
@@ -33,14 +34,14 @@ const { onInput, newTodo, error, loading, saveTodo } = useTodo(props.todoId)
                     :icon="['fas', 'pencil']"
                 />
             </button>
-            <input
+            <FormInput
                 :value="newTodo.text"
-                type="text"
-                name="todo"
                 id="todo"
-                @keypress.enter="saveTodo(emit)"
+                type="text"
+                :label="false"
                 @input="onInput"
                 @focusout="error = false"
+                @keypress.enter="saveTodo(emit)"
             />
             <Loader class="todo__input__loader" v-show="loading" />
         </div>
@@ -52,8 +53,8 @@ const { onInput, newTodo, error, loading, saveTodo } = useTodo(props.todoId)
     @apply inline relative;
 }
 
-.todo__input > input {
-    @apply md:w-7/12 w-full p-2 rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500 pl-14;
+.todo__input input {
+    @apply md:w-7/12 w-full p-2 pl-14;
 }
 
 .todo__input .todo__input__icon,
@@ -69,7 +70,7 @@ const { onInput, newTodo, error, loading, saveTodo } = useTodo(props.todoId)
     @apply right-1;
 }
 
-.todo__input > input:focus {
+.todo__input input:focus {
     @apply border-opacity-100 outline-none;
 }
 
@@ -77,7 +78,7 @@ const { onInput, newTodo, error, loading, saveTodo } = useTodo(props.todoId)
     @apply w-5 h-5 bg-cover;
 }
 
-.todo__input--error > input {
+.todo__input--error input {
     @apply border-red-400 border-opacity-100 outline-none;
 }
 </style>

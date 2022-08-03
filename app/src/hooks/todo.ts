@@ -24,7 +24,6 @@ import { useUtils } from './utils'
 import { useTodoStore } from '../stores/todo'
 import { onMounted, ref } from 'vue'
 import { todoStoreState } from '../types/todo'
-import { computed } from '@vue/reactivity'
 
 export function useTodo(todoId?: string) {
     const todoStore = useTodoStore()
@@ -50,10 +49,10 @@ export function useTodo(todoId?: string) {
     >(markUndoneTodoMutation)
     const { loading, startLoading, endLoading } = useUtils()
 
-    const newTodo = ref({
+    const newTodo = ref<NewTodo>({
         text: '',
         userId: '1',
-    } as NewTodo)
+    })
     const error = ref<boolean>(false)
 
     if (todoId) {
@@ -70,13 +69,17 @@ export function useTodo(todoId?: string) {
         })
     }
 
-    function onInput(e: Event) {
-        newTodo.value.text = (e.target as HTMLInputElement).value
-        if ((e.target as HTMLInputElement).value === '') {
+    function checkTodo() {
+        if (!newTodo.value.text) {
             error.value = true
         } else {
             error.value = false
         }
+    }
+
+    function onInput(e: Event) {
+        newTodo.value.text = (e.target as HTMLInputElement).value
+        checkTodo()
     }
 
     async function addTodo() {
@@ -118,6 +121,7 @@ export function useTodo(todoId?: string) {
     }
 
     async function saveTodo(emit: any) {
+        checkTodo()
         startLoading()
         try {
             if (todoId) {

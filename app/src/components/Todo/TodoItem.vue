@@ -69,7 +69,7 @@ function toggleEdit() {
             :update="true"
             :todo-id="props.todo.id.toString()"
             @keyup.escape="toggleEdit"
-            @save="toggleEdit"
+            @save="(val: boolean) => val ? toggleEdit() : null"
         />
     </div>
 </template>
