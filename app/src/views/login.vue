@@ -2,8 +2,11 @@
 import Modal from '../components/Utils/Modal.vue'
 import LoginForm from '../components/Auth/Login/LoginForm.vue'
 import Button from '../components/Utils/Button.vue'
-import { reactive, ref } from 'vue'
+import { onMounted, onUnmounted, onUpdated, reactive, ref, watch } from 'vue'
 import { Router, useRouter } from 'vue-router'
+import auth from '../utils/auth'
+import { useUserStore } from '../stores/user'
+import { useIntervalFn } from '@vueuse/shared'
 
 type State = {
     modalOpen: boolean
@@ -14,11 +17,11 @@ const state = reactive<State>({
     modalOpen: true,
     router: useRouter(),
 })
+const userStore = useUserStore()
 const loginForm = ref<InstanceType<typeof LoginForm> | null>(null)
 
 const modalClose = function () {
-    state.modalOpen = false
-    state.router.push('/')
+    state.router.push({ name: 'home' })
 }
 
 const login = function () {
@@ -28,6 +31,12 @@ const login = function () {
         console.log('Merci de réessayer')
     }
 }
+
+onMounted(() => {
+    if (userStore.isAuthenticated) {
+        useRouter().push({ name: 'home' })
+    }
+})
 </script>
 
 <template>

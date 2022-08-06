@@ -3,8 +3,10 @@ import { ref } from 'vue'
 import { LoginFields } from '../../types/auth'
 import { LoginMutation, LoginMutationVariables } from '../../types/generated'
 import { loginMutation } from '../../graphql/auth'
-import { MaybeRef, useLocalStorage } from '@vueuse/core'
 import { Error, ErrorTypes } from '../../types/utils'
+import auth from '../../utils/auth'
+import { useUserStore } from '../../stores/user'
+import { useRoute, useRouter } from 'vue-router'
 
 export function useLogin() {
     const fields = ref<LoginFields>({
@@ -12,14 +14,11 @@ export function useLogin() {
         password: '',
     })
     const error = ref<Error | null>(null)
+    const userStore = useUserStore()
     const { execute: loginExecute } = useMutation<
         LoginMutation,
         LoginMutationVariables
     >(loginMutation)
-
-    function setToken(token: MaybeRef<string>) {
-        useLocalStorage('token', token)
-    }
 
     async function login() {
         if (fields.value.password && fields.value.username) {
@@ -29,7 +28,11 @@ export function useLogin() {
                     input: fields.value,
                 })
                 if (data) {
-                    setToken(data.login.accessToken)
+                    auth.token = data.login.accessToken
+                    await userStore.getCurrent()
+                    if (useUserStore().isAuthenticated) {
+                        useRouter().push({ name: 'home' })
+                    }
                 } else {
                     error.value = {
                         type: ErrorTypes.VALUE,

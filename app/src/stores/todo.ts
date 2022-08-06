@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useQuery } from 'villus'
-import { AllTodosQuery, TodoFragment } from '../types/generated'
+import { AllTodosQuery } from '../types/generated'
 import { allTodos } from '../graphql/todos'
 import {
     todoStoreActions,

@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createClient } from 'villus'
+import auth from './utils/auth'
+import { createClient, defaultPlugins } from 'villus'
 import { createPinia } from 'pinia'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -21,6 +22,7 @@ const app = createApp(App)
 
 const client = createClient({
     url: import.meta.env.VITE_GRAPHQL_ENDPOINT || '/query', // your endpoint.
+    use: [auth.villusPlugin, ...defaultPlugins()],
 })
 
 const pinia = createPinia()

@@ -51,7 +51,6 @@ export function useTodo(todoId?: string) {
 
     const newTodo = ref<NewTodo>({
         text: '',
-        userId: '1',
     })
     const error = ref<boolean>(false)
 
@@ -63,7 +62,6 @@ export function useTodo(todoId?: string) {
             if (findedTodo) {
                 newTodo.value = {
                     text: findedTodo.text,
-                    userId: findedTodo.user.id,
                 }
             }
         })
