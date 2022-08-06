@@ -1,4 +1,4 @@
-package graphql
+package resolvers
 
 import (
 	"github.com/Da-max/todo-go/config"

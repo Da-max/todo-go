@@ -8,8 +8,13 @@ type Identifier struct {
 }
 
 type NewTodo struct {
-	Text   string `json:"text"`
-	UserID int    `json:"userId"`
+	Text string `json:"text"`
+}
+
+type NewUser struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Tokens struct {

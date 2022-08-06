@@ -1,0 +1,25 @@
+# Schema for my todo app (inspirate by the tuto)
+directive @isLoged on FIELD_DEFINITION
+
+type Todo {
+    id: ID!
+    text: String!
+    done: Boolean!
+    user: User!
+}
+
+input NewTodo {
+    text: String!
+}
+
+extend type Query {
+    todos: [Todo!]! @isLoged
+}
+
+extend type Mutation {
+    createTodo(input: NewTodo!): Todo! @isLoged
+    removeTodo(todoId: ID!): ID! @isLoged
+    updateTodo(input: NewTodo!, todoId: ID!): Todo! @isLoged
+    markDoneTodo(todoId: ID!): Todo! @isLoged
+    markUndoneTodo(todoId: ID!): Todo! @isLoged
+}

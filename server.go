@@ -10,8 +10,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Da-max/todo-go/auth"
 	"github.com/Da-max/todo-go/config"
-	"github.com/Da-max/todo-go/graphql"
 	"github.com/Da-max/todo-go/graphql/generated"
+	"github.com/Da-max/todo-go/graphql/resolvers"
 	"github.com/Da-max/todo-go/postgres"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
@@ -21,10 +21,16 @@ import (
 func router(config config.Config) *chi.Mux {
 
 	r := chi.NewRouter()
-	c := generated.Config{Resolvers: &graphql.Resolver{
+	resolver := &resolvers.Resolver{
 		DB:     postgres.New(),
 		Config: config,
+	}
+	r.Use(auth.AuthenticatorMiddleware(resolver.DB))
+
+	c := generated.Config{Resolvers: resolver, Directives: generated.DirectiveRoot{
+		IsLoged: auth.IsLoged,
 	}}
+
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 	srv.AddTransport(&transport.Websocket{
 		Upgrader: websocket.Upgrader{
@@ -37,14 +43,16 @@ func router(config config.Config) *chi.Mux {
 	})
 
 	if config.Debug {
-		r.Use(cors.New(cors.Options{
-			AllowedOrigins:   []string{"http://localhost:" + fmt.Sprint(config.FrontendPort), "http://localhost:5500"},
-			AllowCredentials: true,
-			Debug:            true,
-		}).Handler)
+		// r.Use(cors.New(cors.Options{
+		// 	AllowedOrigins:   []string{"http://localhost:" + fmt.Sprint(config.FrontendPort), "http://localhost:5500"},
+		// 	AllowCredentials: true,
+		// 	Debug:            true,
+		// 	AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		// 	AllowedMethods:   []string{"POST"},
+		// 	All
+		// }).Handler)
+		r.Use(cors.AllowAll().Handler)
 	}
-	r.Use(auth.Authenticator)
-
 	r.Handle("/query", srv)
 	r.Handle("/", playground.Handler("GraphQL playground", "/query"))
 

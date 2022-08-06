@@ -1,0 +1,34 @@
+type User {
+    id: ID!
+    username: String!
+    email: String!
+    password: String!
+    isActive: Boolean!
+    isAdmin: Boolean!
+}
+
+type Tokens {
+    accessToken: String!
+    refreshToken: String!
+}
+
+input NewUser {
+    username: String!
+    email: String!
+    password: String!
+}
+
+input Identifier {
+    username: String!
+    password: String!
+}
+
+type Query {
+    users: [User!]!
+    currentUser: User!
+}
+
+type Mutation {
+    login(input: Identifier!): Tokens!
+    signUp(input: NewUser!): User!
+}

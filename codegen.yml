@@ -1,4 +1,4 @@
-schema: ./graphql/schema.graphqls
+schema: ./graphql/*.graphqls
 documents: './app/src/graphql/**/*.ts'
 generates:
     ./app/src/types/generated.ts:

@@ -20,8 +20,9 @@ model:
 # Where should the resolver implementations go?
 resolver:
     layout: follow-schema
-    dir: graphql
-    package: graphql
+    dir: graphql/resolvers
+    package: resolvers
+    filename_template: '{name}.go'
 
 # Optional: turn on use `gqlgen:"fieldName"` tags in your models
 # struct_tag: json
@@ -35,7 +36,7 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-    - "github.com/Da-max/todo-go/graphql/model"
+    - 'github.com/Da-max/todo-go/graphql/model'
 
 # This section declares type mapping between the GraphQL and go type systems
 #
