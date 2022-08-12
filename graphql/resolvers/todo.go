@@ -7,9 +7,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Da-max/todo-go/auth"
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/model"
+	"github.com/Da-max/todo-go/utils/auth"
 )
 
 // CreateTodo is the resolver for the createTodo field.

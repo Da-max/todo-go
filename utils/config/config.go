@@ -11,10 +11,15 @@ const (
 )
 
 type Config struct {
-	FrontendPort int
-	Port         int
-	Debug        bool
-	SecretKey    string
+	Host          string
+	FrontendPort  int
+	Port          int
+	Debug         bool
+	SecretKey     string
+	EmailFrom     string
+	EmailPassword string
+	EmailHost     string
+	EmailPort     int
 }
 
 func getEnv[T string | int | bool](key string, def T) T {
@@ -49,6 +54,11 @@ func GetConfig() Config {
 	c.Port = getEnv("SERVER_PORT", defaultPort)
 	c.Debug = getEnv("SERVER_DEBUG", false)
 	c.SecretKey = getEnv("SERVER_SECRET_KEY", "87621ee5accedadb3d9c0f6a00e1f27c52f53814589c2aeb3033dc813e6231fcc80ddd205263afdae5413edac938c4b3a1212c14deb32cf96134a1be428f9f5d")
+	c.EmailFrom = getEnv("EMAIL_FROM", "")
+	c.EmailHost = getEnv("EMAIL_HOST", "")
+	c.EmailPassword = getEnv("EMAIL_PASSWORD", "")
+	c.EmailPort = getEnv("EMAIL_PORT", 587)
+	c.Host = "http://localhost:"
 
 	return c
 

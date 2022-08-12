@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github.com/Da-max/todo-go/config"
+	"github.com/Da-max/todo-go/utils/config"
 	"gorm.io/gorm"
 )
 

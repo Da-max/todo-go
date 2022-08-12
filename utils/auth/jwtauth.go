@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Da-max/todo-go/config"
 	"github.com/Da-max/todo-go/graphql/model"
+	"github.com/Da-max/todo-go/utils/config"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/jwt"
 	"gorm.io/gorm"
@@ -73,6 +73,10 @@ func AuthenticatorMiddleware(db *gorm.DB) func(http.Handler) http.Handler {
 		return http.HandlerFunc(hfn)
 	}
 
+}
+
+func GenerateAuthorizationToken(user *model.User) (jwt.Token, string, error) {
+	return TokenAuth.Encode(map[string]interface{}{"Username": user.Username, "ID": int(user.ID)})
 }
 
 func ForContext(ctx context.Context) *model.User {
