@@ -66,7 +66,13 @@ onClickOutside(target, () => {
 
 <template>
     <div ref="target">
-        <button @click="toggleInfo">🧑</button>
+        <button class="text-gray-50" @click="toggleInfo">
+            {{
+                userStore.isAuthenticated && userStore.user
+                    ? userStore.user.username
+                    : '🧑'
+            }}
+        </button>
         <aside
             ref="component"
             :class="[
@@ -79,9 +85,12 @@ onClickOutside(target, () => {
                 :icon="['fas', 'caret-up']"
             />
             <p v-for="item in navItems" :key="item.title">
-                <a v-if="typeof item.onClick === 'function'">{{
-                    item.title
-                }}</a>
+                <a
+                    @click="item.onClick"
+                    v-if="typeof item.onClick === 'function'"
+                    href="#"
+                    >{{ item.title }}</a
+                >
                 <router-link v-else="item.onClick" :to="item.onClick">{{
                     item.title
                 }}</router-link>
