@@ -6,7 +6,16 @@ import graphqlPlugin from '@rollup/plugin-graphql'
 export default defineConfig({
     root: 'app',
     plugins: [vue(), graphqlPlugin()],
+    server: {
+        port: 3000,
+    },
     build: {
         sourcemap: true,
+        target: 'es2020',
+    },
+    optimizeDeps: {
+        esbuildOptions: {
+            target: 'es2020',
+        },
     },
 })

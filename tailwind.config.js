@@ -14,5 +14,4 @@ module.exports = {
         },
     },
     plugins: [],
-    purge: ['./app/index.html', './app/src/**/*.{vue,js,ts,jsx,tsx}'],
 }
