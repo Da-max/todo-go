@@ -12,6 +12,11 @@ type Tokens {
     refreshToken: String!
 }
 
+type Confirm {
+    ok: Boolean!
+    token: String!
+}
+
 input NewUser {
     username: String!
     email: String!
@@ -23,6 +28,10 @@ input Identifier {
     password: String!
 }
 
+input ConfirmIdentifier {
+    token: String!
+}
+
 type Query {
     users: [User!]!
     currentUser: User!
@@ -31,4 +40,5 @@ type Query {
 type Mutation {
     login(input: Identifier!): Tokens!
     signUp(input: NewUser!): User!
+    confirmAccount(input: ConfirmIdentifier): Confirm!
 }

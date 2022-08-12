@@ -2,6 +2,15 @@
 
 package model
 
+type Confirm struct {
+	Ok    bool   `json:"ok"`
+	Token string `json:"token"`
+}
+
+type ConfirmIdentifier struct {
+	Token string `json:"token"`
+}
+
 type Identifier struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

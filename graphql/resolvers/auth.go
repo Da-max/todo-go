@@ -4,18 +4,21 @@ package resolvers
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"strconv"
 
-	"github.com/Da-max/todo-go/auth"
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/model"
+	"github.com/Da-max/todo-go/utils/auth"
+	"github.com/Da-max/todo-go/utils/mail"
 )
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.Identifier) (*model.Tokens, error) {
 	var (
-		user   *model.User   = &model.User{Username: input.Username, Password: input.Password}
+		user   *model.User   = &model.User{Username: input.Username}
 		tokens *model.Tokens = &model.Tokens{}
 	)
 
@@ -23,7 +26,11 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Identifier) (*
 		return nil, result.Error
 	}
 
-	_, tokenString, err := auth.TokenAuth.Encode(map[string]interface{}{"Username": user.Username, "ID": int(user.ID)})
+	if err := auth.ComparePassword(user.Password, input.Password); err != nil {
+		return nil, err
+	}
+
+	_, tokenString, err := auth.GenerateAuthorizationToken(user)
 
 	if err != nil {
 		return nil, err
@@ -37,7 +44,79 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Identifier) (*
 
 // SignUp is the resolver for the signUp field.
 func (r *mutationResolver) SignUp(ctx context.Context, input model.NewUser) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	var (
+		user *model.User = &model.User{
+			Username: input.Username,
+			Email:    input.Email,
+		}
+		message   bytes.Buffer
+		mailError chan error = make(chan error, 1)
+	)
+
+	if hashPassword, err := auth.HashPassword(input.Password); err != nil {
+		return nil, fmt.Errorf("the password cannot be hash")
+	} else {
+		user.Password = hashPassword
+	}
+
+	if result := r.DB.Create(user); result.Error != nil {
+		return nil, fmt.Errorf("the user cannot be saved")
+	}
+
+	_, token, err := auth.TokenAuth.Encode(map[string]interface{}{"ID": int(user.ID)})
+
+	if err != nil {
+		return nil, err
+	}
+
+	message.WriteString("Merci de cliquer sur ce lien afin de confirmer votre compte : ")
+	message.WriteString(r.Config.Host)
+	message.WriteString(strconv.Itoa(r.Config.FrontendPort))
+	message.WriteString("/#/confirm-account?token=")
+	message.WriteString(token)
+	go func() {
+		mailError <- mail.SendMail([]string{user.Email}, "Confirmer votre compte", message.String())
+
+		if err := <-mailError; err != nil {
+			fmt.Println("The mail cannot be send.")
+		}
+	}()
+
+	return user, nil
+}
+
+// ConfirmAccount is the resolver for the confirmAccount field.
+func (r *mutationResolver) ConfirmAccount(ctx context.Context, input *model.ConfirmIdentifier) (*model.Confirm, error) {
+	var user *model.User = &model.User{}
+	claims, err := auth.TokenAuth.Decode(input.Token)
+
+	if err != nil {
+		return nil, fmt.Errorf("the token cannot be decode")
+	}
+
+	id, found := claims.Get("ID")
+
+	if !found {
+		return nil, fmt.Errorf("the token is not valid")
+	}
+
+	if res := r.DB.First(user, id); res.Error != nil || user.IsActive == true {
+		return nil, fmt.Errorf("the user cannot be found")
+	}
+
+	user.IsActive = true
+	if res := r.DB.Save(user); res.Error != nil {
+		return nil, fmt.Errorf("the user cannot be update")
+	}
+
+	_, tokenString, err := auth.GenerateAuthorizationToken(user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Confirm{Token: tokenString, Ok: user.IsActive}, nil
+
 }
 
 // Users is the resolver for the users field.
