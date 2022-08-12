@@ -1,3 +1,0 @@
-<template>
-    create account
-</template>

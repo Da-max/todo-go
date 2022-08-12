@@ -1,14 +1,41 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, ComputedRef, computed } from 'vue'
 import { onClickOutside, useTimeoutFn } from '@vueuse/core'
-import { computed } from '@vue/reactivity'
+import { useUserStore } from '../../stores/user'
+import { NavItems } from '../../types/nav'
 
 type State = {
     showInfo: boolean
 }
 
+const userStore = useUserStore()
 const state = reactive<State>({
     showInfo: false,
+})
+
+const navItems = computed<NavItems>(() => {
+    let items: NavItems = []
+    if (userStore.isAuthenticated) {
+        items = [
+            {
+                title: 'Se déconnecter',
+                onClick: userStore.disconnect,
+            },
+        ]
+    } else {
+        items = [
+            {
+                title: 'Se connecter',
+                onClick: { name: 'login' },
+            },
+            {
+                title: 'Se créer un compte',
+                onClick: { name: 'create-account' },
+            },
+        ]
+    }
+
+    return items
 })
 
 const target = ref(null)
@@ -51,13 +78,13 @@ onClickOutside(target, () => {
                 class="navbar-user__aside__icon"
                 :icon="['fas', 'caret-up']"
             />
-            <p>
-                <router-link :to="{ name: 'create-account' }"
-                    >Se créer un compte</router-link
-                >
-            </p>
-            <p>
-                <router-link :to="{ name: 'login' }">Se connecter</router-link>
+            <p v-for="item in navItems" :key="item.title">
+                <a v-if="typeof item.onClick === 'function'">{{
+                    item.title
+                }}</a>
+                <router-link v-else="item.onClick" :to="item.onClick">{{
+                    item.title
+                }}</router-link>
             </p>
         </aside>
     </div>

@@ -2,11 +2,9 @@
 import Modal from '../components/Utils/Modal.vue'
 import LoginForm from '../components/Auth/Login/LoginForm.vue'
 import Button from '../components/Utils/Button.vue'
-import { onMounted, onUnmounted, onUpdated, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { Router, useRouter } from 'vue-router'
-import auth from '../utils/auth'
 import { useUserStore } from '../stores/user'
-import { useIntervalFn } from '@vueuse/shared'
 
 type State = {
     modalOpen: boolean
@@ -34,7 +32,7 @@ const login = function () {
 
 onMounted(() => {
     if (userStore.isAuthenticated) {
-        useRouter().push({ name: 'home' })
+        state.router.push({ name: 'home' })
     }
 })
 </script>

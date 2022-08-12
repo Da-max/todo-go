@@ -12,6 +12,16 @@ export type Scalars = {
   Float: number;
 };
 
+export type Confirm = {
+  __typename?: 'Confirm';
+  ok: Scalars['Boolean'];
+  token: Scalars['String'];
+};
+
+export type ConfirmIdentifier = {
+  token: Scalars['String'];
+};
+
 export type Identifier = {
   password: Scalars['String'];
   username: Scalars['String'];
@@ -19,6 +29,7 @@ export type Identifier = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  confirmAccount: Confirm;
   createTodo: Todo;
   login: Tokens;
   markDoneTodo: Todo;
@@ -26,6 +37,11 @@ export type Mutation = {
   removeTodo: Scalars['ID'];
   signUp: User;
   updateTodo: Todo;
+};
+
+
+export type MutationConfirmAccountArgs = {
+  input?: InputMaybe<ConfirmIdentifier>;
 };
 
 
@@ -116,6 +132,20 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'Tokens', accessToken: string, refreshToken: string } };
+
+export type SignUpMutationVariables = Exact<{
+  input: NewUser;
+}>;
+
+
+export type SignUpMutation = { __typename?: 'Mutation', signUp: { __typename?: 'User', id: string, username: string, isAdmin: boolean, email: string, isActive: boolean } };
+
+export type ConfirmAccountMutationVariables = Exact<{
+  input: ConfirmIdentifier;
+}>;
+
+
+export type ConfirmAccountMutation = { __typename?: 'Mutation', confirmAccount: { __typename?: 'Confirm', ok: boolean, token: string } };
 
 export type TodoFragment = { __typename?: 'Todo', id: string, text: string, done: boolean, user: { __typename?: 'User', id: string, username: string, isAdmin: boolean, email: string, isActive: boolean } };
 

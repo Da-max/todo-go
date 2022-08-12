@@ -76,7 +76,7 @@ watch(
     @apply opacity-0;
 }
 .modal__container {
-    @apply bg-gray-50 w-full lg:h-1/2 max-h-full m-4 rounded-lg shadow-lg md:w-2/4 border-2 border-primary flex flex-col;
+    @apply bg-gray-50 w-full min-h-min max-h-full m-4 rounded-lg shadow-lg md:w-2/4 border-2 border-primary flex flex-col;
 }
 
 .modal__header {

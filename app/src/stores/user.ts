@@ -8,6 +8,7 @@ import {
     USER_STORE_NAME,
 } from '../types/auth'
 import { CurrentUserQuery } from '../types/generated'
+import auth from '../utils/auth'
 
 export const useUserStore = defineStore<
     typeof USER_STORE_NAME,
@@ -30,6 +31,10 @@ export const useUserStore = defineStore<
             } catch (error) {
                 console.log(error)
             }
+        },
+        disconnect() {
+            this.$state.user = undefined
+            auth.token = null
         },
     },
     getters: {

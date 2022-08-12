@@ -26,7 +26,7 @@ watch(
     }
 )
 
-const emit = defineEmits<{ (e: 'input', value: Event): void }>()
+const emit = defineEmits<{ (e: 'input', id: string, value: Event): void }>()
 </script>
 <template>
     <div v-if="props.label">
@@ -35,7 +35,7 @@ const emit = defineEmits<{ (e: 'input', value: Event): void }>()
             :type="props.type"
             :id="props.id"
             :value="props.value"
-            @input="(e: Event) => emit('input', e)"
+            @input="(e: Event) => emit('input', props.id, e)"
             @focusout="state.error = false"
             :class="{ 'input--error': state.error }"
         />
@@ -45,7 +45,7 @@ const emit = defineEmits<{ (e: 'input', value: Event): void }>()
         :type="props.type"
         :id="props.id"
         :value="props.value"
-        @input="(e: Event) => emit('input', e)"
+        @input="(e: Event) => emit('input', props.id, e)"
         @focusout="state.error = false"
         :class="{ 'input--error': state.error }"
     />

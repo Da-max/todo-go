@@ -2,18 +2,18 @@
 import { useLogin } from '../../../hooks/auth/login'
 import FormInput from '../../Utils/Form/FormInput.vue'
 
-const { fields, login, error } = useLogin()
+const { fields, login, error, onInput } = useLogin()
 
 defineExpose({
     login,
 })
 </script>
 <template>
-    <form action="#" class="login-form">
+    <form action="#" @keyup.enter="login" class="login-form">
         <FormInput
             class="login-form__field"
             :value="fields.username"
-            @input="(e: Event) => fields.username = (e.target as HTMLInputElement).value"
+            @input="onInput"
             id="username"
             type="text"
             :error="!!error"
@@ -22,7 +22,7 @@ defineExpose({
         <FormInput
             class="login-form__field"
             :value="fields.password"
-            @input="(e: Event) => fields.password = (e.target as HTMLInputElement).value"
+            @input="onInput"
             id="password"
             type="password"
             :error="!!error"

@@ -1,27 +1,45 @@
-import {
-    createWebHashHistory,
-    RouteRecordRaw,
-    createRouter,
-    RouteLocationNormalized,
-} from 'vue-router'
+import { createWebHashHistory, RouteRecordRaw, createRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import auth from '../utils/auth'
+
+declare module 'vue-router' {
+    interface RouteMeta {
+        loginRequired: boolean
+    }
+}
 
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
         component: () => import('../views/index.vue'),
         name: 'home',
+        meta: {
+            loginRequired: true,
+        },
         children: [
             {
                 path: '/create-account',
-                component: () => import('../views/create-account.vue'),
+                component: () => import('../views/signup.vue'),
                 name: 'create-account',
+                meta: {
+                    loginRequired: false,
+                },
             },
             {
                 path: '/login',
                 component: () => import('../views/login.vue'),
                 name: 'login',
+                meta: {
+                    loginRequired: false,
+                },
+            },
+            {
+                path: '/confirm-account',
+                component: () => import('../views/confirm-account.vue'),
+                name: 'confirm-account',
+                meta: {
+                    loginRequired: false,
+                },
             },
         ],
     },
@@ -37,10 +55,7 @@ router.beforeResolve(async (to) => {
     if (auth.token && !userStore.isAuthenticated) {
         await userStore.getCurrent()
     }
-    if (
-        ['login', 'create-account'].findIndex((v) => v === to.name) === -1 &&
-        !userStore.isAuthenticated
-    ) {
+    if (to.meta.isRequired && !userStore.isAuthenticated) {
         return {
             name: 'login',
         }

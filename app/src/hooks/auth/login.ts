@@ -3,22 +3,25 @@ import { ref } from 'vue'
 import { LoginFields } from '../../types/auth'
 import { LoginMutation, LoginMutationVariables } from '../../types/generated'
 import { loginMutation } from '../../graphql/auth'
-import { Error, ErrorTypes } from '../../types/utils'
+import { ErrorTypes } from '../../types/utils'
 import auth from '../../utils/auth'
 import { useUserStore } from '../../stores/user'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { useUtils } from '../utils'
+import { useForm } from '../form'
 
 export function useLogin() {
     const fields = ref<LoginFields>({
         username: '',
         password: '',
     })
-    const error = ref<Error | null>(null)
+    const { error, setError } = useUtils()
     const userStore = useUserStore()
     const { execute: loginExecute } = useMutation<
         LoginMutation,
         LoginMutationVariables
     >(loginMutation)
+    const { onInput } = useForm<LoginFields>(fields)
 
     async function login() {
         if (fields.value.password && fields.value.username) {
@@ -34,17 +37,17 @@ export function useLogin() {
                         useRouter().push({ name: 'home' })
                     }
                 } else {
-                    error.value = {
-                        type: ErrorTypes.VALUE,
-                        text: 'Le nom d’utilisateur ou le mot de passe est incorrect.',
-                    }
+                    setError(
+                        ErrorTypes.VALUE,
+                        'Le nom d’utilisateur ou le mot de passe est incorrect.'
+                    )
                 }
             } catch (e) {}
         } else {
-            error.value = {
-                type: ErrorTypes.FILL,
-                text: 'Merci de vérifier que vous avez remplis tous les champs.',
-            }
+            setError(
+                ErrorTypes.FILL,
+                'Merci de vérifier que vous avez remplis tous les champs.'
+            )
         }
     }
 
@@ -52,5 +55,6 @@ export function useLogin() {
         fields,
         login,
         error,
+        onInput,
     }
 }

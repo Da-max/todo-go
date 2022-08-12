@@ -18,3 +18,21 @@ export const loginMutation = gql`
         }
     }
 `
+
+export const signUp = gql`
+    mutation signUp($input: NewUser!) {
+        signUp(input: $input) {
+            ...User
+        }
+    }
+    ${userFragment}
+`
+
+export const confirmAccount = gql`
+    mutation confirmAccount($input: ConfirmIdentifier!) {
+        confirmAccount(input: $input) {
+            ok
+            token
+        }
+    }
+`

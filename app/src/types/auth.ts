@@ -1,4 +1,4 @@
-import { UserFragment } from './generated'
+import { NewUser, UserFragment } from './generated'
 
 export const USER_STORE_NAME: 'user' = 'user'
 
@@ -8,6 +8,7 @@ export type userStoreState = {
 
 export type userStoreActions = {
     getCurrent: () => Promise<void>
+    disconnect: () => void
 }
 
 export type userStoreGetters = {
@@ -18,3 +19,7 @@ export type LoginFields = {
     username: string
     password: string
 }
+
+export type SignUpFields = {
+    confirmPassword: string
+} & NewUser

@@ -36,7 +36,7 @@ const { onInput, newTodo, error, loading, saveTodo } = useTodo(props.todoId)
             </button>
             <FormInput
                 :value="newTodo.text"
-                id="todo"
+                id="text"
                 type="text"
                 :label="false"
                 @input="onInput"

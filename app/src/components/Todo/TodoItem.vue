@@ -96,7 +96,9 @@ function toggleEdit() {
 }
 
 .todo__item:hover .todo__item__remove,
-.todo__item:hover .todo__item__update {
+.todo__item:hover .todo__item__update,
+.todo__item__remove:focus,
+.todo__item__update:focus {
     @apply opacity-100 text-gray-600;
 }
 

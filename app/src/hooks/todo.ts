@@ -24,6 +24,7 @@ import { useUtils } from './utils'
 import { useTodoStore } from '../stores/todo'
 import { onMounted, ref } from 'vue'
 import { todoStoreState } from '../types/todo'
+import { useForm } from './form'
 
 export function useTodo(todoId?: string) {
     const todoStore = useTodoStore()
@@ -52,6 +53,7 @@ export function useTodo(todoId?: string) {
     const newTodo = ref<NewTodo>({
         text: '',
     })
+    const { onInput: onInputForm } = useForm<NewTodo>(newTodo)
     const error = ref<boolean>(false)
 
     if (todoId) {
@@ -75,8 +77,8 @@ export function useTodo(todoId?: string) {
         }
     }
 
-    function onInput(e: Event) {
-        newTodo.value.text = (e.target as HTMLInputElement).value
+    function onInput(name: any, e: Event) {
+        onInputForm(name, e)
         checkTodo()
     }
 
