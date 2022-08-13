@@ -30,6 +30,7 @@ services:
             - .:/usr/src/app:z
         ports:
             - 3000:3000
+        command: bash -c "./docker/scripts/entrypoint-app.sh"
 
     adminer:
         image: adminer:latest

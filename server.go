@@ -8,17 +8,17 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/Da-max/todo-go/utils/auth"
-	"github.com/Da-max/todo-go/utils/config"
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/resolvers"
+	"github.com/Da-max/todo-go/utils/auth"
+	"github.com/Da-max/todo-go/utils/config"
 	"github.com/Da-max/todo-go/utils/postgres"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
 )
 
-func router(config config.Config) *chi.Mux {
+func Router(config config.Config) *chi.Mux {
 
 	r := chi.NewRouter()
 	resolver := &resolvers.Resolver{
@@ -62,9 +62,7 @@ func router(config config.Config) *chi.Mux {
 func main() {
 	conf := config.GetConfig()
 
-	var (
-		router = router(conf)
-	)
+	router := Router(conf)
 
 	postgres.Migrate()
 

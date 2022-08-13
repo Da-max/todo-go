@@ -1,9 +1,11 @@
 {
-    "name": "app",
+    "name": "todo-go",
     "private": true,
-    "version": "0.0.0",
+    "version": "1.0.0",
     "scripts": {
         "dev": "vite",
+        "test": "vitest --run",
+        "coverage": "vitest run --coverage",
         "build": "vue-tsc --noEmit && vite build",
         "lint:eslint": "eslint --fix --ext .js,.ts,.vue",
         "lint:prettier": "prettier -w app",
@@ -30,19 +32,23 @@
         "vue-router": "4"
     },
     "devDependencies": {
+        "c8": "7.12.0",
         "@rollup/plugin-graphql": "^1.1.0",
+        "@testing-library/vue": "^6.6.1",
         "@typescript-eslint/eslint-plugin": "^5.30.5",
-        "@vitejs/plugin-vue": "^2.3.3",
+        "@vitejs/plugin-vue": "3.0.3",
         "autoprefixer": "^10.4.7",
         "eslint": "^8.19.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-vue": "^9.2.0",
+        "happy-dom": "^6.0.4",
         "postcss": "^8.4.14",
         "prettier": "2.7.1",
         "tailwindcss": "^3.1.6",
         "typescript": "^4.5.4",
         "vite": "3.0",
         "vite-plugin-simple-gql": "^0.5.0",
+        "vitest": "^0.21.1",
         "vue-tsc": "^0.35.0"
     }
 }

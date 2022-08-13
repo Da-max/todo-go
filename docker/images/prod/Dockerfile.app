@@ -1,12 +1,7 @@
+ARG REGISTRY_IMAGE=ghcr.io/da-max/todo-go-app
+ARG COMMIT_REF_SLUG=main
+
 FROM node:18.4.0-slim as build
-
-WORKDIR /usr/src/app
-
-RUN mkdir -p app/src
-
-COPY package.json yarn.lock .
-
-RUN yarn
 
 COPY . .
 
