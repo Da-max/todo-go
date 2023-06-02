@@ -38,22 +38,18 @@ const modalClose = function () {
             <SignupForm ref="signUpForm" />
         </template>
         <template #footer>
-            <div class="create-account__footer">
-                <Button @click.prevent="signUp">Créer le compte</Button>
-                <Button type="secondary" @click.prevent="modalClose" size="sm"
+            <div class="inline-flex w-full items-center flex-col">
+                <Button class="mb-4" @click.prevent="signUp"
+                    >Créer le compte</Button
+                >
+                <Button
+                    class="mb-4"
+                    type="secondary"
+                    size="sm"
+                    @click.prevent="modalClose"
                     >Annuler</Button
                 >
             </div>
         </template>
     </Modal>
 </template>
-
-<style>
-.create-account__footer {
-    @apply inline-flex w-full items-center flex-col;
-}
-
-.create-account__footer > button {
-    @apply mb-4;
-}
-</style>

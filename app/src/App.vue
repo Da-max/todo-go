@@ -1,11 +1,5 @@
 <template>
-    <div class="root">
+    <div class="min-h-screen">
         <RouterView />
     </div>
 </template>
-
-<style>
-.root {
-    @apply flex flex-col;
-}
-</style>

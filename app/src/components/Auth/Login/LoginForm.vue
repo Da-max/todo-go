@@ -9,41 +9,31 @@ defineExpose({
 })
 </script>
 <template>
-    <form action="#" @keyup.enter="login" class="login-form">
+    <form
+        action="#"
+        class="h-full text-xl flex flex-col justify-center items-center"
+        @keyup.enter="login"
+    >
         <FormInput
-            class="login-form__field"
-            :value="fields.username"
-            @input="onInput"
             id="username"
+            class="flex flex-col mt-4"
+            :value="fields.username"
             type="text"
             :error="!!error"
-            >Nom d’utilisateur</FormInput
-        >
-        <FormInput
-            class="login-form__field"
-            :value="fields.password"
             @input="onInput"
+            >Nom d’utilisateur
+        </FormInput>
+        <FormInput
             id="password"
+            class="flex flex-col mt-4"
+            :value="fields.password"
             type="password"
             :error="!!error"
-            >Mot de passe</FormInput
-        >
-        <p class="login-form__error">
+            @input="onInput"
+            >Mot de passe
+        </FormInput>
+        <p class="text-error mt-4">
             {{ error?.text }}
         </p>
     </form>
 </template>
-
-<style scoped>
-.login-form {
-    @apply h-full text-xl flex flex-col justify-center items-center;
-}
-
-.login-form__field {
-    @apply flex flex-col mt-4;
-}
-
-.login-form__error {
-    @apply text-error mt-4;
-}
-</style>

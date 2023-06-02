@@ -19,11 +19,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="todo">
-        <div>
+    <section class="flex-1 flex justify-center bg-gray-100 rounded-md p-10">
+        <div class="sm:w-2/3">
             <TodoInput :update="false" />
-            <section class="todo__list">
-                <Loader class="todo__list__loader" v-show="loading" />
+            <section class="mt-10">
+                <Loader v-show="loading" class="w-full h-24" />
                 <div>
                     <div v-for="todo in todos" :key="todo.id">
                         <TodoItem :todo="todo" />
@@ -33,20 +33,3 @@ onMounted(() => {
         </div>
     </section>
 </template>
-
-<style scoped>
-.todo {
-    @apply flex-1 flex justify-center bg-gray-100 rounded-md p-10;
-}
-
-.todo > div {
-    @apply sm:w-2/3;
-}
-.todo__list {
-    @apply mt-10;
-}
-
-.todo__list__loader {
-    @apply w-full h-24;
-}
-</style>

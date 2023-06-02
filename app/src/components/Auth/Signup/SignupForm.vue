@@ -10,63 +10,52 @@ defineExpose({
 </script>
 
 <template>
-    <form class="signup-form" action="#">
+    <form
+        class="h-full text-xl flex flex-wrap flex-col xl:flex-row xl:justify-around items-center"
+        action="#"
+    >
         <div>
             <FormInput
-                :value="fields.username"
-                @input="onInput"
                 id="username"
-                class="signup-form__field"
+                :value="fields.username"
+                class="flex flex-col mt-4"
                 type="text"
                 :error="!!error"
+                @input="onInput"
                 >Nom d’utilisateur</FormInput
             >
             <FormInput
-                class="signup-form__field"
-                :value="fields.email"
-                @input="onInput"
                 id="email"
+                class="flex flex-col mt-4"
+                :value="fields.email"
                 type="text"
                 :error="!!error"
+                @input="onInput"
                 >Email</FormInput
             >
         </div>
         <div>
             <FormInput
-                class="signup-form__field"
-                :value="fields.password"
-                @input="onInput"
                 id="password"
+                class="flex flex-col mt-4"
+                :value="fields.password"
                 type="password"
                 :error="!!error"
+                @input="onInput"
                 >Mot de passe</FormInput
             >
             <FormInput
-                class="signup-form__field"
-                :value="fields.confirmPassword"
-                @input="onInput"
                 id="confirmPassword"
+                class="flex flex-col mt-4"
+                :value="fields.confirmPassword"
                 type="password"
                 :error="!!error"
+                @input="onInput"
                 >Confirmation du mot de passe</FormInput
             >
         </div>
-        <p class="signup-form__error">
+        <p class="text-error mt-4 p-4 min-w-full">
             {{ error?.text }}
         </p>
     </form>
 </template>
-
-<style scoped>
-.signup-form {
-    @apply h-full text-xl flex flex-wrap flex-col xl:flex-row xl:justify-around items-center;
-}
-
-.signup-form__field {
-    @apply flex flex-col mt-4;
-}
-
-.signup-form__error {
-    @apply text-error mt-4 p-4 min-w-full;
-}
-</style>

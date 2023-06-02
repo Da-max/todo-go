@@ -7,6 +7,7 @@ type Props = {
     type: 'text' | 'password'
     label?: boolean
     error?: boolean
+    classInput: string | undefined
 }
 
 type State = {
@@ -23,7 +24,7 @@ watch(
     () => props.error,
     () => {
         state.error = props.error ?? false
-    }
+    },
 )
 
 const emit = defineEmits<{ (e: 'input', id: string, value: Event): void }>()
@@ -32,35 +33,29 @@ const emit = defineEmits<{ (e: 'input', id: string, value: Event): void }>()
     <div v-if="props.label">
         <label for="username"><slot></slot></label>
         <input
-            :type="props.type"
             :id="props.id"
+            :type="props.type"
             :value="props.value"
+            :class="[
+                props.classInput,
+                { 'border-error': state.error },
+                'rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500 focus:border-opacity-100 focus:outline-none',
+            ]"
             @input="(e: Event) => emit('input', props.id, e)"
             @focusout="state.error = false"
-            :class="{ 'input--error': state.error }"
         />
     </div>
     <input
         v-else
-        :type="props.type"
         :id="props.id"
+        :type="props.type"
         :value="props.value"
+        :class="[
+            props.classInput,
+            'rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500 focus:border-opacity-100 focus:outline-none',
+            { 'border-error': state.error },
+        ]"
         @input="(e: Event) => emit('input', props.id, e)"
         @focusout="state.error = false"
-        :class="{ 'input--error': state.error }"
     />
 </template>
-
-<style scoped>
-input {
-    @apply rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500;
-}
-
-.input--error {
-    @apply border-error;
-}
-
-input:focus {
-    @apply border-opacity-100 outline-none;
-}
-</style>

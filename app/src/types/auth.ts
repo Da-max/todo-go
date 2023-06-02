@@ -1,9 +1,9 @@
 import { NewUser, UserFragment } from './generated'
 
-export const USER_STORE_NAME: 'user' = 'user'
+export const USER_STORE_NAME = 'user' as const
 
 export type userStoreState = {
-    user?: UserFragment
+    user: UserFragment | undefined
 }
 
 export type userStoreActions = {

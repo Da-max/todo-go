@@ -1,15 +1,19 @@
 import { TodoFragment } from './generated'
 
-export const TODO_STORE_NAME: 'todo' = 'todo'
+export const TODO_STORE_NAME = 'todo' as const
 
 export type todoStoreState = {
     todos: TodoFragment[]
     edit: boolean
 }
 
+export type TodoInputEmit = {
+    (e: 'save', done: boolean): void
+}
+
 export type todoStoreGetters = {
     findById: (
-        state: todoStoreState
+        state: todoStoreState,
     ) => (todoId: string) => undefined | TodoFragment
 }
 

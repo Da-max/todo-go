@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { computed } from '@vue/reactivity'
 import { ref } from 'vue'
 import { useTodo } from '../../hooks/todo'
 import { useTodoStore } from '../../stores/todo'
 import { TodoFragment } from '../../types/generated'
-import { TODO_STORE_NAME } from '../../types/todo'
 import TodoInput from './TodoInput.vue'
 
 const props = defineProps<{ todo: TodoFragment }>()
@@ -29,8 +27,8 @@ function toggleEdit() {
 </script>
 
 <template>
-    <div class="todo__item">
-        <article v-if="!edit" class="todo__item__content">
+    <div class="todo__item mb-8">
+        <article v-if="!edit" class="todo__item__content flex">
             <div v-if="!todo.done">
                 <button
                     class="todo__item__circle"
@@ -38,7 +36,10 @@ function toggleEdit() {
                 >
                     <FontAwesomeIcon :icon="['far', 'circle']" />
                 </button>
-                <h2 class="todo__item__title" @dblclick="toggleEdit">
+                <h2
+                    class="todo__item__title ml-4 inline"
+                    @dblclick="toggleEdit"
+                >
                     {{ todo.text }}
                 </h2>
             </div>
@@ -50,17 +51,23 @@ function toggleEdit() {
                     />
                 </button>
                 <h2
-                    class="todo__item__title todo__item__title--done"
+                    class="todo__item__title line-through"
                     @dblclick="toggleEdit"
                 >
-                    <span>{{ todo.text }}</span>
+                    <span class="text-secondary">{{ todo.text }}</span>
                 </h2>
             </div>
 
-            <button class="todo__item__remove" @click.prevent="removeTodo">
+            <button
+                class="todo-actions ml-5 opacity-0 transition-all duration-500 focus:opacity-100 focus:text-gray-600"
+                @click.prevent="removeTodo"
+            >
                 <FontAwesomeIcon :icon="['fas', 'close']" class="fa-lg" />
             </button>
-            <button class="todo__item__update" @click.prevent="toggleEdit">
+            <button
+                class="todo-actions ml-5 opacity-0 transition-all duration-500 focus:opacity-100 focus:text-gray-600"
+                @click.prevent="toggleEdit"
+            >
                 <FontAwesomeIcon :icon="['fas', 'pencil']" />
             </button>
         </article>
@@ -69,51 +76,13 @@ function toggleEdit() {
             :update="true"
             :todo-id="props.todo.id.toString()"
             @keyup.escape="toggleEdit"
-            @save="(val: boolean) => val ? toggleEdit() : null"
+            @save="(val: boolean) => (val ? toggleEdit() : null)"
         />
     </div>
 </template>
 
 <style scoped>
-.todo__item {
-    @apply mb-8;
-}
-
-.todo__item__content {
-    @apply flex;
-}
-
-.todo__item__title {
-    @apply ml-4 inline;
-}
-
-.todo__item__title--done {
-    @apply line-through;
-}
-
-.todo__item__title--done > span {
-    @apply text-secondary;
-}
-
-.todo__item:hover .todo__item__remove,
-.todo__item:hover .todo__item__update,
-.todo__item__remove:focus,
-.todo__item__update:focus {
+.todo__item:hover .todo-actions {
     @apply opacity-100 text-gray-600;
-}
-
-.todo__item__remove,
-.todo__item__update,
-.todo__item__loader {
-    @apply ml-5;
-}
-
-.todo__item__remove,
-.todo__item__update {
-    @apply opacity-0 transition-all duration-500;
-}
-
-.todo__item__loader {
-    @apply h-4 w-4 bg-cover;
 }
 </style>

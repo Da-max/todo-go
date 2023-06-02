@@ -23,7 +23,7 @@ import {
 import { useUtils } from './utils'
 import { useTodoStore } from '../stores/todo'
 import { onMounted, ref } from 'vue'
-import { todoStoreState } from '../types/todo'
+import { TodoInputEmit, todoStoreState } from '../types/todo'
 import { useForm } from './form'
 
 export function useTodo(todoId?: string) {
@@ -77,7 +77,7 @@ export function useTodo(todoId?: string) {
         }
     }
 
-    function onInput(name: any, e: Event) {
+    function onInput(name: keyof NewTodo, e: Event) {
         onInputForm(name, e)
         checkTodo()
     }
@@ -88,7 +88,7 @@ export function useTodo(todoId?: string) {
             try {
                 const { data } = await addTodoExecute({ input: newTodo.value })
                 todoStore.$patch((state) =>
-                    state.todos.unshift({ ...data.createTodo })
+                    state.todos.unshift({ ...data.createTodo }),
                 )
                 newTodo.value.text = ''
             } catch (error) {
@@ -110,7 +110,7 @@ export function useTodo(todoId?: string) {
                     state.todos = [
                         data.updateTodo,
                         ...state.todos.filter(
-                            (t) => t.id !== data.updateTodo.id
+                            (t) => t.id !== data.updateTodo.id,
                         ),
                     ]
                 })
@@ -120,7 +120,7 @@ export function useTodo(todoId?: string) {
         }
     }
 
-    async function saveTodo(emit: any) {
+    async function saveTodo(emit: TodoInputEmit) {
         checkTodo()
         startLoading()
         try {
@@ -147,7 +147,7 @@ export function useTodo(todoId?: string) {
                 })
                 todoStore.$patch((state: todoStoreState) => {
                     state.todos = state.todos.filter(
-                        (todo: TodoFragment) => todo.id !== data.removeTodo
+                        (todo: TodoFragment) => todo.id !== data.removeTodo,
                     )
                 })
             } catch (error) {
@@ -167,11 +167,11 @@ export function useTodo(todoId?: string) {
                     state.todos = [
                         ...state.todos.filter(
                             (todo: TodoFragment) =>
-                                todo.id !== data.markDoneTodo.id && !todo.done
+                                todo.id !== data.markDoneTodo.id && !todo.done,
                         ),
                         data.markDoneTodo,
                         ...state.todos.filter(
-                            (todo: TodoFragment) => todo.done
+                            (todo: TodoFragment) => todo.done,
                         ),
                     ]
                 })
@@ -195,7 +195,7 @@ export function useTodo(todoId?: string) {
                         data.markUndoneTodo,
                         ...state.todos.filter(
                             (todo: TodoFragment) =>
-                                todo.id !== data.markUndoneTodo.id
+                                todo.id !== data.markUndoneTodo.id,
                         ),
                     ]
                 })

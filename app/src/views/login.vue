@@ -38,7 +38,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Modal @close="modalClose" :open="state.modalOpen">
+    <Modal :open="state.modalOpen" @close="modalClose">
         <template #header>
             <h1>Se connecter</h1>
         </template>
@@ -46,7 +46,7 @@ onMounted(() => {
             <LoginForm ref="loginForm" />
         </template>
         <template #footer>
-            <div class="login__footer">
+            <div class="inline-flex w-full items-center flex-col mb-4">
                 <Button @click.prevent="login">Se connecter</Button>
                 <Button type="secondary" size="sm" @click.prevent="modalClose"
                     >Annuler</Button
@@ -55,13 +55,3 @@ onMounted(() => {
         </template>
     </Modal>
 </template>
-
-<style>
-.login__footer {
-    @apply inline-flex w-full items-center flex-col;
-}
-
-.login__footer > button {
-    @apply mb-4;
-}
-</style>

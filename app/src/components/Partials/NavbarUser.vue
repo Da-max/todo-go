@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { reactive, ref, ComputedRef, computed } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { onClickOutside, useTimeoutFn } from '@vueuse/core'
 import { useUserStore } from '../../stores/user'
 import { NavItems } from '../../types/nav'
@@ -67,48 +67,30 @@ onClickOutside(target, () => {
 <template>
     <div ref="target">
         <button class="text-gray-50" @click="toggleInfo">
-            {{
-                userStore.isAuthenticated && userStore.user
-                    ? userStore.user.username
-                    : '🧑'
-            }}
+            {{ userStore.isAuthenticated ? userStore.user?.username : '🧑' }}
         </button>
         <aside
             ref="component"
             :class="[
-                'navbar-user__aside',
-                { 'navbar-user__aside--show': show },
+                'mt-4 p-4 hidden rounded-md fixed right-1 bg-gray-50 opacity-0 transition-all',
+                { 'opacity-100 shadow-md': show },
             ]"
         >
             <FontAwesomeIcon
-                class="navbar-user__aside__icon"
+                class="absolute -top-4 right-5 text-gray-50"
                 :icon="['fas', 'caret-up']"
             />
             <p v-for="item in navItems" :key="item.title">
                 <a
-                    @click="item.onClick"
                     v-if="typeof item.onClick === 'function'"
                     href="#"
+                    @click="item.onClick"
                     >{{ item.title }}</a
                 >
-                <router-link v-else="item.onClick" :to="item.onClick">{{
+                <router-link v-else-if="item.onClick" :to="item.onClick">{{
                     item.title
                 }}</router-link>
             </p>
         </aside>
     </div>
 </template>
-
-<style scoped>
-.navbar-user__aside {
-    @apply mt-4 p-4 hidden rounded-md fixed right-1 bg-gray-50 opacity-0 transition-all;
-}
-
-.navbar-user__aside__icon {
-    @apply absolute -top-4 right-5 text-gray-50;
-}
-
-.navbar-user__aside--show {
-    @apply opacity-100 shadow-md;
-}
-</style>
