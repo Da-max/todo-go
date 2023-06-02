@@ -5,7 +5,7 @@ import graphqlPlugin from '@rollup/plugin-graphql'
 // https://vitejs.dev/config/
 export default defineConfig({
     root: 'app',
-    plugins: [vue(), graphqlPlugin()],
+    plugins: [vue(), graphqlPlugin() as Plugin],
     server: {
         port: 3000,
     },
