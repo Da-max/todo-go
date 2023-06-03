@@ -30,10 +30,7 @@ function toggleEdit() {
     <div class="todo__item mb-8">
         <article v-if="!edit" class="todo__item__content flex">
             <div v-if="!todo.done">
-                <button
-                    class="todo__item__circle"
-                    @click.prevent="markDoneTodo"
-                >
+                <button @click.prevent="markDoneTodo">
                     <FontAwesomeIcon :icon="['far', 'circle']" />
                 </button>
                 <h2
@@ -51,7 +48,7 @@ function toggleEdit() {
                     />
                 </button>
                 <h2
-                    class="todo__item__title line-through"
+                    class="todo__item__title ml-4 inline line-through"
                     @dblclick="toggleEdit"
                 >
                     <span class="text-secondary">{{ todo.text }}</span>
