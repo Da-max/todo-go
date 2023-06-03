@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"testing"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/Da-max/todo-go/utils/auth"
 	"github.com/Da-max/todo-go/utils/config"
 	"github.com/Da-max/todo-go/utils/postgres"
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
@@ -77,9 +77,7 @@ func getClient() *client.Client {
 
 	r.Handle("/", srv)
 
-	client := client.New(r, getAuthorizationOption(user))
-
-	return client
+	return client.New(r, getAuthorizationOption(user))
 }
 
 func TestTodo(t *testing.T) {
