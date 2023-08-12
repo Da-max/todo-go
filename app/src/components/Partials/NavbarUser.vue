@@ -18,6 +18,10 @@ const navItems = computed<NavItems>(() => {
     if (userStore.isAuthenticated) {
         items = [
             {
+                title: 'Mon profil',
+                onClick: { name: 'profile' },
+            },
+            {
                 title: 'Se déconnecter',
                 onClick: userStore.disconnect,
             },

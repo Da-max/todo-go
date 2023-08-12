@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
     faCaretUp,
+    faCheck,
     faCircleCheck,
     faClose,
     faPencil,
@@ -34,6 +35,7 @@ library.add(faPlus)
 library.add(faClose)
 library.add(faPencil)
 library.add(faCaretUp)
+library.add(faCheck)
 library.add(faCircle)
 library.add(faCircleCheck)
 

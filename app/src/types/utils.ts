@@ -29,7 +29,7 @@ export interface IAlert extends IMessage {
     type: AlertTypes
 }
 
-export const MESSAGE_STORE_NAME: 'message' = 'message'
+export const MESSAGE_STORE_NAME = 'message' as const
 
 export type messageStoreState = {
     messages: IMessage[]

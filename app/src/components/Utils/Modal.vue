@@ -1,12 +1,8 @@
 <script lang="ts" setup>
 import { useTimeoutFn } from '@vueuse/shared'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 type Props = {
-    open: boolean
-}
-
-type State = {
     open: boolean
 }
 
@@ -14,17 +10,13 @@ const props = withDefaults(defineProps<Props>(), {
     open: false,
 })
 const modal = ref<HTMLElement | null>(null)
-const state = reactive<State>({
-    open: props.open,
-})
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const open = computed({
-    get: () => state.open,
+    get: () => props.open,
     set: (val: boolean) => {
-        state.open = val
-        if (!state.open) {
+        if (!val) {
             emit('close')
         }
     },
@@ -33,7 +25,6 @@ const open = computed({
 watch(
     () => props.open,
     () => {
-        state.open = props.open
         if (props.open) {
             document.body.style.overflowY = 'hidden'
         } else {
@@ -44,12 +35,12 @@ watch(
                 }
             }, 300)
         }
-    }
+    },
 )
 </script>
 
 <template>
-    <dialog ref="state.modal" :class="['modal', { 'modal--close': !open }]">
+    <dialog :class="['modal', { 'modal--close': !open }]">
         <aside class="modal__container">
             <header class="modal__header">
                 <slot name="header"></slot>
