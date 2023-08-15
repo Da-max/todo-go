@@ -1,4 +1,3 @@
-import { ErrorTypes } from 'vue-router';
 <script lang="ts" setup>
 import { IMessage, Position, AlertTypes, ErrorTypes } from '../../types/utils'
 import {} from 'tailwindcss'
@@ -7,13 +6,11 @@ type Props = {
     pos?: Position
 }
 
-const { message } = defineProps<Props>()
+const props = defineProps<Props>()
 
 function getBgColor(): string {
-    console.log(message.type)
-
-    let color: string = ''
-    switch (message.type) {
+    let color = ''
+    switch (props.message.type) {
         case AlertTypes.SUCCESS:
             color = 'bg-success'
             break

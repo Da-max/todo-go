@@ -1,21 +1,66 @@
 <script setup lang="ts">
-import { useTodo } from '../../hooks/todo'
 import Loader from '../Utils/Loader.vue'
 import FormInput from '../Utils/Form/FormInput.vue'
+import { logicOr } from '@vueuse/math'
+import { ref } from 'vue'
+import { NewTodo } from '../../types/generated'
+import { useForm } from '../../hooks/form'
+import { useAddTodo } from '../../hooks/todo/useAddTodo'
+import { useUpdateTodo } from '../../hooks/todo/useUpdateTodo'
+import { useFindTodoById } from '../../hooks/todo/useFindTodoById'
 import { TodoInputEmit } from '../../types/todo'
+import { whenever } from '@vueuse/core'
 
 type TodoInputProps = {
     update: boolean
     todoId?: string
 }
 
+const emit = defineEmits<TodoInputEmit>()
+
 const props = withDefaults(defineProps<TodoInputProps>(), {
     update: false,
     todoId: undefined,
 })
-const emit = defineEmits<TodoInputEmit>()
 
-const { onInput, newTodo, error, loading, saveTodo } = useTodo(props.todoId)
+const newTodo = ref<NewTodo>({
+    text: '',
+})
+
+const currentTodo = useFindTodoById(props.todoId)
+
+whenever(currentTodo, () => {
+    if (props.todoId && currentTodo.value?.text) {
+        newTodo.value.text = currentTodo.value.text
+    }
+})
+
+const { addTodo, loading: addTodoLoading } = useAddTodo()
+const { updateTodo, loading: updateTodoLoading } = useUpdateTodo()
+const loading = logicOr(addTodoLoading, updateTodoLoading)
+
+const { onInput: onInputForm } = useForm<NewTodo>(newTodo)
+const error = ref<boolean>(false)
+
+const checkTodo = () => {
+    error.value = !newTodo.value.text
+}
+
+const onInput = (name: keyof NewTodo, e: Event) => {
+    onInputForm(name, e)
+    checkTodo()
+}
+
+const saveTodo = async () => {
+    checkTodo()
+    if (!error.value) {
+        if (props.todoId) {
+            emit('save', await updateTodo(newTodo, props.todoId))
+        } else {
+            emit('save', await addTodo(newTodo))
+        }
+    }
+}
 </script>
 
 <template>
@@ -42,7 +87,7 @@ const { onInput, newTodo, error, loading, saveTodo } = useTodo(props.todoId)
                 class-input="md:w-7/12 w-full p-2 pl-14 focus:border-opacity-100 focus:outline-none"
                 @input="onInput"
                 @focusout="error = false"
-                @keypress.enter="saveTodo(emit)"
+                @keydown.enter="saveTodo"
             />
             <Loader
                 v-show="loading"

@@ -3,6 +3,7 @@ package resolvers
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"net/http"
 	"testing"
 
@@ -51,12 +52,12 @@ func getAuthorizationOption(user *model.User) client.Option {
 func getClient() *client.Client {
 	db := postgres.New()
 	user := createTestUser(db)
-	config := config.GetConfig()
+	conf := config.GetConfig()
 
 	r := chi.NewRouter()
 	resolver := &Resolver{
 		DB:     postgres.New(),
-		Config: config,
+		Config: conf,
 	}
 	r.Use(auth.AuthenticatorMiddleware(resolver.DB))
 
@@ -68,7 +69,7 @@ func getClient() *client.Client {
 	srv.AddTransport(&transport.Websocket{
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
-				return r.Host == "localhost:"+fmt.Sprint(config.Port)
+				return r.Host == "localhost:"+fmt.Sprint(conf.Port)
 			},
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -83,10 +84,11 @@ func getClient() *client.Client {
 func TestTodo(t *testing.T) {
 	c := getClient()
 
-	t.Run("Create todo", func(t *testing.T) {
+	t.Run("Create todo with content", func(t *testing.T) {
 		var resp struct {
 			CreateTodo model.Todo
 		}
+
 		c.MustPost(`mutation { createTodo(input: { text: "Best Todo" }) { 
 				text
 				done
@@ -94,5 +96,20 @@ func TestTodo(t *testing.T) {
 		}`, &resp)
 
 		require.Equal(t, "Best Todo", resp.CreateTodo.Text)
+
+	})
+
+	t.Run("Create todo without content", func(t *testing.T) {
+		var resp []gqlerror.Error
+
+		c.MustPost(`mutation { createTodo(input: { text: "" }) { 
+				text
+				done
+			}
+		}`, &resp)
+
+		fmt.Print("yo :", &resp[0].Message)
+
+		require.Equal(t, "An empty todo cannot be saved.", resp[0].Message)
 	})
 }

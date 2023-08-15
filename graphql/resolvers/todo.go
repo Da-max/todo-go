@@ -6,6 +6,8 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/model"
@@ -25,9 +27,16 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	todo.UserID = int(user.ID)
 	todo.User = *user
 
-	if res := r.DB.Create(todo); res.Error != nil {
-		panic("The todo " + todo.Text + " cannot be add.")
+	if todo.Text == "" {
+		graphql.AddError(ctx, gqlerror.Errorf("An empty todo cannot be saved."))
+		return nil, nil
 	}
+
+	if res := r.DB.Create(todo); res.Error != nil {
+		graphql.AddError(ctx, gqlerror.Errorf("The todo "+todo.Text+" cannot be add."))
+		return nil, nil
+	}
+
 	return todo, nil
 }
 
@@ -38,11 +47,11 @@ func (r *mutationResolver) RemoveTodo(ctx context.Context, todoID int) (int, err
 	)
 
 	if res := r.DB.First(todo, todoID); res.Error != nil {
-		panic("The todo with id " + fmt.Sprint(todoID) + " is not found")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(todoID)+" is not found"))
 	}
 
 	if res := r.DB.Delete(todo); res.Error != nil {
-		panic("The todo cannot be delete")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo cannot be delete"))
 	}
 
 	return todoID, nil
@@ -60,15 +69,14 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.NewTodo, 
 	// }
 
 	if res := r.DB.First(todo, todoID); res.Error != nil {
-		panic("The todo with id " + fmt.Sprint(todoID) + " is not found")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(todoID)+" is not found"))
 	}
 
 	todo.Text = input.Text
 	// todo.UserID = input.UserID
 
 	if res := r.DB.Save(todo); res.Error != nil {
-		fmt.Println(res.Error)
-		panic("The todo with id " + fmt.Sprint(todoID) + " cannot be saved")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(todoID)+" cannot be saved"))
 	}
 
 	return todo, nil
@@ -79,13 +87,13 @@ func (r *mutationResolver) MarkDoneTodo(ctx context.Context, todoID int) (*model
 	var todo *model.Todo = &model.Todo{}
 
 	if res := r.DB.First(todo, todoID); res.Error != nil {
-		panic("The todo with id " + fmt.Sprint(todoID) + " cannot be found.")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(todoID)+" cannot be found."))
 	}
 
 	todo.Done = true
 
 	if res := r.DB.Save(todo); res.Error != nil {
-		panic("The todo with id " + fmt.Sprint(todo.ID) + " cannot be update")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(todo.ID)+" cannot be update"))
 	}
 
 	return todo, nil
@@ -96,13 +104,13 @@ func (r *mutationResolver) MarkUndoneTodo(ctx context.Context, todoID int) (*mod
 	var todo *model.Todo = &model.Todo{}
 
 	if res := r.DB.First(todo, todoID); res.Error != nil {
-		panic("The todo with id " + fmt.Sprint(todoID) + " cannot be found.")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(todoID)+" cannot be found."))
 	}
 
 	todo.Done = false
 
 	if res := r.DB.Save(todo); res.Error != nil {
-		panic("The todo with id " + fmt.Sprint(todo.ID) + " cannot be update")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(todo.ID)+" cannot be update"))
 	}
 
 	return todo, nil
@@ -111,7 +119,7 @@ func (r *mutationResolver) MarkUndoneTodo(ctx context.Context, todoID int) (*mod
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	var (
-		todos []*model.Todo = []*model.Todo{}
+		todos []*model.Todo
 		// user  *model.User   = &model.User{}
 	)
 
@@ -120,7 +128,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	// }
 
 	if result := r.DB. /*.Where(&model.Todo{UserID: int(user.ID)})*/ Order("done, updated_at desc").Find(&todos); result.Error != nil {
-		panic("The todos cannot be query.")
+		graphql.AddError(ctx, gqlerror.Errorf("The todos cannot be query."))
 	}
 
 	return todos, nil
@@ -129,8 +137,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 // ID is the resolver for the id field.
 func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
 	if result := r.DB.First(&model.Todo{}, obj.ID); result.Error != nil {
-		fmt.Println(result.Error)
-		panic("The todo with id " + fmt.Sprint(obj.ID) + " cannot be found.")
+		graphql.AddError(ctx, gqlerror.Errorf("The todo with id "+fmt.Sprint(obj.ID)+" cannot be found."))
 	}
 
 	return int(obj.ID), nil
@@ -140,7 +147,7 @@ func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
 	var user *model.User = &model.User{}
 	if res := r.DB.First(user, obj.UserID); res.Error != nil {
-		panic("The user cannot be found.")
+		graphql.AddError(ctx, gqlerror.Errorf("The user cannot be found."))
 	}
 	return user, nil
 }

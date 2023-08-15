@@ -69,12 +69,12 @@ func (r *mutationResolver) SignUp(ctx context.Context, input model.NewUser) (*mo
 		return nil, err
 	}
 
-	message.WriteString("Merci de cliquer sur ce lien afin de confirmer votre compte : ")
-	message.WriteString(r.Config.Host)
-	message.WriteString(strconv.Itoa(r.Config.FrontendPort))
-	message.WriteString("/#/confirm-account?token=")
-	message.WriteString(token)
 	go func() {
+		message.WriteString("Merci de cliquer sur ce lien afin de confirmer votre compte : ")
+		message.WriteString(r.Config.Host)
+		message.WriteString(strconv.Itoa(r.Config.FrontendPort))
+		message.WriteString("/#/confirm-account?token=")
+		message.WriteString(token)
 		mailError <- mail.SendMail([]string{user.Email}, "Confirmer votre compte", message.String())
 
 		if err := <-mailError; err != nil {

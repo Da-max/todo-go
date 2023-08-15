@@ -9,7 +9,7 @@ import {
 export const useMessageStore = defineStore<
     typeof MESSAGE_STORE_NAME,
     messageStoreState,
-    {},
+    Record<string, never>,
     messageStoreActions
 >(MESSAGE_STORE_NAME, {
     state: () => ({
@@ -25,10 +25,10 @@ export const useMessageStore = defineStore<
         },
         remove(id: string): boolean {
             const findedIndex: number = this.$state.messages.findIndex(
-                (m) => m.id === id
+                (m) => m.id === id,
             )
             this.$state.messages = this.$state.messages.filter(
-                (_, i) => i !== findedIndex
+                (_, i) => i !== findedIndex,
             )
             return findedIndex !== -1
         },

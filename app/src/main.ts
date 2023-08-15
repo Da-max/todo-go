@@ -21,7 +21,7 @@ import router from './router'
 const app = createApp(App)
 
 const client = createClient({
-    url: import.meta.env.VITE_GRAPHQL_ENDPOINT || '/query', // your endpoint.
+    url: import.meta.env.VITE_GRAPHQL_ENDPOINT || '/query',
     use: [auth.villusPlugin, ...defaultPlugins()],
 })
 

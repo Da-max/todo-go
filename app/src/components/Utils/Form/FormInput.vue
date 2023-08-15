@@ -7,14 +7,17 @@ type Props = {
     type: 'text' | 'password'
     label?: boolean
     error?: boolean
-    classInput: string | undefined
+    classInput?: string | undefined
 }
 
 type State = {
     error: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), { label: true })
+const props = withDefaults(defineProps<Props>(), {
+    label: true,
+    classInput: undefined,
+})
 
 const state = reactive<State>({
     error: props.error ?? false,
@@ -23,6 +26,7 @@ const state = reactive<State>({
 watch(
     () => props.error,
     () => {
+        console.log(props.error)
         state.error = props.error ?? false
     },
 )
@@ -38,8 +42,8 @@ const emit = defineEmits<{ (e: 'input', id: string, value: Event): void }>()
             :value="props.value"
             :class="[
                 props.classInput,
-                { 'border-error': state.error },
                 'rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500 focus:border-opacity-100 focus:outline-none',
+                { '!border-error': state.error },
             ]"
             @input="(e: Event) => emit('input', props.id, e)"
             @focusout="state.error = false"
@@ -53,7 +57,7 @@ const emit = defineEmits<{ (e: 'input', id: string, value: Event): void }>()
         :class="[
             props.classInput,
             'rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500 focus:border-opacity-100 focus:outline-none',
-            { 'border-error': state.error },
+            { '!border-error': state.error },
         ]"
         @input="(e: Event) => emit('input', props.id, e)"
         @focusout="state.error = false"

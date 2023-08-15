@@ -17,6 +17,10 @@ type Confirm {
     token: String!
 }
 
+type RequestResetPassword {
+    ok: Boolean!
+}
+
 input NewUser {
     username: String!
     email: String!
@@ -32,6 +36,15 @@ input ConfirmIdentifier {
     token: String!
 }
 
+input RequestPasswordResetIdentifier {
+    email: String!
+}
+
+input ResetPasswordIdentifier {
+    password: String!
+    token: String!
+}
+
 type Query {
     users: [User!]!
     currentUser: User!
@@ -41,4 +54,8 @@ type Mutation {
     login(input: Identifier!): Tokens!
     signUp(input: NewUser!): User!
     confirmAccount(input: ConfirmIdentifier): Confirm!
+    requestResetPassword(
+        input: RequestPasswordResetIdentifier!
+    ): RequestResetPassword!
+    resetPassword(input: ResetPasswordIdentifier!): Confirm!
 }

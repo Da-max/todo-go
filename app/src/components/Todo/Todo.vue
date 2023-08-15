@@ -1,30 +1,32 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { onMounted, ref } from 'vue'
-import { useTodoStore } from '../../stores/todo'
 import TodoInput from './TodoInput.vue'
 import Loader from '../Utils/Loader.vue'
 import TodoItem from './TodoItem.vue'
+import { useAllTodos } from '../../hooks/todo/useAllTodos'
+import { computed } from 'vue'
 
-const todoStore = useTodoStore()
-const { todos } = storeToRefs(todoStore)
+const { data, isFetching } = useAllTodos()
 
-const loading = ref<boolean>(true)
-
-onMounted(() => {
-    todoStore.getAll().then(() => {
-        loading.value = false
-    })
-})
+const todos = computed(() =>
+    data.value?.todos
+        ? [...data.value.todos].sort((a, b) => parseInt(b.id) - parseInt(a.id))
+        : [],
+)
 </script>
 
 <template>
     <section class="flex-1 flex justify-center bg-gray-100 rounded-md p-10">
+        <div
+            v-if="isFetching"
+            class="fixed bottom-5 right-10 flex items-center"
+        >
+            <p>Chargement en cours</p>
+            <Loader class="w-full h-24" />
+        </div>
         <div class="sm:w-2/3">
             <TodoInput :update="false" />
             <section class="mt-10">
-                <Loader v-show="loading" class="w-full h-24" />
-                <div>
+                <div v-if="todos">
                     <div v-for="todo in todos" :key="todo.id">
                         <TodoItem :todo="todo" />
                     </div>
