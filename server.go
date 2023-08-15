@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/Da-max/todo-go/utils/mail"
 	"log"
 	"net/http"
 
@@ -23,6 +24,7 @@ func Router(config config.Config) *chi.Mux {
 	r := chi.NewRouter()
 	resolver := &resolvers.Resolver{
 		DB:     postgres.New(),
+		Hermes: mail.New(),
 		Config: config,
 	}
 	r.Use(auth.AuthenticatorMiddleware(resolver.DB))

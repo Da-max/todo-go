@@ -26,6 +26,19 @@ type NewUser struct {
 	Password string `json:"password"`
 }
 
+type RequestPasswordResetIdentifier struct {
+	Email string `json:"email"`
+}
+
+type RequestResetPassword struct {
+	Ok bool `json:"ok"`
+}
+
+type ResetPasswordIdentifier struct {
+	Password string `json:"password"`
+	Token    string `json:"token"`
+}
+
 type Tokens struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`

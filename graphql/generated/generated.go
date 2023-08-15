@@ -53,20 +53,26 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ConfirmAccount func(childComplexity int, input *model.ConfirmIdentifier) int
-		CreateTodo     func(childComplexity int, input model.NewTodo) int
-		Login          func(childComplexity int, input model.Identifier) int
-		MarkDoneTodo   func(childComplexity int, todoID int) int
-		MarkUndoneTodo func(childComplexity int, todoID int) int
-		RemoveTodo     func(childComplexity int, todoID int) int
-		SignUp         func(childComplexity int, input model.NewUser) int
-		UpdateTodo     func(childComplexity int, input model.NewTodo, todoID int) int
+		ConfirmAccount       func(childComplexity int, input *model.ConfirmIdentifier) int
+		CreateTodo           func(childComplexity int, input model.NewTodo) int
+		Login                func(childComplexity int, input model.Identifier) int
+		MarkDoneTodo         func(childComplexity int, todoID int) int
+		MarkUndoneTodo       func(childComplexity int, todoID int) int
+		RemoveTodo           func(childComplexity int, todoID int) int
+		RequestResetPassword func(childComplexity int, input model.RequestPasswordResetIdentifier) int
+		ResetPassword        func(childComplexity int, input model.ResetPasswordIdentifier) int
+		SignUp               func(childComplexity int, input model.NewUser) int
+		UpdateTodo           func(childComplexity int, input model.NewTodo, todoID int) int
 	}
 
 	Query struct {
 		CurrentUser func(childComplexity int) int
 		Todos       func(childComplexity int) int
 		Users       func(childComplexity int) int
+	}
+
+	RequestResetPassword struct {
+		Ok func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -95,6 +101,8 @@ type MutationResolver interface {
 	Login(ctx context.Context, input model.Identifier) (*model.Tokens, error)
 	SignUp(ctx context.Context, input model.NewUser) (*model.User, error)
 	ConfirmAccount(ctx context.Context, input *model.ConfirmIdentifier) (*model.Confirm, error)
+	RequestResetPassword(ctx context.Context, input model.RequestPasswordResetIdentifier) (*model.RequestResetPassword, error)
+	ResetPassword(ctx context.Context, input model.ResetPasswordIdentifier) (*model.Confirm, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 	RemoveTodo(ctx context.Context, todoID int) (int, error)
 	UpdateTodo(ctx context.Context, input model.NewTodo, todoID int) (*model.Todo, error)
@@ -216,6 +224,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveTodo(childComplexity, args["todoId"].(int)), true
 
+	case "Mutation.requestResetPassword":
+		if e.complexity.Mutation.RequestResetPassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_requestResetPassword_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RequestResetPassword(childComplexity, args["input"].(model.RequestPasswordResetIdentifier)), true
+
+	case "Mutation.resetPassword":
+		if e.complexity.Mutation.ResetPassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_resetPassword_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ResetPassword(childComplexity, args["input"].(model.ResetPasswordIdentifier)), true
+
 	case "Mutation.signUp":
 		if e.complexity.Mutation.SignUp == nil {
 			break
@@ -260,6 +292,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Users(childComplexity), true
+
+	case "RequestResetPassword.ok":
+		if e.complexity.RequestResetPassword.Ok == nil {
+			break
+		}
+
+		return e.complexity.RequestResetPassword.Ok(childComplexity), true
 
 	case "Todo.done":
 		if e.complexity.Todo.Done == nil {
@@ -357,6 +396,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputIdentifier,
 		ec.unmarshalInputNewTodo,
 		ec.unmarshalInputNewUser,
+		ec.unmarshalInputRequestPasswordResetIdentifier,
+		ec.unmarshalInputResetPasswordIdentifier,
 	)
 	first := true
 
@@ -436,6 +477,10 @@ type Confirm {
     token: String!
 }
 
+type RequestResetPassword {
+    ok: Boolean!
+}
+
 input NewUser {
     username: String!
     email: String!
@@ -451,6 +496,15 @@ input ConfirmIdentifier {
     token: String!
 }
 
+input RequestPasswordResetIdentifier {
+    email: String!
+}
+
+input ResetPasswordIdentifier {
+    password: String!
+    token: String!
+}
+
 type Query {
     users: [User!]!
     currentUser: User!
@@ -460,6 +514,10 @@ type Mutation {
     login(input: Identifier!): Tokens!
     signUp(input: NewUser!): User!
     confirmAccount(input: ConfirmIdentifier): Confirm!
+    requestResetPassword(
+        input: RequestPasswordResetIdentifier!
+    ): RequestResetPassword!
+    resetPassword(input: ResetPasswordIdentifier!): Confirm!
 }
 `, BuiltIn: false},
 	{Name: "../todo.graphqls", Input: `# Schema for my todo app (inspirate by the tuto)
@@ -582,6 +640,36 @@ func (ec *executionContext) field_Mutation_removeTodo_args(ctx context.Context, 
 		}
 	}
 	args["todoId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_requestResetPassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.RequestPasswordResetIdentifier
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNRequestPasswordResetIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestPasswordResetIdentifier(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_resetPassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ResetPasswordIdentifier
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNResetPasswordIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐResetPasswordIdentifier(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -950,6 +1038,126 @@ func (ec *executionContext) fieldContext_Mutation_confirmAccount(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_confirmAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_requestResetPassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_requestResetPassword(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RequestResetPassword(rctx, fc.Args["input"].(model.RequestPasswordResetIdentifier))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RequestResetPassword)
+	fc.Result = res
+	return ec.marshalNRequestResetPassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestResetPassword(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_requestResetPassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ok":
+				return ec.fieldContext_RequestResetPassword_ok(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RequestResetPassword", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_requestResetPassword_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_resetPassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_resetPassword(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ResetPassword(rctx, fc.Args["input"].(model.ResetPasswordIdentifier))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Confirm)
+	fc.Result = res
+	return ec.marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirm(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_resetPassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ok":
+				return ec.fieldContext_Confirm_ok(ctx, field)
+			case "token":
+				return ec.fieldContext_Confirm_token(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Confirm", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_resetPassword_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -1685,6 +1893,50 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RequestResetPassword_ok(ctx context.Context, field graphql.CollectedField, obj *model.RequestResetPassword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RequestResetPassword_ok(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ok, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RequestResetPassword_ok(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RequestResetPassword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4023,10 +4275,11 @@ func (ec *executionContext) unmarshalInputConfirmIdentifier(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
-			it.Token, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Token = data
 		}
 	}
 
@@ -4051,18 +4304,20 @@ func (ec *executionContext) unmarshalInputIdentifier(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Username = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Password = data
 		}
 	}
 
@@ -4087,10 +4342,11 @@ func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
-			it.Text, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Text = data
 		}
 	}
 
@@ -4115,26 +4371,96 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Username = data
 		case "email":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Email = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRequestPasswordResetIdentifier(ctx context.Context, obj interface{}) (model.RequestPasswordResetIdentifier, error) {
+	var it model.RequestPasswordResetIdentifier
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputResetPasswordIdentifier(ctx context.Context, obj interface{}) (model.ResetPasswordIdentifier, error) {
+	var it model.ResetPasswordIdentifier
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"password", "token"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		case "token":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Token = data
 		}
 	}
 
@@ -4225,6 +4551,24 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_confirmAccount(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "requestResetPassword":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_requestResetPassword(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "resetPassword":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_resetPassword(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -4386,6 +4730,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec._Query___schema(ctx, field)
 			})
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var requestResetPasswordImplementors = []string{"RequestResetPassword"}
+
+func (ec *executionContext) _RequestResetPassword(ctx context.Context, sel ast.SelectionSet, obj *model.RequestResetPassword) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, requestResetPasswordImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RequestResetPassword")
+		case "ok":
+
+			out.Values[i] = ec._RequestResetPassword_ok(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4957,6 +5329,30 @@ func (ec *executionContext) unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑg
 
 func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
 	res, err := ec.unmarshalInputNewUser(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRequestPasswordResetIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestPasswordResetIdentifier(ctx context.Context, v interface{}) (model.RequestPasswordResetIdentifier, error) {
+	res, err := ec.unmarshalInputRequestPasswordResetIdentifier(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRequestResetPassword2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestResetPassword(ctx context.Context, sel ast.SelectionSet, v model.RequestResetPassword) graphql.Marshaler {
+	return ec._RequestResetPassword(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRequestResetPassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestResetPassword(ctx context.Context, sel ast.SelectionSet, v *model.RequestResetPassword) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RequestResetPassword(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNResetPasswordIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐResetPasswordIdentifier(ctx context.Context, v interface{}) (model.ResetPasswordIdentifier, error) {
+	res, err := ec.unmarshalInputResetPasswordIdentifier(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

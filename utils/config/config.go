@@ -63,3 +63,7 @@ func GetConfig() Config {
 	return c
 
 }
+
+func (c *Config) GetAppUrl() string {
+	return c.Host + strconv.Itoa(c.FrontendPort)
+}

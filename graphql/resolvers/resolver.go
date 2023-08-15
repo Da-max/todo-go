@@ -1,7 +1,9 @@
+//go:generate go run github.com/99designs/gqlgen generate
 package resolvers
 
 import (
 	"github.com/Da-max/todo-go/utils/config"
+	"github.com/matcornic/hermes/v2"
 	"gorm.io/gorm"
 )
 
@@ -11,5 +13,6 @@ import (
 
 type Resolver struct {
 	DB     *gorm.DB
+	Hermes hermes.Hermes
 	Config config.Config
 }
