@@ -18,7 +18,7 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
             {
-                path: '/create-account',
+                path: '/auth/create-account',
                 component: () => import('../views/signup.vue'),
                 name: 'create-account',
                 meta: {
@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
                 },
             },
             {
-                path: '/login',
+                path: '/auth/login',
                 component: () => import('../views/login.vue'),
                 name: 'login',
                 meta: {
@@ -34,7 +34,7 @@ const routes: RouteRecordRaw[] = [
                 },
             },
             {
-                path: '/confirm-account',
+                path: '/auth/confirm-account',
                 component: () => import('../views/confirm-account.vue'),
                 name: 'confirm-account',
                 meta: {
@@ -47,6 +47,22 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('../views/profile.vue'),
                 meta: {
                     loginRequired: true,
+                },
+            },
+            {
+                name: 'request-reset-password',
+                path: '/auth/request-reset-password',
+                component: () => import('../views/request-reset-password.vue'),
+                meta: {
+                    loginRequired: false,
+                },
+            },
+            {
+                name: 'reset-password',
+                path: '/auth/reset-password',
+                component: () => import('../views/reset-password.vue'),
+                meta: {
+                    loginRequired: false,
                 },
             },
         ],

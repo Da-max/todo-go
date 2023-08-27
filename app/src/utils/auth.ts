@@ -13,8 +13,6 @@ class Auth {
 
     public set token(v: string | null) {
         if (v) {
-            console.log(v)
-
             this._token.value = v
         } else {
             this._token.value = null

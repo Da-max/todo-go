@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useTimeoutFn } from '@vueuse/shared'
 import { computed, ref, watch } from 'vue'
+import { Modal } from 'flowbite-vue'
 
 type Props = {
     open: boolean
@@ -40,7 +41,7 @@ watch(
 </script>
 
 <template>
-    <dialog :class="['modal', { 'modal--close': !open }]">
+    <Modal :class="['modal', { 'modal--close': !open }]">
         <aside class="modal__container">
             <header class="modal__header">
                 <slot name="header"></slot>
@@ -55,7 +56,7 @@ watch(
                 <slot name="footer"></slot>
             </footer>
         </aside>
-    </dialog>
+    </Modal>
 </template>
 
 <style scoped>

@@ -23,3 +23,8 @@ export type LoginFields = {
 export type SignUpFields = {
     confirmPassword: string
 } & NewUser
+
+export type ResetPasswordFields = {
+    password: string
+    confirmPassword: string
+}

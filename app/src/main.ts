@@ -8,6 +8,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import {
     faCaretUp,
     faCheck,
+    faChevronLeft,
     faCircleCheck,
     faClose,
     faPencil,
@@ -38,6 +39,7 @@ library.add(faCaretUp)
 library.add(faCheck)
 library.add(faCircle)
 library.add(faCircleCheck)
+library.add(faChevronLeft)
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 app.mount('#app')

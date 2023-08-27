@@ -36,3 +36,20 @@ export const confirmAccount = gql`
         }
     }
 `
+
+export const requestResetPassword = gql`
+    mutation requestResetPassword($input: RequestPasswordResetIdentifier!) {
+        requestResetPassword(input: $input) {
+            ok
+        }
+    }
+`
+
+export const resetPassword = gql`
+    mutation resetPassword($input: ResetPasswordIdentifier!) {
+        resetPassword(input: $input) {
+            ok
+            token
+        }
+    }
+`

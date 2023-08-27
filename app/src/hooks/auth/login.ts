@@ -17,6 +17,7 @@ export function useLogin() {
     })
     const { error, setError } = useUtils()
     const userStore = useUserStore()
+    const router = useRouter()
     const { execute: loginExecute } = useMutation<
         LoginMutation,
         LoginMutationVariables
@@ -25,28 +26,26 @@ export function useLogin() {
 
     async function login() {
         if (fields.value.password && fields.value.username) {
-            try {
-                error.value = null
-                const { data } = await loginExecute({
-                    input: fields.value,
-                })
-                if (data) {
-                    auth.token = data.login.accessToken
-                    await userStore.getCurrent()
-                    if (useUserStore().isAuthenticated) {
-                        useRouter().push({ name: 'home' })
-                    }
-                } else {
-                    setError(
-                        ErrorTypes.VALUE,
-                        'Le nom d’utilisateur ou le mot de passe est incorrect.'
-                    )
+            error.value = null
+            const { data } = await loginExecute({
+                input: fields.value,
+            })
+            if (data) {
+                auth.token = data.login.accessToken
+                await userStore.getCurrent()
+                if (useUserStore().isAuthenticated) {
+                    await router.push({ name: 'home' })
                 }
-            } catch (e) {}
+            } else {
+                setError(
+                    ErrorTypes.VALUE,
+                    'Le nom d’utilisateur ou le mot de passe est incorrect.',
+                )
+            }
         } else {
             setError(
                 ErrorTypes.FILL,
-                'Merci de vérifier que vous avez remplis tous les champs.'
+                'Merci de vérifier que vous avez remplis tous les champs.',
             )
         }
     }

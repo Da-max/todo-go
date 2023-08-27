@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import Modal from '../components/Utils/Modal.vue'
-import Button from '../components/Utils/Button.vue'
+import { Modal } from 'flowbite-vue'
+import { Button } from 'flowbite-vue'
 import { reactive, ref } from 'vue'
 import SignupForm from '../components/Auth/Signup/SignupForm.vue'
 import { Router, useRouter } from 'vue-router'
@@ -34,7 +34,7 @@ const modalClose = function () {
         <template #header>
             <h1>Créer un compte</h1>
         </template>
-        <template #content>
+        <template #body>
             <SignupForm ref="signUpForm" />
         </template>
         <template #footer>
@@ -44,8 +44,8 @@ const modalClose = function () {
                 >
                 <Button
                     class="mb-4"
-                    type="secondary"
                     size="sm"
+                    color="alternative"
                     @click.prevent="modalClose"
                     >Annuler</Button
                 >

@@ -1,6 +1,8 @@
 export enum ErrorTypes {
     FILL = 'FILL',
     VALUE = 'VALUE',
+    NETWORK = 'NETWORK',
+    OTHER = 'OTHER',
 }
 
 export enum AlertTypes {

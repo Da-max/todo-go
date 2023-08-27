@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import Modal from '../components/Utils/Modal.vue'
+import { Modal } from 'flowbite-vue'
 import LoginForm from '../components/Auth/Login/LoginForm.vue'
-import Button from '../components/Utils/Button.vue'
+import { Button } from 'flowbite-vue'
 import { onMounted, reactive, ref } from 'vue'
 import { Router, useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
@@ -40,15 +40,25 @@ onMounted(() => {
 <template>
     <Modal :open="state.modalOpen" @close="modalClose">
         <template #header>
-            <h1>Se connecter</h1>
+            <h1 class="text-3xl">Se connecter</h1>
         </template>
-        <template #content>
+        <template #body>
             <LoginForm ref="loginForm" />
+            <p class="font-medium text-sm">
+                <router-link
+                    :to="{ name: 'request-reset-password' }"
+                    class="text-blue-600 dark:text-blue-500 hover:underline"
+                    >Mot de passe oublié</router-link
+                >
+            </p>
         </template>
         <template #footer>
-            <div class="inline-flex w-full items-center flex-col mb-4">
+            <div class="inline-flex w-full items-center flex-col mb-4 gap-4">
                 <Button @click.prevent="login">Se connecter</Button>
-                <Button type="secondary" size="sm" @click.prevent="modalClose"
+                <Button
+                    color="alternative"
+                    size="sm"
+                    @click.prevent="modalClose"
                     >Annuler</Button
                 >
             </div>

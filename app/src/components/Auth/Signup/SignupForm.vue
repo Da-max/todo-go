@@ -1,8 +1,18 @@
 <script lang="ts" setup>
 import FormInput from '../../Utils/Form/FormInput.vue'
 import { useSignUp } from '../../../hooks/auth/signup'
+import { computed, ref } from 'vue'
 
 const { fields, signUp, onInput, error } = useSignUp()
+
+const errorValue = ref<boolean>(false)
+
+const errorComputed = computed<boolean>({
+    get: () => errorValue.value || !!error.value,
+    set: (newError: boolean) => {
+        errorValue.value = newError
+    },
+})
 
 defineExpose({
     signUp,
@@ -11,50 +21,42 @@ defineExpose({
 
 <template>
     <form
-        class="h-full text-xl flex flex-wrap flex-col xl:flex-row xl:justify-around items-center"
+        class="h-full text-xl flex flex-wrap flex-col xl:flex-row xl:justify-around items-center gap-8"
         action="#"
     >
-        <div>
+        <div class="flex flex-col gap-8">
             <FormInput
-                id="username"
-                :value="fields.username"
-                class="flex flex-col mt-4"
-                type="text"
+                v-model:error="errorComputed"
+                v-model="fields.username"
                 :error="!!error"
-                @input="onInput"
-                >Nom d’utilisateur</FormInput
-            >
+                label="Nom d’utilisateur"
+            ></FormInput>
             <FormInput
-                id="email"
-                class="flex flex-col mt-4"
-                :value="fields.email"
-                type="text"
+                v-model:error="errorComputed"
+                v-model="fields.email"
+                label="Email"
+                type="email"
                 :error="!!error"
-                @input="onInput"
-                >Email</FormInput
-            >
+            />
         </div>
-        <div>
+        <div class="flex flex-col gap-8">
             <FormInput
-                id="password"
-                class="flex flex-col mt-4"
-                :value="fields.password"
+                v-model:error="errorComputed"
+                v-model="fields.password"
                 type="password"
                 :error="!!error"
-                @input="onInput"
-                >Mot de passe</FormInput
-            >
+                label="Mot de passe"
+            />
             <FormInput
-                id="confirmPassword"
-                class="flex flex-col mt-4"
-                :value="fields.confirmPassword"
+                v-model:error="errorComputed"
+                v-model="fields.confirmPassword"
                 type="password"
                 :error="!!error"
+                label="Confirmation du mot de passe"
                 @input="onInput"
-                >Confirmation du mot de passe</FormInput
-            >
+            />
         </div>
-        <p class="text-error mt-4 p-4 min-w-full">
+        <p v-if="error?.text" class="text-error mt-4 p-4 min-w-full">
             {{ error?.text }}
         </p>
     </form>

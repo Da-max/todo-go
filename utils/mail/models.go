@@ -21,22 +21,22 @@ func generateRequestResetPasswordMail(h hermes.Hermes, user *model.User, token s
 		Body: hermes.Body{
 			Name: user.Username,
 			Intros: []string{
-				"You have received this email because a password reset request for Hermes account was received.",
+				"Vous recevez ce mail car une demande de réinitialisation de mot de passe a été effectué sur l’application Todo-go.",
 			},
 			Actions: []hermes.Action{
 				{
-					Instructions: "Click the button below to reset your password :",
+					Instructions: "Cliquer sur le bouton ci-dessous afin de réinitialiser votre mot de passe :",
 					Button: hermes.Button{
 						Color: "#DC4D2F",
-						Text:  "Reset your password",
-						Link:  conf.GetAppUrl() + "/#/reset-password?token=" + token,
+						Text:  "Réinitialiser votre mot de passe",
+						Link:  conf.GetAppUrl() + "/#/auth/reset-password?token=" + token,
 					},
 				},
 			},
 			Outros: []string{
-				"If you did not request a password reset, no further action is required on your part.",
+				"Si vous n’avez pas demandé de réinitialisation de mot de passe, aucune action n’est requise de votre part..",
 			},
-			Signature: "Thanks",
+			Signature: "Merci",
 		},
 	})
 

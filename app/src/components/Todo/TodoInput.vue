@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import Loader from '../Utils/Loader.vue'
-import FormInput from '../Utils/Form/FormInput.vue'
+import { Button } from 'flowbite-vue'
 import { logicOr } from '@vueuse/math'
 import { ref } from 'vue'
 import { NewTodo } from '../../types/generated'
-import { useForm } from '../../hooks/form'
 import { useAddTodo } from '../../hooks/todo/useAddTodo'
 import { useUpdateTodo } from '../../hooks/todo/useUpdateTodo'
 import { useFindTodoById } from '../../hooks/todo/useFindTodoById'
 import { TodoInputEmit } from '../../types/todo'
 import { whenever } from '@vueuse/core'
+import FormInput from '../Utils/Form/FormInput.vue'
 
 type TodoInputProps = {
     update: boolean
@@ -39,16 +39,10 @@ const { addTodo, loading: addTodoLoading } = useAddTodo()
 const { updateTodo, loading: updateTodoLoading } = useUpdateTodo()
 const loading = logicOr(addTodoLoading, updateTodoLoading)
 
-const { onInput: onInputForm } = useForm<NewTodo>(newTodo)
 const error = ref<boolean>(false)
 
 const checkTodo = () => {
     error.value = !newTodo.value.text
-}
-
-const onInput = (name: keyof NewTodo, e: Event) => {
-    onInputForm(name, e)
-    checkTodo()
 }
 
 const saveTodo = async () => {
@@ -65,30 +59,31 @@ const saveTodo = async () => {
 
 <template>
     <article>
-        <div :class="['inline relative', { 'todo__input--error': error }]">
-            <button
-                class="pl-4 left-0 absolute top-0 bottom-0 inline-flex justify-center items-center text-primary"
-            >
-                <FontAwesomeIcon
-                    v-show="!props.update"
-                    :icon="['fas', 'plus']"
-                />
-                <FontAwesomeIcon
-                    v-show="props.update"
-                    :icon="['fas', 'pencil']"
-                />
-            </button>
+        <div @keyup.enter="saveTodo">
             <FormInput
-                id="text"
-                :value="newTodo.text"
-                type="text"
-                :label="false"
-                :error="error"
-                class-input="md:w-7/12 w-full p-2 pl-14 focus:border-opacity-100 focus:outline-none"
-                @input="onInput"
-                @focusout="error = false"
-                @keydown.enter="saveTodo"
-            />
+                v-model="newTodo.text"
+                v-model:error="error"
+                size="lg"
+                placeholder="Votre future todo"
+            >
+                <template #suffix>
+                    <Button
+                        square
+                        outline
+                        :color="error ? 'red' : 'blue'"
+                        @click.prevent="saveTodo"
+                    >
+                        <FontAwesomeIcon
+                            v-show="!props.update"
+                            :icon="['fas', 'plus']"
+                        />
+                        <FontAwesomeIcon
+                            v-show="props.update"
+                            :icon="['fas', 'pencil']"
+                        />
+                    </Button>
+                </template>
+            </FormInput>
             <Loader
                 v-show="loading"
                 class="w-5 h-5 bg-cover right-1 absolute top-0 bottom-0 inline-flex justify-center items-center text-primary"

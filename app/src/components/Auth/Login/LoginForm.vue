@@ -1,8 +1,19 @@
 <script lang="ts" setup>
 import { useLogin } from '../../../hooks/auth/login'
 import FormInput from '../../Utils/Form/FormInput.vue'
+import { computed, ref } from 'vue'
 
-const { fields, login, error, onInput } = useLogin()
+const { fields, login, error } = useLogin()
+
+const errorValue = ref(false)
+const errorComputed = computed({
+    get: () => {
+        return errorValue.value || !!error.value
+    },
+    set: (newError) => {
+        errorValue.value = newError
+    },
+})
 
 defineExpose({
     login,
@@ -11,26 +22,22 @@ defineExpose({
 <template>
     <form
         action="#"
-        class="h-full text-xl flex flex-col justify-center items-center"
+        class="h-full text-xl flex flex-col justify-center mx-20 mt-8 gap-8"
         @keyup.enter="login"
     >
         <FormInput
-            id="username"
-            class="flex flex-col mt-4"
-            :value="fields.username"
+            v-model="fields.username"
+            v-model:error="errorComputed"
             type="text"
-            :error="!!error"
-            @input="onInput"
-            >Nom d’utilisateur
-        </FormInput>
+            label="Nom d’utilisateur"
+        />
+
         <FormInput
-            id="password"
-            class="flex flex-col mt-4"
-            :value="fields.password"
+            v-model="fields.password"
+            v-model:error="errorComputed"
             type="password"
-            :error="!!error"
-            @input="onInput"
-            >Mot de passe
+            label="Mot de passe"
+        >
         </FormInput>
         <p class="text-error mt-4">
             {{ error?.text }}

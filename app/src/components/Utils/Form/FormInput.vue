@@ -1,65 +1,32 @@
 <script lang="ts" setup>
-import { reactive, watch } from 'vue'
+import { useAttrs } from 'vue'
+import { Input } from 'flowbite-vue'
+import { useVModel } from '@vueuse/core'
 
 type Props = {
-    id: string
-    value: string
-    type: 'text' | 'password'
-    label?: boolean
     error?: boolean
-    classInput?: string | undefined
 }
 
-type State = {
-    error: boolean
+type Emits = {
+    (e: 'update:error', value: boolean): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-    label: true,
-    classInput: undefined,
-})
+const emit = defineEmits<Emits>()
 
-const state = reactive<State>({
-    error: props.error ?? false,
-})
+const props = withDefaults(defineProps<Props>(), {})
+const attrs = useAttrs()
 
-watch(
-    () => props.error,
-    () => {
-        console.log(props.error)
-        state.error = props.error ?? false
-    },
-)
-
-const emit = defineEmits<{ (e: 'input', id: string, value: Event): void }>()
+const error = useVModel(props, 'error', emit)
 </script>
 <template>
-    <div v-if="props.label">
-        <label for="username"><slot></slot></label>
-        <input
-            :id="props.id"
-            :type="props.type"
-            :value="props.value"
-            :class="[
-                props.classInput,
-                'rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500 focus:border-opacity-100 focus:outline-none',
-                { '!border-error': state.error },
-            ]"
-            @input="(e: Event) => emit('input', props.id, e)"
-            @focusout="state.error = false"
-        />
-    </div>
-    <input
-        v-else
-        :id="props.id"
-        :type="props.type"
-        :value="props.value"
-        :class="[
-            props.classInput,
-            'rounded border-2 border-opacity-0 border-primary bg-secondary transition duration-500 focus:border-opacity-100 focus:outline-none',
-            { '!border-error': state.error },
-        ]"
-        @input="(e: Event) => emit('input', props.id, e)"
-        @focusout="state.error = false"
-    />
+    <Input
+        v-bind="{ ...attrs }"
+        :class="{ '!border-error': error }"
+        @focusout="error = false"
+        @input="error = false"
+    >
+        <template v-for="(_, slot) in $slots" #[slot]>
+            <slot :name="slot"></slot>
+        </template>
+    </Input>
 </template>
