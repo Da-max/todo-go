@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { Modal } from 'flowbite-vue'
-import LoginForm from '../components/Auth/Login/LoginForm.vue'
+import LoginForm from '../../components/Auth/Login/LoginForm.vue'
 import { Button } from 'flowbite-vue'
 import { onMounted, reactive, ref } from 'vue'
 import { Router, useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user'
+import { useUserStore } from '../../stores/user'
 
 type State = {
     modalOpen: boolean

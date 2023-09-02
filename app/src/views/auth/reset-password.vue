@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Button, Modal } from 'flowbite-vue'
-import { useModal } from '../hooks/modal'
-import ResetForm from '../components/Auth/ResetPassword/ResetForm.vue'
+import { useModal } from '~/hooks/modal'
+import ResetForm from '~/components/Auth/ResetPassword/ResetForm.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ref } from 'vue'
-import { useResetPassword } from '../hooks/auth/resetPassword'
+import { useResetPassword } from '~/hooks/auth/resetPassword'
 
 const router = useRouter()
 const route = useRoute()

@@ -5,14 +5,14 @@ import { useUserStore } from '../stores/user'
 import { useRequestConfirmAccount } from '../hooks/auth/requestConfirmAccount'
 import { storeToRefs } from 'pinia'
 
-const { user, isAuthenticated } = storeToRefs(useUserStore())
+const { user, isAuthenticated, isActive } = storeToRefs(useUserStore())
 const { requestConfirmAccount, error } = useRequestConfirmAccount()
 </script>
 
 <template>
     <div class="bg-gray-100 flex flex-col">
         <Alert
-            v-if="isAuthenticated && user && !user.isActive"
+            v-if="isAuthenticated && isActive"
             class="mb-8"
             type="warning"
             :inline="false"

@@ -2,7 +2,7 @@
 import { Modal } from 'flowbite-vue'
 import { Button } from 'flowbite-vue'
 import { reactive, ref } from 'vue'
-import SignupForm from '../components/Auth/Signup/SignupForm.vue'
+import SignupForm from '~/components/Auth/Signup/SignupForm.vue'
 import { Router, useRouter } from 'vue-router'
 
 type State = {

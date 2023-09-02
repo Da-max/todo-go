@@ -2,9 +2,9 @@
 import { Modal, Button } from 'flowbite-vue'
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
-import { useUserStore } from '../stores/user'
-import RequestForm from '../components/Auth/ResetPassword/RequestForm.vue'
-import { useModal } from '../hooks/modal'
+import { useUserStore } from '~/stores/user'
+import RequestForm from '~/components/Auth/ResetPassword/RequestForm.vue'
+import { useModal } from '~/hooks/modal'
 
 const router = useRouter()
 const userStore = useUserStore()

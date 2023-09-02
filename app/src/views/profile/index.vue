@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useUserStore } from '../stores/user'
+import { useUserStore } from '~/stores/user'
 import { Modal, Button } from 'flowbite-vue'
 import { useRouter } from 'vue-router'
-import ProfileInformations from '../components/Profile/ProfileInformations.vue'
-import { useModal } from '../hooks/modal'
+import ProfileInformations from '~/components/Profile/ProfileInformations.vue'
+import { useModal } from '~/hooks/modal'
 
 const store = useUserStore()
 const router = useRouter()

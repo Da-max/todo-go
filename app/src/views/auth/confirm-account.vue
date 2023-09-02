@@ -6,8 +6,8 @@ import {
     useRoute,
     useRouter,
 } from 'vue-router'
-import { useConfirmAccount } from '../hooks/auth/confirmAccount'
-import Message from '../components/Utils/Message.vue'
+import { useConfirmAccount } from '~/hooks/auth/confirmAccount'
+import Message from '~/components/Utils/Message.vue'
 
 const { query }: { query: LocationQuery } = useRoute()
 const router = useRouter()

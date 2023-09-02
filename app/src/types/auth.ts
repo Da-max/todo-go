@@ -13,6 +13,7 @@ export type userStoreActions = {
 
 export type userStoreGetters = {
     isAuthenticated: () => boolean
+    isActive: () => boolean
 }
 
 export type LoginFields = {

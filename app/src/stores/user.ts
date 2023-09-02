@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia'
 import { Client, getActiveClient, useQuery } from 'villus'
-import { currentUser as currentUserMutation } from '../graphql/auth'
+import { currentUser as currentUserMutation } from '~/graphql/auth'
 import {
     userStoreActions,
     userStoreGetters,
     userStoreState,
     USER_STORE_NAME,
-} from '../types/auth'
-import { CurrentUserQuery, CurrentUserQueryVariables } from '../types/generated'
-import auth from '../utils/auth'
-import { tags as authTags } from '../hooks/auth'
-import { tags as todoTags } from '../hooks/todo'
-import { cachePlugin } from '../utils/client'
+} from '~/types/auth'
+import { CurrentUserQuery, CurrentUserQueryVariables } from '~/types/generated'
+import auth from '~/utils/auth'
+import { tags as authTags } from '~/hooks/auth'
+import { tags as todoTags } from '~/hooks/todo'
+import { cachePlugin } from '~/utils/client'
 
 export const useUserStore = defineStore<
     typeof USER_STORE_NAME,
@@ -43,6 +43,9 @@ export const useUserStore = defineStore<
     getters: {
         isAuthenticated() {
             return !!this.user
+        },
+        isActive() {
+            return !this.user?.isActive
         },
     },
 })
