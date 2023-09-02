@@ -12,7 +12,7 @@ declare module 'vue-router' {
 
 const routes: RouteRecordRaw[] = [
     {
-        path: '/',
+        path: '',
         component: () => import('~/views/index.vue'),
         name: 'home',
         meta: {
@@ -35,7 +35,7 @@ router.beforeResolve(async (to) => {
     if (auth.token && !userStore.isAuthenticated) {
         await userStore.getCurrent()
     }
-    if (to.meta.isRequired && !userStore.isAuthenticated) {
+    if (to.meta.loginRequired && !userStore.isAuthenticated) {
         return {
             name: 'login',
         }
