@@ -1,5 +1,6 @@
 # Schema for my todo app (inspirate by the tuto)
-directive @isLoged on FIELD_DEFINITION
+directive @isLogged on FIELD_DEFINITION
+directive @isActive on FIELD_DEFINITION
 
 type Todo {
     id: ID!
@@ -13,13 +14,13 @@ input NewTodo {
 }
 
 extend type Query {
-    todos: [Todo!]! @isLoged
+    todos: [Todo!]! @isActive
 }
 
 extend type Mutation {
-    createTodo(input: NewTodo!): Todo! @isLoged
-    removeTodo(todoId: ID!): ID! @isLoged
-    updateTodo(input: NewTodo!, todoId: ID!): Todo! @isLoged
-    markDoneTodo(todoId: ID!): Todo! @isLoged
-    markUndoneTodo(todoId: ID!): Todo! @isLoged
+    createTodo(input: NewTodo!): Todo! @isActive
+    removeTodo(todoId: ID!): ID! @isActive
+    updateTodo(input: NewTodo!, todoId: ID!): Todo! @isActive
+    markDoneTodo(todoId: ID!): Todo! @isActive
+    markUndoneTodo(todoId: ID!): Todo! @isActive
 }

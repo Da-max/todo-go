@@ -2,6 +2,7 @@ import { RouteLocationRaw } from 'vue-router'
 
 export type NavItem = {
     title: string
+    icon?: string[]
     onClick: RouteLocationRaw | (() => void)
 }
 

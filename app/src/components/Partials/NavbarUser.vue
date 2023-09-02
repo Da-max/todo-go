@@ -11,10 +11,12 @@ const navItems = computed<NavItems>(() => {
     if (userStore.isAuthenticated) {
         items = [
             {
+                icon: ['fas', 'user'],
                 title: 'Mon profil',
                 onClick: { name: 'profile' },
             },
             {
+                icon: ['fas', 'right-from-bracket'],
                 title: 'Se déconnecter',
                 onClick: userStore.disconnect,
             },
@@ -53,13 +55,17 @@ const dropdownText = computed(() => {
                         class="flex-1"
                         href="#"
                         @click="item.onClick"
-                        >{{ item.title }}</a
+                    >
+                        <font-awesome-icon v-if="item.icon" :icon="item.icon" />
+                        {{ item.title }}</a
                     >
                     <router-link
                         v-else-if="item.onClick"
                         class="flex-1"
                         :to="item.onClick"
-                        >{{ item.title }}</router-link
+                    >
+                        <font-awesome-icon v-if="item.icon" :icon="item.icon" />
+                        {{ item.title }}</router-link
                     ></list-group-item
                 >
             </list-group>

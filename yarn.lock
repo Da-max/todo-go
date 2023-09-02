@@ -5278,10 +5278,10 @@ value-or-promise@^1.0.11, value-or-promise@^1.0.12:
   resolved "https://registry.npmjs.org/value-or-promise/-/value-or-promise-1.0.12.tgz"
   integrity sha512-Z6Uz+TYwEqE7ZN50gwn+1LCVo9ZVrpxRPOhOLnncYkY1ZzOYtrX8Fwf/rFktZ8R5mJms6EZf5TqNOMeZmnPq9Q==
 
-villus@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/villus/-/villus-3.1.0.tgz#486a0ebe198fa1b013c2e1088a080d23862ec8b1"
-  integrity sha512-Z4fXLWB9OgVfWKCiGFf+KFX6Y0/2qEcqiCp2FVO3oUs9LkD1ksSgQU2H2rGV/YDEbYIwKgbcZRww3ysxy2HcXg==
+villus@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/villus/-/villus-3.2.0.tgz#767a7d5c62e88b81f1cefd0a29321822a7497811"
+  integrity sha512-kb4Dv6Uvu7FSqfVnXTFb7I+VDv9fzFG2Emqu1eu9acY/Y3xM8xqy/I8w/HexNYDkofx5fGIgWk9nvfEWROtlGw==
 
 vite-plugin-simple-gql@^0.5.0:
   version "0.5.0"

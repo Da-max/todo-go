@@ -9,6 +9,9 @@ import { useUserStore } from '../../stores/user'
 import { useRouter } from 'vue-router'
 import { useUtils } from '../utils'
 import { useForm } from '../form'
+import { tags as userTags } from '../auth'
+import { tags as todoTags } from '../todo'
+import { whenever } from '@vueuse/core'
 
 export function useLogin() {
     const fields = ref<LoginFields>({
@@ -18,30 +21,34 @@ export function useLogin() {
     const { error, setError } = useUtils()
     const userStore = useUserStore()
     const router = useRouter()
+
+    whenever(
+        () => userStore.isAuthenticated,
+        async () => {
+            await router.push({ name: 'home' })
+        },
+    )
+
     const { execute: loginExecute } = useMutation<
         LoginMutation,
         LoginMutationVariables
-    >(loginMutation)
+    >(loginMutation, {
+        onData: async (data) => {
+            auth.token = data.login.accessToken
+        },
+        onError: (error) => {
+            setError(ErrorTypes.VALUE, error.message)
+        },
+        refetchTags: [...todoTags, ...userTags],
+    })
     const { onInput } = useForm<LoginFields>(fields)
 
     async function login() {
         if (fields.value.password && fields.value.username) {
             error.value = null
-            const { data } = await loginExecute({
+            await loginExecute({
                 input: fields.value,
             })
-            if (data) {
-                auth.token = data.login.accessToken
-                await userStore.getCurrent()
-                if (useUserStore().isAuthenticated) {
-                    await router.push({ name: 'home' })
-                }
-            } else {
-                setError(
-                    ErrorTypes.VALUE,
-                    'Le nom d’utilisateur ou le mot de passe est incorrect.',
-                )
-            }
         } else {
             setError(
                 ErrorTypes.FILL,

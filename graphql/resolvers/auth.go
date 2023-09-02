@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/Da-max/todo-go/graphql/generated"
 	"github.com/Da-max/todo-go/graphql/model"
@@ -23,17 +24,20 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Identifier) (*
 	)
 
 	if result := r.DB.First(user); result.Error != nil {
-		return nil, result.Error
+		graphql.AddError(ctx, gqlerror.Errorf("user or password are wrong"))
+		return nil, nil
 	}
 
 	if err := auth.ComparePassword(user.Password, input.Password); err != nil {
-		return nil, err
+		graphql.AddError(ctx, gqlerror.Errorf("user or password are wrong"))
+		return nil, nil
 	}
 
 	_, tokenString, err := auth.GenerateAuthorizationToken(user)
 
 	if err != nil {
-		return nil, err
+		graphql.AddError(ctx, gqlerror.Errorf("fail to create token"))
+		return nil, nil
 	}
 
 	tokens.AccessToken = tokenString
@@ -53,7 +57,7 @@ func (r *mutationResolver) SignUp(ctx context.Context, input model.NewUser) (*mo
 	)
 
 	if hashPassword, err := auth.HashPassword(input.Password); err != nil {
-		return nil, fmt.Errorf("the password cannot be hash")
+		return nil, fmt.Errorf("the password cannot be saved")
 	} else {
 		user.Password = hashPassword
 	}
@@ -85,22 +89,22 @@ func (r *mutationResolver) ConfirmAccount(ctx context.Context, input *model.Conf
 	claims, err := auth.TokenAuth.Decode(input.Token)
 
 	if err != nil {
-		return nil, fmt.Errorf("the token cannot be decode")
+		return nil, fmt.Errorf("the token cannot be decoded")
 	}
 
 	id, found := claims.Get("ID")
 
 	if !found {
-		return nil, fmt.Errorf("the token is not valid")
+		return nil, fmt.Errorf("the token isn’t valide")
 	}
 
 	if res := r.DB.First(user, id); res.Error != nil || user.IsActive == true {
-		return nil, fmt.Errorf("the user cannot be found")
+		return nil, fmt.Errorf("the user isn’t found")
 	}
 
 	user.IsActive = true
 	if res := r.DB.Save(user); res.Error != nil {
-		return nil, fmt.Errorf("the user cannot be update")
+		return nil, fmt.Errorf("the user cannot be saved")
 	}
 
 	_, tokenString, err := auth.GenerateAuthorizationToken(user)
@@ -110,6 +114,30 @@ func (r *mutationResolver) ConfirmAccount(ctx context.Context, input *model.Conf
 	}
 
 	return &model.Confirm{Token: tokenString, Ok: user.IsActive}, nil
+}
+
+// RequestConfirmAccount is the resolver for the requestConfirmAccount field.
+func (r *mutationResolver) RequestConfirmAccount(ctx context.Context) (*model.RequestConfirmAccount, error) {
+	var (
+		mailError chan error
+		user      *model.User = auth.ForContext(ctx)
+	)
+
+	_, token, err := auth.TokenAuth.Encode(map[string]interface{}{"ID": int(user.ID)})
+
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		mailError <- mail.SendMailFromModel(r.Hermes, mail.ConfirmAccount, []string{user.Email}, "Confirmer votre compte", user, token)
+
+		if err := <-mailError; err != nil {
+			fmt.Println("the mail cannot be send")
+		}
+	}()
+
+	return &model.RequestConfirmAccount{Ok: true}, nil
 }
 
 // RequestResetPassword is the resolver for the requestResetPassword field.
@@ -131,7 +159,7 @@ func (r *mutationResolver) RequestResetPassword(ctx context.Context, input model
 	}
 
 	go func() {
-		mailError <- mail.SendMailFromModel(r.Hermes, mail.RequestResetPassword, []string{user.Email}, "Reset your password", user, token)
+		mailError <- mail.SendMailFromModel(r.Hermes, mail.RequestResetPassword, []string{user.Email}, "Réinitialiser votre mot de passe", user, token)
 
 		if err := <-mailError; err != nil {
 			fmt.Println("The mail cannot be send.")

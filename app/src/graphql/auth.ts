@@ -45,6 +45,14 @@ export const requestResetPassword = gql`
     }
 `
 
+export const requestConfirmAccount = gql`
+    mutation requestConfirmAccount {
+        requestConfirmAccount {
+            ok
+        }
+    }
+`
+
 export const resetPassword = gql`
     mutation resetPassword($input: ResetPasswordIdentifier!) {
         resetPassword(input: $input) {

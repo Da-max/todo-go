@@ -30,7 +30,8 @@ func Router(config config.Config) *chi.Mux {
 	r.Use(auth.AuthenticatorMiddleware(resolver.DB))
 
 	c := generated.Config{Resolvers: resolver, Directives: generated.DirectiveRoot{
-		IsLoged: auth.IsLoged,
+		IsLogged: auth.IsLogged,
+		IsActive: auth.IsActive,
 	}}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))

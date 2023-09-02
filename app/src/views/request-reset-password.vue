@@ -4,16 +4,17 @@ import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '../stores/user'
 import RequestForm from '../components/Auth/ResetPassword/RequestForm.vue'
+import { useModal } from '../hooks/modal'
 
 const router = useRouter()
 const userStore = useUserStore()
 const form = ref<InstanceType<typeof RequestForm> | null>(null)
-
-const modalClose = () => {
-    router.push({ name: 'home' })
-}
-
-const modelOpen = ref<boolean>(true)
+const { modalOpen, modalClose } = useModal({
+    initialValue: true,
+    onClose: () => {
+        router.push({ name: 'home' })
+    },
+})
 
 const sendRequestResetPassword = async () => {
     if (form.value) {
@@ -32,7 +33,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Modal :open="modelOpen" @close="modalClose">
+    <Modal :open="modalOpen" @close="modalClose">
         <template #header>
             <h1 class="text-3xl">Mot de passe perdu</h1>
         </template>

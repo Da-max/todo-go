@@ -43,7 +43,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	IsLoged func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsActive func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsLogged func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -53,22 +54,27 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ConfirmAccount       func(childComplexity int, input *model.ConfirmIdentifier) int
-		CreateTodo           func(childComplexity int, input model.NewTodo) int
-		Login                func(childComplexity int, input model.Identifier) int
-		MarkDoneTodo         func(childComplexity int, todoID int) int
-		MarkUndoneTodo       func(childComplexity int, todoID int) int
-		RemoveTodo           func(childComplexity int, todoID int) int
-		RequestResetPassword func(childComplexity int, input model.RequestPasswordResetIdentifier) int
-		ResetPassword        func(childComplexity int, input model.ResetPasswordIdentifier) int
-		SignUp               func(childComplexity int, input model.NewUser) int
-		UpdateTodo           func(childComplexity int, input model.NewTodo, todoID int) int
+		ConfirmAccount        func(childComplexity int, input *model.ConfirmIdentifier) int
+		CreateTodo            func(childComplexity int, input model.NewTodo) int
+		Login                 func(childComplexity int, input model.Identifier) int
+		MarkDoneTodo          func(childComplexity int, todoID int) int
+		MarkUndoneTodo        func(childComplexity int, todoID int) int
+		RemoveTodo            func(childComplexity int, todoID int) int
+		RequestConfirmAccount func(childComplexity int) int
+		RequestResetPassword  func(childComplexity int, input model.RequestPasswordResetIdentifier) int
+		ResetPassword         func(childComplexity int, input model.ResetPasswordIdentifier) int
+		SignUp                func(childComplexity int, input model.NewUser) int
+		UpdateTodo            func(childComplexity int, input model.NewTodo, todoID int) int
 	}
 
 	Query struct {
 		CurrentUser func(childComplexity int) int
 		Todos       func(childComplexity int) int
 		Users       func(childComplexity int) int
+	}
+
+	RequestConfirmAccount struct {
+		Ok func(childComplexity int) int
 	}
 
 	RequestResetPassword struct {
@@ -101,6 +107,7 @@ type MutationResolver interface {
 	Login(ctx context.Context, input model.Identifier) (*model.Tokens, error)
 	SignUp(ctx context.Context, input model.NewUser) (*model.User, error)
 	ConfirmAccount(ctx context.Context, input *model.ConfirmIdentifier) (*model.Confirm, error)
+	RequestConfirmAccount(ctx context.Context) (*model.RequestConfirmAccount, error)
 	RequestResetPassword(ctx context.Context, input model.RequestPasswordResetIdentifier) (*model.RequestResetPassword, error)
 	ResetPassword(ctx context.Context, input model.ResetPasswordIdentifier) (*model.Confirm, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
@@ -224,6 +231,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveTodo(childComplexity, args["todoId"].(int)), true
 
+	case "Mutation.requestConfirmAccount":
+		if e.complexity.Mutation.RequestConfirmAccount == nil {
+			break
+		}
+
+		return e.complexity.Mutation.RequestConfirmAccount(childComplexity), true
+
 	case "Mutation.requestResetPassword":
 		if e.complexity.Mutation.RequestResetPassword == nil {
 			break
@@ -292,6 +306,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Users(childComplexity), true
+
+	case "RequestConfirmAccount.ok":
+		if e.complexity.RequestConfirmAccount.Ok == nil {
+			break
+		}
+
+		return e.complexity.RequestConfirmAccount.Ok(childComplexity), true
 
 	case "RequestResetPassword.ok":
 		if e.complexity.RequestResetPassword.Ok == nil {
@@ -481,6 +502,10 @@ type RequestResetPassword {
     ok: Boolean!
 }
 
+type RequestConfirmAccount {
+    ok: Boolean!
+}
+
 input NewUser {
     username: String!
     email: String!
@@ -514,6 +539,7 @@ type Mutation {
     login(input: Identifier!): Tokens!
     signUp(input: NewUser!): User!
     confirmAccount(input: ConfirmIdentifier): Confirm!
+    requestConfirmAccount: RequestConfirmAccount!
     requestResetPassword(
         input: RequestPasswordResetIdentifier!
     ): RequestResetPassword!
@@ -521,7 +547,8 @@ type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../todo.graphqls", Input: `# Schema for my todo app (inspirate by the tuto)
-directive @isLoged on FIELD_DEFINITION
+directive @isLogged on FIELD_DEFINITION
+directive @isActive on FIELD_DEFINITION
 
 type Todo {
     id: ID!
@@ -535,15 +562,15 @@ input NewTodo {
 }
 
 extend type Query {
-    todos: [Todo!]! @isLoged
+    todos: [Todo!]! @isActive
 }
 
 extend type Mutation {
-    createTodo(input: NewTodo!): Todo! @isLoged
-    removeTodo(todoId: ID!): ID! @isLoged
-    updateTodo(input: NewTodo!, todoId: ID!): Todo! @isLoged
-    markDoneTodo(todoId: ID!): Todo! @isLoged
-    markUndoneTodo(todoId: ID!): Todo! @isLoged
+    createTodo(input: NewTodo!): Todo! @isActive
+    removeTodo(todoId: ID!): ID! @isActive
+    updateTodo(input: NewTodo!, todoId: ID!): Todo! @isActive
+    markDoneTodo(todoId: ID!): Todo! @isActive
+    markUndoneTodo(todoId: ID!): Todo! @isActive
 }
 `, BuiltIn: false},
 }
@@ -1044,6 +1071,54 @@ func (ec *executionContext) fieldContext_Mutation_confirmAccount(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_requestConfirmAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_requestConfirmAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RequestConfirmAccount(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RequestConfirmAccount)
+	fc.Result = res
+	return ec.marshalNRequestConfirmAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestConfirmAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_requestConfirmAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ok":
+				return ec.fieldContext_RequestConfirmAccount_ok(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RequestConfirmAccount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_requestResetPassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_requestResetPassword(ctx, field)
 	if err != nil {
@@ -1182,10 +1257,10 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 			return ec.resolvers.Mutation().CreateTodo(rctx, fc.Args["input"].(model.NewTodo))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsLoged == nil {
-				return nil, errors.New("directive isLoged is not implemented")
+			if ec.directives.IsActive == nil {
+				return nil, errors.New("directive isActive is not implemented")
 			}
-			return ec.directives.IsLoged(ctx, nil, directive0)
+			return ec.directives.IsActive(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1267,10 +1342,10 @@ func (ec *executionContext) _Mutation_removeTodo(ctx context.Context, field grap
 			return ec.resolvers.Mutation().RemoveTodo(rctx, fc.Args["todoId"].(int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsLoged == nil {
-				return nil, errors.New("directive isLoged is not implemented")
+			if ec.directives.IsActive == nil {
+				return nil, errors.New("directive isActive is not implemented")
 			}
-			return ec.directives.IsLoged(ctx, nil, directive0)
+			return ec.directives.IsActive(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1342,10 +1417,10 @@ func (ec *executionContext) _Mutation_updateTodo(ctx context.Context, field grap
 			return ec.resolvers.Mutation().UpdateTodo(rctx, fc.Args["input"].(model.NewTodo), fc.Args["todoId"].(int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsLoged == nil {
-				return nil, errors.New("directive isLoged is not implemented")
+			if ec.directives.IsActive == nil {
+				return nil, errors.New("directive isActive is not implemented")
 			}
-			return ec.directives.IsLoged(ctx, nil, directive0)
+			return ec.directives.IsActive(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1427,10 +1502,10 @@ func (ec *executionContext) _Mutation_markDoneTodo(ctx context.Context, field gr
 			return ec.resolvers.Mutation().MarkDoneTodo(rctx, fc.Args["todoId"].(int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsLoged == nil {
-				return nil, errors.New("directive isLoged is not implemented")
+			if ec.directives.IsActive == nil {
+				return nil, errors.New("directive isActive is not implemented")
 			}
-			return ec.directives.IsLoged(ctx, nil, directive0)
+			return ec.directives.IsActive(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1512,10 +1587,10 @@ func (ec *executionContext) _Mutation_markUndoneTodo(ctx context.Context, field 
 			return ec.resolvers.Mutation().MarkUndoneTodo(rctx, fc.Args["todoId"].(int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsLoged == nil {
-				return nil, errors.New("directive isLoged is not implemented")
+			if ec.directives.IsActive == nil {
+				return nil, errors.New("directive isActive is not implemented")
 			}
-			return ec.directives.IsLoged(ctx, nil, directive0)
+			return ec.directives.IsActive(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1713,10 +1788,10 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 			return ec.resolvers.Query().Todos(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsLoged == nil {
-				return nil, errors.New("directive isLoged is not implemented")
+			if ec.directives.IsActive == nil {
+				return nil, errors.New("directive isActive is not implemented")
 			}
-			return ec.directives.IsLoged(ctx, nil, directive0)
+			return ec.directives.IsActive(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1893,6 +1968,50 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RequestConfirmAccount_ok(ctx context.Context, field graphql.CollectedField, obj *model.RequestConfirmAccount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RequestConfirmAccount_ok(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ok, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RequestConfirmAccount_ok(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RequestConfirmAccount",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4556,6 +4675,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "requestConfirmAccount":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_requestConfirmAccount(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "requestResetPassword":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -4730,6 +4858,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec._Query___schema(ctx, field)
 			})
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var requestConfirmAccountImplementors = []string{"RequestConfirmAccount"}
+
+func (ec *executionContext) _RequestConfirmAccount(ctx context.Context, sel ast.SelectionSet, obj *model.RequestConfirmAccount) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, requestConfirmAccountImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RequestConfirmAccount")
+		case "ok":
+
+			out.Values[i] = ec._RequestConfirmAccount_ok(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5330,6 +5486,20 @@ func (ec *executionContext) unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑg
 func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
 	res, err := ec.unmarshalInputNewUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRequestConfirmAccount2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestConfirmAccount(ctx context.Context, sel ast.SelectionSet, v model.RequestConfirmAccount) graphql.Marshaler {
+	return ec._RequestConfirmAccount(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRequestConfirmAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestConfirmAccount(ctx context.Context, sel ast.SelectionSet, v *model.RequestConfirmAccount) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RequestConfirmAccount(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRequestPasswordResetIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestPasswordResetIdentifier(ctx context.Context, v interface{}) (model.RequestPasswordResetIdentifier, error) {

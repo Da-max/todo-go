@@ -1,10 +1,24 @@
-import { isRef, MaybeRef, ref } from 'vue'
+import { MaybeRef, toRef } from 'vue'
+import { whenever } from '@vueuse/core'
 
-export const useModal = (initialValue: MaybeRef<boolean> = false) => {
-    const modalOpen = isRef(initialValue) ? initialValue : ref(initialValue)
+export type UseModalOptions = {
+    initialValue: MaybeRef<boolean>
+    onClose?: () => void
+}
+
+export const useModal = (
+    options: UseModalOptions = {
+        initialValue: false,
+    },
+) => {
+    const modalOpen = toRef(options.initialValue)
 
     const modalClose = () => {
         modalOpen.value = false
+    }
+
+    if (options.onClose) {
+        whenever(() => !modalOpen.value, options.onClose)
     }
 
     return {

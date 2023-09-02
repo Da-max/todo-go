@@ -11,13 +11,12 @@ const route = useRoute()
 
 const { sendResetPassword, fields, error, isValid } = useResetPassword()
 
-const { modalOpen } = useModal(false)
+const { modalOpen, modalClose } = useModal({
+    initialValue: false,
+    onClose: () => router.push({ name: 'home' }),
+})
 
 const token = ref<string>(route.query['token'] as string)
-
-const modalClose = () => {
-    router.push({ name: 'home' })
-}
 
 const resetPassword = async () => {
     await sendResetPassword(token)

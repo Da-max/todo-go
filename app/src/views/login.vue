@@ -22,9 +22,9 @@ const modalClose = function () {
     state.router.push({ name: 'home' })
 }
 
-const login = function () {
+const login = async () => {
     if (loginForm.value) {
-        loginForm.value.login()
+        await loginForm.value.login()
     } else {
         console.log('Merci de réessayer')
     }

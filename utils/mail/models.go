@@ -52,19 +52,19 @@ func generateConfirmAccountMail(h hermes.Hermes, user *model.User, token string)
 		Body: hermes.Body{
 			Name: user.Username,
 			Intros: []string{
-				"Welcome to TodoGO! We're very excited to have you on board.",
+				"Bienvenue sur TodoGO! Merci beaucoup pour vous être inscrit à notre service.",
 			},
 			Actions: []hermes.Action{
 				{
-					Instructions: "To get started with TodoG0, please click here:",
+					Instructions: "Pour commencer à utiliser TodoG0, merci de cliquer ici :",
 					Button: hermes.Button{
-						Text: "Confirm your account",
-						Link: conf.GetAppUrl() + "/confirm?token=" + token,
+						Text: "Confirmer votre compte",
+						Link: conf.GetAppUrl() + "/#/auth/confirm-account?token=" + token,
 					},
 				},
 			},
 			Outros: []string{
-				"Need help, or have questions? Just reply to this email, we'd love to help.",
+				"Si vous avez besoin d’aide ou si vous avez des questions n’hésitez pas à répondre à ce mail, nous serons ravis de vous répondre.",
 			},
 		},
 	})
@@ -80,10 +80,10 @@ func generateResetPasswordMail(h hermes.Hermes, user *model.User) string {
 		Body: hermes.Body{
 			Name: user.Username,
 			Intros: []string{
-				"Your password has just been changed. If you did not initiate this action, please contact us as soon as possible.",
+				"Votre mot de passe vient d’être changer. Si vous n’êtes pas à l’origine de cette action, merci de prendre contact avec nous le plus rapidement possible.",
 			},
 			Outros: []string{
-				"Need help, or have questions? Just reply to this email, we'd love to help.",
+				"Si vous avez besoin d’aide ou si vous avez des questions n’hésitez pas à répondre à ce mail, nous serons ravis de vous répondre.",
 			},
 		},
 	})

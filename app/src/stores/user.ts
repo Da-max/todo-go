@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useQuery } from 'villus'
+import { Client, getActiveClient, useQuery } from 'villus'
 import { currentUser as currentUserMutation } from '../graphql/auth'
 import {
     userStoreActions,
@@ -7,8 +7,11 @@ import {
     userStoreState,
     USER_STORE_NAME,
 } from '../types/auth'
-import { CurrentUserQuery } from '../types/generated'
+import { CurrentUserQuery, CurrentUserQueryVariables } from '../types/generated'
 import auth from '../utils/auth'
+import { tags as authTags } from '../hooks/auth'
+import { tags as todoTags } from '../hooks/todo'
+import { cachePlugin } from '../utils/client'
 
 export const useUserStore = defineStore<
     typeof USER_STORE_NAME,
@@ -21,20 +24,20 @@ export const useUserStore = defineStore<
     }),
     actions: {
         async getCurrent() {
-            try {
-                const { data } = await useQuery<CurrentUserQuery, {}>({
-                    query: currentUserMutation,
-                })
-                if (data.value) {
-                    this.user = data.value.currentUser
-                }
-            } catch (error) {
-                console.log(error)
-            }
+            await useQuery<CurrentUserQuery, CurrentUserQueryVariables>({
+                query: currentUserMutation,
+                tags: [...authTags, 'users'],
+                onData: (data) => {
+                    this.user = data.currentUser
+                },
+            })
         },
-        disconnect() {
-            this.$state.user = undefined
+        async disconnect() {
+            const client: Client = getActiveClient()
+            this.user = undefined
             auth.token = null
+            cachePlugin.clearCache()
+            await client.refetchTaggedQueries(todoTags)
         },
     },
     getters: {

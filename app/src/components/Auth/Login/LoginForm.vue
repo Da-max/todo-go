@@ -22,7 +22,7 @@ defineExpose({
 <template>
     <form
         action="#"
-        class="h-full text-xl flex flex-col justify-center mx-20 mt-8 gap-8"
+        class="h-full text-md flex flex-col justify-center mx-20 mt-8 gap-8"
         @keyup.enter="login"
     >
         <FormInput
@@ -39,7 +39,7 @@ defineExpose({
             label="Mot de passe"
         >
         </FormInput>
-        <p class="text-error mt-4">
+        <p class="text-error my-4">
             {{ error?.text }}
         </p>
     </form>

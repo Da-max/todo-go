@@ -29,12 +29,17 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	todo.User = *user
 
 	if todo.Text == "" {
-		graphql.AddError(ctx, gqlerror.Errorf("An empty todo cannot be saved."))
+		graphql.AddError(ctx, gqlerror.Errorf("an empty todo cannot be saved"))
+		return nil, nil
+	}
+
+	if !user.IsActive {
+		graphql.AddError(ctx, gqlerror.Errorf("your account isn’t active"))
 		return nil, nil
 	}
 
 	if res := r.DB.Create(todo); res.Error != nil {
-		graphql.AddError(ctx, gqlerror.Errorf("The todo "+todo.Text+" cannot be add."))
+		graphql.AddError(ctx, gqlerror.Errorf("the todo "+todo.Text+" cannot be add"))
 		return nil, nil
 	}
 

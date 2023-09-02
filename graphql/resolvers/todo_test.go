@@ -62,7 +62,7 @@ func getClient() *client.Client {
 	r.Use(auth.AuthenticatorMiddleware(resolver.DB))
 
 	c := generated.Config{Resolvers: resolver, Directives: generated.DirectiveRoot{
-		IsLoged: auth.IsLoged,
+		IsLoged: auth.IsLogged,
 	}}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))

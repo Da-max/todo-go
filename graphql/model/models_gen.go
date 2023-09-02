@@ -26,6 +26,10 @@ type NewUser struct {
 	Password string `json:"password"`
 }
 
+type RequestConfirmAccount struct {
+	Ok bool `json:"ok"`
+}
+
 type RequestPasswordResetIdentifier struct {
 	Email string `json:"email"`
 }

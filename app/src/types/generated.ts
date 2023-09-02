@@ -41,6 +41,7 @@ export type Mutation = {
     markDoneTodo: Todo
     markUndoneTodo: Todo
     removeTodo: Scalars['ID']
+    requestConfirmAccount: RequestConfirmAccount
     requestResetPassword: RequestResetPassword
     resetPassword: Confirm
     signUp: User
@@ -103,6 +104,11 @@ export type Query = {
     currentUser: User
     todos: Array<Todo>
     users: Array<User>
+}
+
+export type RequestConfirmAccount = {
+    __typename?: 'RequestConfirmAccount'
+    ok: Scalars['Boolean']
 }
 
 export type RequestPasswordResetIdentifier = {
@@ -198,6 +204,15 @@ export type RequestResetPasswordMutationVariables = Exact<{
 export type RequestResetPasswordMutation = {
     __typename?: 'Mutation'
     requestResetPassword: { __typename?: 'RequestResetPassword'; ok: boolean }
+}
+
+export type RequestConfirmAccountMutationVariables = Exact<{
+    [key: string]: never
+}>
+
+export type RequestConfirmAccountMutation = {
+    __typename?: 'Mutation'
+    requestConfirmAccount: { __typename?: 'RequestConfirmAccount'; ok: boolean }
 }
 
 export type ResetPasswordMutationVariables = Exact<{

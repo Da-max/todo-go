@@ -15,13 +15,13 @@ const todos = computed(() =>
 </script>
 
 <template>
-    <section class="flex-1 flex justify-center bg-gray-100 rounded-md p-10">
+    <section class="flex-1 flex justify-center rounded-md p-10">
         <div
             v-if="isFetching"
             class="fixed bottom-5 right-10 flex items-center"
         >
             <p>Chargement en cours</p>
-            <Loader class="w-full h-24" />
+            <Loader />
         </div>
         <div class="sm:w-2/3">
             <TodoInput :update="false" />
