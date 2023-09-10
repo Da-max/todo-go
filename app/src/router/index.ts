@@ -15,9 +15,6 @@ const routes: RouteRecordRaw[] = [
         path: '',
         component: () => import('~/views/index.vue'),
         name: 'home',
-        meta: {
-            loginRequired: true,
-        },
         children: [
             { path: '/auth/', children: authRoutes },
             { path: '/profile/', children: profileRoutes },

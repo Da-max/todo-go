@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import NavbarUser from './NavbarUser.vue'
-import { useUserStore } from '../../stores/user'
+import { useUserStore } from '~/stores/user'
 import { useToast } from 'flowbite-vue'
 import { whenever } from '@vueuse/core'
 
@@ -26,7 +26,7 @@ whenever(
         class="z-10 p-5 bg-primary drop-shadow-lg flex justify-between align-middle"
     >
         <div>
-            <h1 class="text-3xl text-white">📄 Todo App</h1>
+            <h1 class="text-3xl text-white">📄 Todo GO</h1>
         </div>
         <NavbarUser />
     </nav>

@@ -1,15 +1,15 @@
 import { useMutation } from 'villus'
 import { ref } from 'vue'
-import { LoginFields } from '../../types/auth'
-import { LoginMutation, LoginMutationVariables } from '../../types/generated'
-import { loginMutation } from '../../graphql/auth'
-import { ErrorTypes } from '../../types/utils'
+import { LoginFields } from '~/types/auth'
+import { LoginMutation, LoginMutationVariables } from '~/types/generated'
+import { loginMutation } from '~/graphql/auth'
+import { ErrorTypes } from '~/types/utils'
 import auth from '../../utils/auth'
-import { useUserStore } from '../../stores/user'
+import { useUserStore } from '~/stores/user'
 import { useRouter } from 'vue-router'
 import { useUtils } from '../utils'
 import { useForm } from '../form'
-import { tags as userTags } from '../auth'
+import { tags as profileTags } from '../profile'
 import { tags as todoTags } from '../todo'
 import { whenever } from '@vueuse/core'
 
@@ -39,7 +39,7 @@ export function useLogin() {
         onError: (error) => {
             setError(ErrorTypes.VALUE, error.message)
         },
-        refetchTags: [...todoTags, ...userTags],
+        refetchTags: [...todoTags, ...profileTags],
     })
     const { onInput } = useForm<LoginFields>(fields)
 

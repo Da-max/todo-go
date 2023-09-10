@@ -2,9 +2,11 @@
 import { Modal } from 'flowbite-vue'
 import LoginForm from '../../components/Auth/Login/LoginForm.vue'
 import { Button } from 'flowbite-vue'
-import { onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { Router, useRouter } from 'vue-router'
-import { useUserStore } from '../../stores/user'
+import { useUserStore } from '~/stores/user'
+import { whenever } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 
 type State = {
     modalOpen: boolean
@@ -15,7 +17,7 @@ const state = reactive<State>({
     modalOpen: true,
     router: useRouter(),
 })
-const userStore = useUserStore()
+const { isAuthenticated, user } = storeToRefs(useUserStore())
 const loginForm = ref<InstanceType<typeof LoginForm> | null>(null)
 
 const modalClose = function () {
@@ -30,11 +32,13 @@ const login = async () => {
     }
 }
 
-onMounted(() => {
-    if (userStore.isAuthenticated) {
+whenever(
+    isAuthenticated,
+    () => {
         state.router.push({ name: 'home' })
-    }
-})
+    },
+    { immediate: true },
+)
 </script>
 
 <template>
