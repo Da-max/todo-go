@@ -116,6 +116,51 @@ func (r *mutationResolver) ConfirmAccount(ctx context.Context, input *model.Conf
 	return &model.Confirm{Token: tokenString, Ok: user.IsActive}, nil
 }
 
+// UpdateAccount is the resolver for the updateAccount field.
+func (r *mutationResolver) UpdateAccount(ctx context.Context, input model.UpdateUser) (*model.User, error) {
+	var (
+		user         *model.User = auth.ForContext(ctx)
+		emailChanged bool        = false
+		mailError    chan error  = make(chan error)
+	)
+
+	if input.Email != nil && *input.Email != user.Email {
+		user.Email = *input.Email
+		emailChanged = true
+	}
+
+	if input.Username != nil {
+		user.Username = *input.Username
+	}
+
+	if res := r.DB.Save(user); res.Error != nil {
+		return nil, fmt.Errorf("the user cannot be updated")
+	}
+
+	if emailChanged {
+		_, token, err := auth.TokenAuth.Encode(map[string]interface{}{"ID": int(user.ID)})
+
+		if err != nil {
+			return nil, err
+		}
+
+		go func() {
+			mailError <- mail.SendMailFromModel(r.Hermes, mail.ConfirmAccount, []string{user.Email}, "Changement de votre email", user, token)
+
+			if err := <-mailError; err != nil {
+				fmt.Println("The mail cannot be send.")
+			}
+		}()
+	}
+
+	return user, nil
+}
+
+// DeleteAccount is the resolver for the deleteAccount field.
+func (r *mutationResolver) DeleteAccount(ctx context.Context) (*model.DeleteAccount, error) {
+	panic(fmt.Errorf("not implemented: DeleteAccount - deleteAccount"))
+}
+
 // RequestConfirmAccount is the resolver for the requestConfirmAccount field.
 func (r *mutationResolver) RequestConfirmAccount(ctx context.Context) (*model.RequestConfirmAccount, error) {
 	var (

@@ -9,7 +9,7 @@ import {
 } from '~/types/auth'
 import { CurrentUserQuery, CurrentUserQueryVariables } from '~/types/generated'
 import auth from '~/utils/auth'
-import { tags as authTags } from '~/hooks/auth'
+import { tags as profileTags } from '~/hooks/profile'
 import { tags as todoTags } from '~/hooks/todo'
 import { cachePlugin } from '~/utils/client'
 
@@ -26,7 +26,7 @@ export const useUserStore = defineStore<
         async getCurrent() {
             await useQuery<CurrentUserQuery, CurrentUserQueryVariables>({
                 query: currentUserMutation,
-                tags: [...authTags, 'users'],
+                tags: [...profileTags, 'users'],
                 onData: (data) => {
                     this.user = data.currentUser
                 },

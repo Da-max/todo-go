@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useLogin } from '../../../hooks/auth/login'
+import { useLogin } from '~/hooks/auth/login'
 import FormInput from '../../Utils/Form/FormInput.vue'
 import { computed, ref } from 'vue'
 

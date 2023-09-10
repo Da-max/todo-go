@@ -25,6 +25,10 @@ type RequestConfirmAccount {
     ok: Boolean!
 }
 
+type DeleteAccount {
+    ok: Boolean!
+}
+
 input NewUser {
     username: String!
     email: String!
@@ -34,6 +38,11 @@ input NewUser {
 input Identifier {
     username: String!
     password: String!
+}
+
+input UpdateUser {
+    username: String
+    email: String
 }
 
 input ConfirmIdentifier {
@@ -51,16 +60,18 @@ input ResetPasswordIdentifier {
 
 type Query {
     users: [User!]!
-    currentUser: User!
+    currentUser: User! @isLogged
 }
 
 type Mutation {
     login(input: Identifier!): Tokens!
     signUp(input: NewUser!): User!
     confirmAccount(input: ConfirmIdentifier): Confirm!
-    requestConfirmAccount: RequestConfirmAccount!
+    updateAccount(input: UpdateUser!): User! @isActive
+    deleteAccount: DeleteAccount! @isLogged
+    requestConfirmAccount: RequestConfirmAccount! @isLogged
     requestResetPassword(
         input: RequestPasswordResetIdentifier!
     ): RequestResetPassword!
-    resetPassword(input: ResetPasswordIdentifier!): Confirm!
+    resetPassword(input: ResetPasswordIdentifier!): Confirm! @isLogged
 }

@@ -11,6 +11,10 @@ type ConfirmIdentifier struct {
 	Token string `json:"token"`
 }
 
+type DeleteAccount struct {
+	Ok bool `json:"ok"`
+}
+
 type Identifier struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -46,4 +50,9 @@ type ResetPasswordIdentifier struct {
 type Tokens struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type UpdateUser struct {
+	Username *string `json:"username,omitempty"`
+	Email    *string `json:"email,omitempty"`
 }

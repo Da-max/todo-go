@@ -28,6 +28,11 @@ export type ConfirmIdentifier = {
     token: Scalars['String']
 }
 
+export type DeleteAccount = {
+    __typename?: 'DeleteAccount'
+    ok: Scalars['Boolean']
+}
+
 export type Identifier = {
     password: Scalars['String']
     username: Scalars['String']
@@ -37,6 +42,7 @@ export type Mutation = {
     __typename?: 'Mutation'
     confirmAccount: Confirm
     createTodo: Todo
+    deleteAccount: DeleteAccount
     login: Tokens
     markDoneTodo: Todo
     markUndoneTodo: Todo
@@ -45,6 +51,7 @@ export type Mutation = {
     requestResetPassword: RequestResetPassword
     resetPassword: Confirm
     signUp: User
+    updateAccount: User
     updateTodo: Todo
 }
 
@@ -82,6 +89,10 @@ export type MutationResetPasswordArgs = {
 
 export type MutationSignUpArgs = {
     input: NewUser
+}
+
+export type MutationUpdateAccountArgs = {
+    input: UpdateUser
 }
 
 export type MutationUpdateTodoArgs = {
@@ -137,6 +148,11 @@ export type Tokens = {
     __typename?: 'Tokens'
     accessToken: Scalars['String']
     refreshToken: Scalars['String']
+}
+
+export type UpdateUser = {
+    email?: InputMaybe<Scalars['String']>
+    username?: InputMaybe<Scalars['String']>
 }
 
 export type User = {
@@ -222,6 +238,22 @@ export type ResetPasswordMutationVariables = Exact<{
 export type ResetPasswordMutation = {
     __typename?: 'Mutation'
     resetPassword: { __typename?: 'Confirm'; ok: boolean; token: string }
+}
+
+export type UpdateAccountMutationVariables = Exact<{
+    input: UpdateUser
+}>
+
+export type UpdateAccountMutation = {
+    __typename?: 'Mutation'
+    updateAccount: {
+        __typename?: 'User'
+        id: string
+        username: string
+        isAdmin: boolean
+        email: string
+        isActive: boolean
+    }
 }
 
 export type TodoFragment = {

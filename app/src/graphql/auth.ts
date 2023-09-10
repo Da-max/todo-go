@@ -61,3 +61,12 @@ export const resetPassword = gql`
         }
     }
 `
+
+export const updateAccount = gql`
+    mutation updateAccount($input: UpdateUser!) {
+        updateAccount(input: $input) {
+            ...User
+        }
+    }
+    ${userFragment}
+`

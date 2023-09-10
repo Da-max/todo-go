@@ -3,12 +3,12 @@ import {
     NewTodo,
     UpdateTodoMutation,
     UpdateTodoMutationVariables,
-} from '../../types/generated'
+} from '~/types/generated'
 import { updateTodo as updateTodoMutation } from '../../graphql/todos'
 import { tags } from './index'
-import { AlertTypes } from '../../types/utils'
+import { AlertTypes } from '~/types/utils'
 import { Ref } from 'vue'
-import { useMessageStore } from '../../stores/message'
+import { useMessageStore } from '~/stores/message'
 import { useUtils } from '../utils'
 
 export const useUpdateTodo = () => {

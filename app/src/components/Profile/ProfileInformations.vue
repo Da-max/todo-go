@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { UserFragment } from '../../types/generated'
+import { UserFragment } from '~/types/generated'
 import Badge from '../Utils/Badge.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { Button } from 'flowbite-vue'
 
 type Props = {
     user: UserFragment
@@ -55,7 +56,25 @@ defineProps<Props>()
                 </p>
             </div>
         </div>
+        <div class="mt-10 flex justify-around gap-8 flex-wrap">
+            <router-link :to="{ name: 'profile:update' }">
+                <Button>
+                    <font-awesome-icon class="mr-2" :icon="['fas', 'pencil']" />
+                    Modifier mes informations</Button
+                >
+            </router-link>
+            <router-link :to="{ name: 'profile:delete' }">
+                <Button color="red"
+                    ><FontAwesomeIcon class="mr-2" :icon="['fas', 'trash']" />
+                    Supprimer mon compte</Button
+                ></router-link
+            >
+            <router-link :to="{ name: 'profile:update:password' }">
+                <Button color="yellow"
+                    ><FontAwesomeIcon class="mr-2" :icon="['fas', 'key']" />
+                    Modifier mon mot de passe
+                </Button>
+            </router-link>
+        </div>
     </div>
 </template>
-
-<style scoped></style>

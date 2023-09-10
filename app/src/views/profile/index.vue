@@ -28,10 +28,6 @@ const { modalOpen, modalClose } = useModal({
         </template>
         <template #footer>
             <div class="flex flex-col justify-center items-center gap-4">
-                <Button>
-                    <font-awesome-icon class="mr-2" :icon="['fas', 'pencil']" />
-                    modifier mes informations</Button
-                >
                 <Button color="alternative" @click.prevent="modalClose"
                     >Retour</Button
                 >

@@ -11,9 +11,12 @@ import {
     faChevronLeft,
     faCircleCheck,
     faClose,
+    faFloppyDisk,
+    faKey,
     faPencil,
     faPlus,
     faRightFromBracket,
+    faTrash,
     faUser,
 } from '@fortawesome/free-solid-svg-icons'
 import { faCircle } from '@fortawesome/free-regular-svg-icons'
@@ -45,6 +48,9 @@ library.add(faCircleCheck)
 library.add(faChevronLeft)
 library.add(faUser)
 library.add(faRightFromBracket)
+library.add(faFloppyDisk)
+library.add(faTrash)
+library.add(faKey)
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 app.mount('#app')
