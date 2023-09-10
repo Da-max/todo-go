@@ -20,7 +20,9 @@ class Auth {
     }
 
     public villusPlugin = definePlugin(({ opContext }) => {
-        opContext.headers.Authorization = `BEARER ${this._token.value}`
+        opContext.headers.Authorization = this._token.value
+            ? `BEARER ${this._token.value}`
+            : ''
     })
 }
 
