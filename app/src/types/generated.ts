@@ -18,6 +18,17 @@ export type Scalars = {
     Float: number
 }
 
+export type ChangePassword = {
+    confirmPassword: Scalars['String']
+    oldPassword: Scalars['String']
+    password: Scalars['String']
+}
+
+export type ChangePasswordConfirm = {
+    __typename?: 'ChangePasswordConfirm'
+    ok: Scalars['Boolean']
+}
+
 export type Confirm = {
     __typename?: 'Confirm'
     ok: Scalars['Boolean']
@@ -40,6 +51,7 @@ export type Identifier = {
 
 export type Mutation = {
     __typename?: 'Mutation'
+    changePassword: ChangePasswordConfirm
     confirmAccount: Confirm
     createTodo: Todo
     deleteAccount: DeleteAccount
@@ -53,6 +65,10 @@ export type Mutation = {
     signUp: User
     updateAccount: User
     updateTodo: Todo
+}
+
+export type MutationChangePasswordArgs = {
+    input?: InputMaybe<ChangePassword>
 }
 
 export type MutationConfirmAccountArgs = {
@@ -254,6 +270,15 @@ export type UpdateAccountMutation = {
         email: string
         isActive: boolean
     }
+}
+
+export type ChangePasswordMutationVariables = Exact<{
+    input: ChangePassword
+}>
+
+export type ChangePasswordMutation = {
+    __typename?: 'Mutation'
+    changePassword: { __typename?: 'ChangePasswordConfirm'; ok: boolean }
 }
 
 export type TodoFragment = {

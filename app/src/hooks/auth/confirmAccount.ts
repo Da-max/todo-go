@@ -1,12 +1,12 @@
 import { useMutation } from 'villus'
-import { confirmAccount as confirmAccountMutation } from '../../graphql/auth'
-import { useUserStore } from '../../stores/user'
+import { confirmAccount as confirmAccountMutation } from '~/graphql/auth'
+import { useUserStore } from '~/stores/user'
 import {
     ConfirmAccountMutation,
     ConfirmAccountMutationVariables,
-} from '../../types/generated'
-import { AlertTypes, ErrorTypes } from '../../types/utils'
-import auth from '../../utils/auth'
+} from '~/types/generated'
+import { AlertTypes, ErrorTypes } from '~/types/utils'
+import auth from '~/utils/auth'
 import { useUtils } from '../utils'
 import { tags as todoTags } from '../todo'
 import { tags as authTags } from './index'

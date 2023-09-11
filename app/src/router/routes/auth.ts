@@ -41,4 +41,12 @@ export const authRoutes: RouteRecordRaw[] = [
             loginRequired: false,
         },
     },
+    {
+        name: 'change-password',
+        path: 'change-password',
+        component: () => import('~/views/auth/change-password.vue'),
+        meta: {
+            loginRequired: true,
+        },
+    },
 ]

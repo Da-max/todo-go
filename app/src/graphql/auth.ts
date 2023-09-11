@@ -70,3 +70,11 @@ export const updateAccount = gql`
     }
     ${userFragment}
 `
+
+export const changePassword = gql`
+    mutation changePassword($input: ChangePassword!) {
+        changePassword(input: $input) {
+            ok
+        }
+    }
+`

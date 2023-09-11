@@ -1,14 +1,14 @@
 import { computed, MaybeRef, ref, toValue } from 'vue'
-import { ResetPasswordFields } from '../../types/auth'
+import { ResetPasswordFields } from '~/types/auth'
 import { useUtils } from '../utils'
 import { useToast } from 'flowbite-vue'
 import { useMutation } from 'villus'
 import {
     ResetPasswordMutation,
     ResetPasswordMutationVariables,
-} from '../../types/generated'
-import { resetPassword } from '../../graphql/auth'
-import { ErrorTypes } from '../../types/utils'
+} from '~/types/generated'
+import { resetPassword } from '~/graphql/auth'
+import { ErrorTypes } from '~/types/utils'
 
 export const useResetPassword = () => {
     const fields = ref<ResetPasswordFields>({
