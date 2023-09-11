@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import FormInput from '../../Utils/Form/FormInput.vue'
-import { useSignUp } from '../../../hooks/auth/signup'
+import { useSignUp } from '~/hooks/auth/signup'
 import { computed, ref } from 'vue'
 
 const { fields, signUp, onInput, error } = useSignUp()

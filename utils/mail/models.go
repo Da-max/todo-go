@@ -1,7 +1,6 @@
 package mail
 
 import (
-	"fmt"
 	"github.com/Da-max/todo-go/graphql/model"
 	"github.com/Da-max/todo-go/utils/config"
 	"github.com/matcornic/hermes/v2"
@@ -13,6 +12,7 @@ const (
 	ConfirmAccount       = 0
 	RequestResetPassword = 1
 	ResetPassword        = 2
+	DeleteAccount        = 3
 )
 
 func generateRequestResetPasswordMail(h hermes.Hermes, user *model.User, token string) string {
@@ -75,6 +75,26 @@ func generateConfirmAccountMail(h hermes.Hermes, user *model.User, token string)
 	return res
 }
 
+func generateDeleteAccountMail(h hermes.Hermes, user *model.User) string {
+	res, err := h.GenerateHTML(hermes.Email{
+		Body: hermes.Body{
+			Name: user.Username,
+			Intros: []string{
+				"Votre compte TodoGO a bien été supprimé. Merci beaucoup pour vous être inscrit et avoir utilisé nos services.",
+			},
+			Outros: []string{
+				"Nous espérons vous revoir prochainement si le cœur vous en dit.",
+			},
+		},
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	return res
+}
+
 func generateResetPasswordMail(h hermes.Hermes, user *model.User) string {
 	res, err := h.GenerateHTML(hermes.Email{
 		Body: hermes.Body{
@@ -103,17 +123,12 @@ func GenerateMail(h hermes.Hermes, mailType Type, args ...interface{}) string {
 	)
 
 	for _, v := range args {
-		fmt.Print(v, "\n")
 		switch v.(type) {
 		case *model.User:
 			user = v.(*model.User)
 		case string:
 			token = v.(string)
 		}
-	}
-
-	if token == "" {
-		fmt.Print(token + "\n")
 	}
 
 	switch mailType {
@@ -132,6 +147,8 @@ func GenerateMail(h hermes.Hermes, mailType Type, args ...interface{}) string {
 			panic("Some params are missing")
 		}
 		res = generateResetPasswordMail(h, user)
+	case DeleteAccount:
+		res = generateDeleteAccountMail(h, user)
 	}
 
 	return res

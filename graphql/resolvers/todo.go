@@ -126,14 +126,14 @@ func (r *mutationResolver) MarkUndoneTodo(ctx context.Context, todoID int) (*mod
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	var (
 		todos []*model.Todo
-		// user  *model.User   = &model.User{}
+		user  *model.User = auth.ForContext(ctx)
 	)
 
 	// if res := r.DB.Where(&model.User{Username: ctx.Value("Username").(string)}).First(user); res.Error != nil || res.RowsAffected == 0 {
 	// 	panic("The username cannot be found.")
 	// }
 
-	if result := r.DB. /*.Where(&model.Todo{UserID: int(user.ID)})*/ Order("done, updated_at desc").Find(&todos); result.Error != nil {
+	if result := r.DB.Where("user_id = ?", user.ID).Order("done, updated_at desc").Find(&todos); result.Error != nil {
 		graphql.AddError(ctx, gqlerror.Errorf("The todos cannot be query."))
 	}
 

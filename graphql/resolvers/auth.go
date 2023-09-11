@@ -19,11 +19,11 @@ import (
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.Identifier) (*model.Tokens, error) {
 	var (
-		user   *model.User   = &model.User{Username: input.Username}
+		user   *model.User   = &model.User{}
 		tokens *model.Tokens = &model.Tokens{}
 	)
 
-	if result := r.DB.First(user); result.Error != nil {
+	if result := r.DB.Where("username = ?", input.Username).First(user); result.Error != nil {
 		graphql.AddError(ctx, gqlerror.Errorf("user or password are wrong"))
 		return nil, nil
 	}
@@ -156,9 +156,59 @@ func (r *mutationResolver) UpdateAccount(ctx context.Context, input model.Update
 	return user, nil
 }
 
+// ChangePassword is the resolver for the changePassword field.
+func (r *mutationResolver) ChangePassword(ctx context.Context, input *model.ChangePassword) (*model.ChangePasswordConfirm, error) {
+	var (
+		user      *model.User = auth.ForContext(ctx)
+		err       error
+		mailError chan error = make(chan error)
+	)
+
+	if err := auth.ComparePassword(user.Password, input.OldPassword); err != nil || input.ConfirmPassword != input.Password || input.OldPassword == input.Password {
+		return nil, gqlerror.Errorf("the password cannot be changed")
+	}
+
+	user.Password, err = auth.HashPassword(input.Password)
+
+	if err != nil {
+		return nil, gqlerror.Errorf("the password cannot be changed")
+	}
+
+	if res := r.DB.Save(user); res.Error != nil {
+		return nil, gqlerror.Errorf("the password cannot be changed")
+	}
+
+	go func() {
+		mailError <- mail.SendMailFromModel(r.Hermes, mail.ResetPassword, []string{user.Email}, "Changement de mot de passe", user)
+
+		if err := <-mailError; err != nil {
+			fmt.Println("The mail cannot be send.")
+		}
+	}()
+
+	return &model.ChangePasswordConfirm{Ok: true}, nil
+}
+
 // DeleteAccount is the resolver for the deleteAccount field.
 func (r *mutationResolver) DeleteAccount(ctx context.Context) (*model.DeleteAccount, error) {
-	panic(fmt.Errorf("not implemented: DeleteAccount - deleteAccount"))
+	var (
+		user      *model.User = auth.ForContext(ctx)
+		mailError chan error  = make(chan error)
+	)
+
+	if res := r.DB.Delete(user); res.Error != nil {
+		return nil, fmt.Errorf("the user cannot be delete")
+	}
+
+	go func() {
+		mailError <- mail.SendMailFromModel(r.Hermes, mail.DeleteAccount, []string{user.Email}, "Suppression de votre compte", user)
+
+		if err := <-mailError; err != nil {
+			fmt.Println("The mail cannot be send.")
+		}
+	}()
+
+	return &model.DeleteAccount{Ok: true}, nil
 }
 
 // RequestConfirmAccount is the resolver for the requestConfirmAccount field.
@@ -230,21 +280,21 @@ func (r *mutationResolver) ResetPassword(ctx context.Context, input model.ResetP
 	id, found := claims.Get("ID")
 
 	if !found {
-		return nil, gqlerror.Errorf("The token isn’t valid.")
+		return nil, gqlerror.Errorf("the token isn’t valid")
 	}
 
 	if res := r.DB.First(user, id); res.Error != nil {
-		return nil, gqlerror.Errorf("The user isn’t found")
+		return nil, gqlerror.Errorf("the user isn’t found")
 	}
 
 	if hashPassword, err := auth.HashPassword(input.Password); err != nil {
-		return nil, gqlerror.Errorf("The password cannot be hash.")
+		return nil, gqlerror.Errorf("the password cannot be hash")
 	} else {
 		user.Password = hashPassword
 	}
 
 	if res := r.DB.Save(user); res.Error != nil {
-		return nil, gqlerror.Errorf("The user cannot be update")
+		return nil, gqlerror.Errorf("the user cannot be update")
 	}
 
 	_, tokenString, err := auth.GenerateAuthorizationToken(user)
@@ -254,7 +304,7 @@ func (r *mutationResolver) ResetPassword(ctx context.Context, input model.ResetP
 	}
 
 	go func() {
-		mailError <- mail.SendMailFromModel(r.Hermes, mail.ResetPassword, []string{user.Email}, "Your password changed", user)
+		mailError <- mail.SendMailFromModel(r.Hermes, mail.ResetPassword, []string{user.Email}, "Votre mot de passe a changé", user)
 
 		if err := <-mailError; err != nil {
 			fmt.Println("The mail cannot be send.")

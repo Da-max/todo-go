@@ -48,6 +48,10 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ChangePasswordConfirm struct {
+		Ok func(childComplexity int) int
+	}
+
 	Confirm struct {
 		Ok    func(childComplexity int) int
 		Token func(childComplexity int) int
@@ -58,6 +62,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		ChangePassword        func(childComplexity int, input *model.ChangePassword) int
 		ConfirmAccount        func(childComplexity int, input *model.ConfirmIdentifier) int
 		CreateTodo            func(childComplexity int, input model.NewTodo) int
 		DeleteAccount         func(childComplexity int) int
@@ -114,6 +119,7 @@ type MutationResolver interface {
 	SignUp(ctx context.Context, input model.NewUser) (*model.User, error)
 	ConfirmAccount(ctx context.Context, input *model.ConfirmIdentifier) (*model.Confirm, error)
 	UpdateAccount(ctx context.Context, input model.UpdateUser) (*model.User, error)
+	ChangePassword(ctx context.Context, input *model.ChangePassword) (*model.ChangePasswordConfirm, error)
 	DeleteAccount(ctx context.Context) (*model.DeleteAccount, error)
 	RequestConfirmAccount(ctx context.Context) (*model.RequestConfirmAccount, error)
 	RequestResetPassword(ctx context.Context, input model.RequestPasswordResetIdentifier) (*model.RequestResetPassword, error)
@@ -153,6 +159,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "ChangePasswordConfirm.ok":
+		if e.complexity.ChangePasswordConfirm.Ok == nil {
+			break
+		}
+
+		return e.complexity.ChangePasswordConfirm.Ok(childComplexity), true
+
 	case "Confirm.ok":
 		if e.complexity.Confirm.Ok == nil {
 			break
@@ -173,6 +186,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteAccount.Ok(childComplexity), true
+
+	case "Mutation.changePassword":
+		if e.complexity.Mutation.ChangePassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_changePassword_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ChangePassword(childComplexity, args["input"].(*model.ChangePassword)), true
 
 	case "Mutation.confirmAccount":
 		if e.complexity.Mutation.ConfirmAccount == nil {
@@ -447,6 +472,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputChangePassword,
 		ec.unmarshalInputConfirmIdentifier,
 		ec.unmarshalInputIdentifier,
 		ec.unmarshalInputNewTodo,
@@ -545,6 +571,10 @@ type DeleteAccount {
     ok: Boolean!
 }
 
+type ChangePasswordConfirm {
+    ok: Boolean!
+}
+
 input NewUser {
     username: String!
     email: String!
@@ -574,6 +604,12 @@ input ResetPasswordIdentifier {
     token: String!
 }
 
+input ChangePassword {
+    password: String!
+    confirmPassword: String!
+    oldPassword: String!
+}
+
 type Query {
     users: [User!]!
     currentUser: User! @isLogged
@@ -584,6 +620,7 @@ type Mutation {
     signUp(input: NewUser!): User!
     confirmAccount(input: ConfirmIdentifier): Confirm!
     updateAccount(input: UpdateUser!): User! @isActive
+    changePassword(input: ChangePassword): ChangePasswordConfirm! @isActive
     deleteAccount: DeleteAccount! @isLogged
     requestConfirmAccount: RequestConfirmAccount! @isLogged
     requestResetPassword(
@@ -625,6 +662,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_changePassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.ChangePassword
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOChangePassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePassword(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_confirmAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -852,6 +904,50 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _ChangePasswordConfirm_ok(ctx context.Context, field graphql.CollectedField, obj *model.ChangePasswordConfirm) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ChangePasswordConfirm_ok(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ok, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ChangePasswordConfirm_ok(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ChangePasswordConfirm",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _Confirm_ok(ctx context.Context, field graphql.CollectedField, obj *model.Confirm) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Confirm_ok(ctx, field)
@@ -1259,6 +1355,85 @@ func (ec *executionContext) fieldContext_Mutation_updateAccount(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_changePassword(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ChangePassword(rctx, fc.Args["input"].(*model.ChangePassword))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsActive == nil {
+				return nil, errors.New("directive isActive is not implemented")
+			}
+			return ec.directives.IsActive(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ChangePasswordConfirm); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.ChangePasswordConfirm`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ChangePasswordConfirm)
+	fc.Result = res
+	return ec.marshalNChangePasswordConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePasswordConfirm(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ok":
+				return ec.fieldContext_ChangePasswordConfirm_ok(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ChangePasswordConfirm", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_changePassword_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4698,6 +4873,53 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputChangePassword(ctx context.Context, obj interface{}) (model.ChangePassword, error) {
+	var it model.ChangePassword
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"password", "confirmPassword", "oldPassword"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		case "confirmPassword":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confirmPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfirmPassword = data
+		case "oldPassword":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("oldPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OldPassword = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputConfirmIdentifier(ctx context.Context, obj interface{}) (model.ConfirmIdentifier, error) {
 	var it model.ConfirmIdentifier
 	asMap := map[string]interface{}{}
@@ -4954,6 +5176,34 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 
 // region    **************************** object.gotpl ****************************
 
+var changePasswordConfirmImplementors = []string{"ChangePasswordConfirm"}
+
+func (ec *executionContext) _ChangePasswordConfirm(ctx context.Context, sel ast.SelectionSet, obj *model.ChangePasswordConfirm) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, changePasswordConfirmImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ChangePasswordConfirm")
+		case "ok":
+
+			out.Values[i] = ec._ChangePasswordConfirm_ok(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var confirmImplementors = []string{"Confirm"}
 
 func (ec *executionContext) _Confirm(ctx context.Context, sel ast.SelectionSet, obj *model.Confirm) graphql.Marshaler {
@@ -5067,6 +5317,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateAccount(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "changePassword":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_changePassword(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -5850,6 +6109,20 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNChangePasswordConfirm2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePasswordConfirm(ctx context.Context, sel ast.SelectionSet, v model.ChangePasswordConfirm) graphql.Marshaler {
+	return ec._ChangePasswordConfirm(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNChangePasswordConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePasswordConfirm(ctx context.Context, sel ast.SelectionSet, v *model.ChangePasswordConfirm) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ChangePasswordConfirm(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNConfirm2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirm(ctx context.Context, sel ast.SelectionSet, v model.Confirm) graphql.Marshaler {
 	return ec._Confirm(ctx, sel, &v)
 }
@@ -6373,6 +6646,14 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOChangePassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePassword(ctx context.Context, v interface{}) (*model.ChangePassword, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputChangePassword(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOConfirmIdentifier2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirmIdentifier(ctx context.Context, v interface{}) (*model.ConfirmIdentifier, error) {

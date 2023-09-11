@@ -2,6 +2,16 @@
 
 package model
 
+type ChangePassword struct {
+	Password        string `json:"password"`
+	ConfirmPassword string `json:"confirmPassword"`
+	OldPassword     string `json:"oldPassword"`
+}
+
+type ChangePasswordConfirm struct {
+	Ok bool `json:"ok"`
+}
+
 type Confirm struct {
 	Ok    bool   `json:"ok"`
 	Token string `json:"token"`
