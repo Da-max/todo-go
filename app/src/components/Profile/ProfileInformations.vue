@@ -69,7 +69,7 @@ defineProps<Props>()
                     Supprimer mon compte</Button
                 ></router-link
             >
-            <router-link :to="{ name: 'profile:update:password' }">
+            <router-link :to="{ name: 'auth:change-password' }">
                 <Button color="yellow"
                     ><FontAwesomeIcon class="mr-2" :icon="['fas', 'key']" />
                     Modifier mon mot de passe

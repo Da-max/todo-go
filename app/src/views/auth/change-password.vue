@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Modal, Button, Alert } from 'flowbite-vue'
+import { Modal, Button, Alert, useToast } from 'flowbite-vue'
 import { useModal } from '~/hooks/modal'
 import { useRouter } from 'vue-router'
 import ChangePasswordForm from '~/components/Auth/ChangePassword/ChangePasswordForm.vue'
@@ -14,7 +14,18 @@ const { modalOpen, modalClose } = useModal({
     },
 })
 
-const { fields, isValid, changePassword, error } = useChangePassword()
+const toast = useToast()
+
+const { fields, isValid, changePassword, error, isError } = useChangePassword({
+    onData: () => {
+        toast.add({
+            time: 50_000,
+            text: 'Votre mot de passe a bien été modifié.',
+            type: 'success',
+        })
+        router.push({ name: 'home' })
+    },
+})
 </script>
 
 <template>
@@ -28,6 +39,7 @@ const { fields, isValid, changePassword, error } = useChangePassword()
             }}</Alert>
             <ChangePasswordForm
                 v-model="fields"
+                v-model:error="isError"
                 @keyup.enter="changePassword"
             />
         </template>

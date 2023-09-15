@@ -41,6 +41,7 @@ export const useChangePassword = (options?: {
             isValidValue.value = newValue
         },
     })
+    const isError = computed(() => !!error.value)
 
     const changePassword = async () => {
         if (isValid.value) {
@@ -58,5 +59,6 @@ export const useChangePassword = (options?: {
         changePassword,
         fields,
         isValid,
+        isError,
     }
 }

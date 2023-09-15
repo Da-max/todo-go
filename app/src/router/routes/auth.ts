@@ -42,7 +42,7 @@ export const authRoutes: RouteRecordRaw[] = [
         },
     },
     {
-        name: 'change-password',
+        name: 'auth:change-password',
         path: 'change-password',
         component: () => import('~/views/auth/change-password.vue'),
         meta: {
