@@ -20,7 +20,7 @@ export const profileRoutes: RouteRecordRaw[] = [
     {
         name: 'profile:delete',
         path: 'delete',
-        component: () => import('~/views/profile/update.vue'),
+        component: () => import('~/views/profile/delete.vue'),
         meta: {
             loginRequired: true,
         },

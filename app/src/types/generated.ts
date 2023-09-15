@@ -272,6 +272,13 @@ export type UpdateAccountMutation = {
     }
 }
 
+export type DeleteAccountMutationVariables = Exact<{ [key: string]: never }>
+
+export type DeleteAccountMutation = {
+    __typename?: 'Mutation'
+    deleteAccount: { __typename?: 'DeleteAccount'; ok: boolean }
+}
+
 export type ChangePasswordMutationVariables = Exact<{
     input: ChangePassword
 }>

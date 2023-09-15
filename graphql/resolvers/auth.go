@@ -197,7 +197,7 @@ func (r *mutationResolver) DeleteAccount(ctx context.Context) (*model.DeleteAcco
 	)
 
 	if res := r.DB.Delete(user); res.Error != nil {
-		return nil, fmt.Errorf("the user cannot be delete")
+		return nil, fmt.Errorf("the user cannot be deleted")
 	}
 
 	go func() {
