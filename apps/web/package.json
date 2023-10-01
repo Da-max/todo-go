@@ -1,5 +1,5 @@
 {
-    "name": "todo-go",
+    "name": "@todo-go/web",
     "private": true,
     "version": "1.0.0",
     "scripts": {

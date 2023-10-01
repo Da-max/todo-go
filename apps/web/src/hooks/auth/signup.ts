@@ -43,7 +43,7 @@ export function useSignUp() {
                 } else {
                     setError(
                         ErrorTypes.VALUE,
-                        'Une erreur est survenue, merci de réessayer.'
+                        'Une erreur est survenue, merci de réessayer.',
                     )
                 }
             } catch (error) {}
@@ -51,7 +51,7 @@ export function useSignUp() {
             setError(
                 ErrorTypes.FILL,
                 `Merci de vérifier que vous avez remplis tout les champs 
-                        et que les deux mots de passe sont identiques.`
+                        et que les deux mots de passe sont identiques.`,
             )
         }
     }

@@ -2,17 +2,17 @@ import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import graphqlPlugin from '@rollup/plugin-graphql'
 import { resolve } from 'path'
+import { PluginOption } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    root: 'app',
-    plugins: [vue(), graphqlPlugin() as Plugin],
+    plugins: [vue(), graphqlPlugin() as PluginOption],
     server: {
         port: 3000,
     },
     resolve: {
         alias: {
-            '~': resolve(__dirname, './app/src'),
+            '~': resolve(__dirname, './src'),
         },
     },
     build: {

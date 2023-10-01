@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "rootDir": "app",
         "target": "esnext",
         "useDefineForClassFields": true,
         "module": "esnext",
@@ -15,15 +14,10 @@
         "skipLibCheck": true,
         "types": ["vitest/globals"],
         "paths": {
-            "~/*": ["./app/src/*"]
+            "~/*": ["./src/*"]
         }
     },
-    "include": [
-        "app/src/**/*.ts",
-        "app/src/**/*.d.ts",
-        "app/src/**/*.tsx",
-        "app/src/**/*.vue"
-    ],
+    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
     "references": [
         {
             "path": "./tsconfig.node.json"
