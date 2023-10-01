@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useUserStore } from '../../stores/user'
-import { NavItems } from '../../types/nav'
+import { useUserStore } from '~/stores/user'
+import { NavItems } from '~/types/nav'
 import { Dropdown, ListGroup, ListGroupItem } from 'flowbite-vue'
 
 const userStore = useUserStore()

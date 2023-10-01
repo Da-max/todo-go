@@ -13,7 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/Da-max/todo-go/graphql/model"
+	"github.com/Da-max/todo-go/internal/handlers/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -38,8 +38,6 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
-	Todo() TodoResolver
-	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -67,15 +65,15 @@ type ComplexityRoot struct {
 		CreateTodo            func(childComplexity int, input model.NewTodo) int
 		DeleteAccount         func(childComplexity int) int
 		Login                 func(childComplexity int, input model.Identifier) int
-		MarkDoneTodo          func(childComplexity int, todoID int) int
-		MarkUndoneTodo        func(childComplexity int, todoID int) int
-		RemoveTodo            func(childComplexity int, todoID int) int
+		MarkDoneTodo          func(childComplexity int, todoID string) int
+		MarkUndoneTodo        func(childComplexity int, todoID string) int
+		RemoveTodo            func(childComplexity int, todoID string) int
 		RequestConfirmAccount func(childComplexity int) int
 		RequestResetPassword  func(childComplexity int, input model.RequestPasswordResetIdentifier) int
 		ResetPassword         func(childComplexity int, input model.ResetPasswordIdentifier) int
 		SignUp                func(childComplexity int, input model.NewUser) int
 		UpdateAccount         func(childComplexity int, input model.UpdateUser) int
-		UpdateTodo            func(childComplexity int, input model.NewTodo, todoID int) int
+		UpdateTodo            func(childComplexity int, input model.NewTodo, todoID string) int
 	}
 
 	Query struct {
@@ -93,10 +91,10 @@ type ComplexityRoot struct {
 	}
 
 	Todo struct {
-		Done func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Text func(childComplexity int) int
-		User func(childComplexity int) int
+		Done   func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Text   func(childComplexity int) int
+		UserID func(childComplexity int) int
 	}
 
 	Tokens struct {
@@ -109,7 +107,6 @@ type ComplexityRoot struct {
 		ID       func(childComplexity int) int
 		IsActive func(childComplexity int) int
 		IsAdmin  func(childComplexity int) int
-		Password func(childComplexity int) int
 		Username func(childComplexity int) int
 	}
 }
@@ -125,23 +122,15 @@ type MutationResolver interface {
 	RequestResetPassword(ctx context.Context, input model.RequestPasswordResetIdentifier) (*model.RequestResetPassword, error)
 	ResetPassword(ctx context.Context, input model.ResetPasswordIdentifier) (*model.Confirm, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
-	RemoveTodo(ctx context.Context, todoID int) (int, error)
-	UpdateTodo(ctx context.Context, input model.NewTodo, todoID int) (*model.Todo, error)
-	MarkDoneTodo(ctx context.Context, todoID int) (*model.Todo, error)
-	MarkUndoneTodo(ctx context.Context, todoID int) (*model.Todo, error)
+	RemoveTodo(ctx context.Context, todoID string) (string, error)
+	UpdateTodo(ctx context.Context, input model.NewTodo, todoID string) (*model.Todo, error)
+	MarkDoneTodo(ctx context.Context, todoID string) (*model.Todo, error)
+	MarkUndoneTodo(ctx context.Context, todoID string) (*model.Todo, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
 	CurrentUser(ctx context.Context) (*model.User, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
-}
-type TodoResolver interface {
-	ID(ctx context.Context, obj *model.Todo) (int, error)
-
-	User(ctx context.Context, obj *model.Todo) (*model.User, error)
-}
-type UserResolver interface {
-	ID(ctx context.Context, obj *model.User) (int, error)
 }
 
 type executableSchema struct {
@@ -252,7 +241,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.MarkDoneTodo(childComplexity, args["todoId"].(int)), true
+		return e.complexity.Mutation.MarkDoneTodo(childComplexity, args["todoId"].(string)), true
 
 	case "Mutation.markUndoneTodo":
 		if e.complexity.Mutation.MarkUndoneTodo == nil {
@@ -264,7 +253,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.MarkUndoneTodo(childComplexity, args["todoId"].(int)), true
+		return e.complexity.Mutation.MarkUndoneTodo(childComplexity, args["todoId"].(string)), true
 
 	case "Mutation.removeTodo":
 		if e.complexity.Mutation.RemoveTodo == nil {
@@ -276,7 +265,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveTodo(childComplexity, args["todoId"].(int)), true
+		return e.complexity.Mutation.RemoveTodo(childComplexity, args["todoId"].(string)), true
 
 	case "Mutation.requestConfirmAccount":
 		if e.complexity.Mutation.RequestConfirmAccount == nil {
@@ -343,7 +332,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTodo(childComplexity, args["input"].(model.NewTodo), args["todoId"].(int)), true
+		return e.complexity.Mutation.UpdateTodo(childComplexity, args["input"].(model.NewTodo), args["todoId"].(string)), true
 
 	case "Query.currentUser":
 		if e.complexity.Query.CurrentUser == nil {
@@ -401,12 +390,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Todo.Text(childComplexity), true
 
-	case "Todo.user":
-		if e.complexity.Todo.User == nil {
+	case "Todo.userId":
+		if e.complexity.Todo.UserID == nil {
 			break
 		}
 
-		return e.complexity.Todo.User(childComplexity), true
+		return e.complexity.Todo.UserID(childComplexity), true
 
 	case "Tokens.accessToken":
 		if e.complexity.Tokens.AccessToken == nil {
@@ -449,13 +438,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.IsAdmin(childComplexity), true
-
-	case "User.password":
-		if e.complexity.User.Password == nil {
-			break
-		}
-
-		return e.complexity.User.Password(childComplexity), true
 
 	case "User.username":
 		if e.complexity.User.Username == nil {
@@ -540,11 +522,10 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../auth.graphqls", Input: `type User {
+	{Name: "../../../../graphql/auth.graphqls", Input: `type User {
     id: ID!
     username: String!
     email: String!
-    password: String!
     isActive: Boolean!
     isAdmin: Boolean!
 }
@@ -629,7 +610,7 @@ type Mutation {
     resetPassword(input: ResetPasswordIdentifier!): Confirm! @isLogged
 }
 `, BuiltIn: false},
-	{Name: "../todo.graphqls", Input: `# Schema for my todo app (inspirate by the tuto)
+	{Name: "../../../../graphql/todo.graphqls", Input: `# Schema for my todo app (inspirate by the tuto)
 directive @isLogged on FIELD_DEFINITION
 directive @isActive on FIELD_DEFINITION
 
@@ -637,7 +618,7 @@ type Todo {
     id: ID!
     text: String!
     done: Boolean!
-    user: User!
+    userId: ID!
 }
 
 input NewTodo {
@@ -669,7 +650,7 @@ func (ec *executionContext) field_Mutation_changePassword_args(ctx context.Conte
 	var arg0 *model.ChangePassword
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOChangePassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePassword(ctx, tmp)
+		arg0, err = ec.unmarshalOChangePassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐChangePassword(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -684,7 +665,7 @@ func (ec *executionContext) field_Mutation_confirmAccount_args(ctx context.Conte
 	var arg0 *model.ConfirmIdentifier
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOConfirmIdentifier2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirmIdentifier(ctx, tmp)
+		arg0, err = ec.unmarshalOConfirmIdentifier2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐConfirmIdentifier(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -699,7 +680,7 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 	var arg0 model.NewTodo
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐNewTodo(ctx, tmp)
+		arg0, err = ec.unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐNewTodo(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -714,7 +695,7 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	var arg0 model.Identifier
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐIdentifier(ctx, tmp)
+		arg0, err = ec.unmarshalNIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐIdentifier(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -726,10 +707,10 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Mutation_markDoneTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int
+	var arg0 string
 	if tmp, ok := rawArgs["todoId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoId"))
-		arg0, err = ec.unmarshalNID2int(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -741,10 +722,10 @@ func (ec *executionContext) field_Mutation_markDoneTodo_args(ctx context.Context
 func (ec *executionContext) field_Mutation_markUndoneTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int
+	var arg0 string
 	if tmp, ok := rawArgs["todoId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoId"))
-		arg0, err = ec.unmarshalNID2int(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -756,10 +737,10 @@ func (ec *executionContext) field_Mutation_markUndoneTodo_args(ctx context.Conte
 func (ec *executionContext) field_Mutation_removeTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int
+	var arg0 string
 	if tmp, ok := rawArgs["todoId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoId"))
-		arg0, err = ec.unmarshalNID2int(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -774,7 +755,7 @@ func (ec *executionContext) field_Mutation_requestResetPassword_args(ctx context
 	var arg0 model.RequestPasswordResetIdentifier
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNRequestPasswordResetIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestPasswordResetIdentifier(ctx, tmp)
+		arg0, err = ec.unmarshalNRequestPasswordResetIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestPasswordResetIdentifier(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -789,7 +770,7 @@ func (ec *executionContext) field_Mutation_resetPassword_args(ctx context.Contex
 	var arg0 model.ResetPasswordIdentifier
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNResetPasswordIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐResetPasswordIdentifier(ctx, tmp)
+		arg0, err = ec.unmarshalNResetPasswordIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐResetPasswordIdentifier(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -804,7 +785,7 @@ func (ec *executionContext) field_Mutation_signUp_args(ctx context.Context, rawA
 	var arg0 model.NewUser
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐNewUser(ctx, tmp)
+		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐNewUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -819,7 +800,7 @@ func (ec *executionContext) field_Mutation_updateAccount_args(ctx context.Contex
 	var arg0 model.UpdateUser
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUpdateUser(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUpdateUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -834,16 +815,16 @@ func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, 
 	var arg0 model.NewTodo
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐNewTodo(ctx, tmp)
+		arg0, err = ec.unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐNewTodo(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["input"] = arg0
-	var arg1 int
+	var arg1 string
 	if tmp, ok := rawArgs["todoId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoId"))
-		arg1, err = ec.unmarshalNID2int(ctx, tmp)
+		arg1, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1109,7 +1090,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*model.Tokens)
 	fc.Result = res
-	return ec.marshalNTokens2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTokens(ctx, field.Selections, res)
+	return ec.marshalNTokens2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTokens(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1170,7 +1151,7 @@ func (ec *executionContext) _Mutation_signUp(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_signUp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1187,8 +1168,6 @@ func (ec *executionContext) fieldContext_Mutation_signUp(ctx context.Context, fi
 				return ec.fieldContext_User_username(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
 			case "isActive":
 				return ec.fieldContext_User_isActive(ctx, field)
 			case "isAdmin":
@@ -1239,7 +1218,7 @@ func (ec *executionContext) _Mutation_confirmAccount(ctx context.Context, field 
 	}
 	res := resTmp.(*model.Confirm)
 	fc.Result = res
-	return ec.marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirm(ctx, field.Selections, res)
+	return ec.marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐConfirm(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_confirmAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1306,7 +1285,7 @@ func (ec *executionContext) _Mutation_updateAccount(ctx context.Context, field g
 		if data, ok := tmp.(*model.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1320,7 +1299,7 @@ func (ec *executionContext) _Mutation_updateAccount(ctx context.Context, field g
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1337,8 +1316,6 @@ func (ec *executionContext) fieldContext_Mutation_updateAccount(ctx context.Cont
 				return ec.fieldContext_User_username(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
 			case "isActive":
 				return ec.fieldContext_User_isActive(ctx, field)
 			case "isAdmin":
@@ -1395,7 +1372,7 @@ func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field 
 		if data, ok := tmp.(*model.ChangePasswordConfirm); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.ChangePasswordConfirm`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.ChangePasswordConfirm`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1409,7 +1386,7 @@ func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field 
 	}
 	res := resTmp.(*model.ChangePasswordConfirm)
 	fc.Result = res
-	return ec.marshalNChangePasswordConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePasswordConfirm(ctx, field.Selections, res)
+	return ec.marshalNChangePasswordConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐChangePasswordConfirm(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1474,7 +1451,7 @@ func (ec *executionContext) _Mutation_deleteAccount(ctx context.Context, field g
 		if data, ok := tmp.(*model.DeleteAccount); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.DeleteAccount`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.DeleteAccount`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1488,7 +1465,7 @@ func (ec *executionContext) _Mutation_deleteAccount(ctx context.Context, field g
 	}
 	res := resTmp.(*model.DeleteAccount)
 	fc.Result = res
-	return ec.marshalNDeleteAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐDeleteAccount(ctx, field.Selections, res)
+	return ec.marshalNDeleteAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐDeleteAccount(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_deleteAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1542,7 +1519,7 @@ func (ec *executionContext) _Mutation_requestConfirmAccount(ctx context.Context,
 		if data, ok := tmp.(*model.RequestConfirmAccount); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.RequestConfirmAccount`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.RequestConfirmAccount`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1556,7 +1533,7 @@ func (ec *executionContext) _Mutation_requestConfirmAccount(ctx context.Context,
 	}
 	res := resTmp.(*model.RequestConfirmAccount)
 	fc.Result = res
-	return ec.marshalNRequestConfirmAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestConfirmAccount(ctx, field.Selections, res)
+	return ec.marshalNRequestConfirmAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestConfirmAccount(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_requestConfirmAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1604,7 +1581,7 @@ func (ec *executionContext) _Mutation_requestResetPassword(ctx context.Context, 
 	}
 	res := resTmp.(*model.RequestResetPassword)
 	fc.Result = res
-	return ec.marshalNRequestResetPassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestResetPassword(ctx, field.Selections, res)
+	return ec.marshalNRequestResetPassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestResetPassword(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_requestResetPassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1669,7 +1646,7 @@ func (ec *executionContext) _Mutation_resetPassword(ctx context.Context, field g
 		if data, ok := tmp.(*model.Confirm); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.Confirm`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.Confirm`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1683,7 +1660,7 @@ func (ec *executionContext) _Mutation_resetPassword(ctx context.Context, field g
 	}
 	res := resTmp.(*model.Confirm)
 	fc.Result = res
-	return ec.marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirm(ctx, field.Selections, res)
+	return ec.marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐConfirm(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_resetPassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1750,7 +1727,7 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 		if data, ok := tmp.(*model.Todo); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.Todo`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.Todo`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1764,7 +1741,7 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.Todo)
 	fc.Result = res
-	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodo(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1781,8 +1758,8 @@ func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
+			case "userId":
+				return ec.fieldContext_Todo_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -1816,7 +1793,7 @@ func (ec *executionContext) _Mutation_removeTodo(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().RemoveTodo(rctx, fc.Args["todoId"].(int))
+			return ec.resolvers.Mutation().RemoveTodo(rctx, fc.Args["todoId"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsActive == nil {
@@ -1832,10 +1809,10 @@ func (ec *executionContext) _Mutation_removeTodo(ctx context.Context, field grap
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(int); ok {
+		if data, ok := tmp.(string); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be int`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1847,9 +1824,9 @@ func (ec *executionContext) _Mutation_removeTodo(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2int(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_removeTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1891,7 +1868,7 @@ func (ec *executionContext) _Mutation_updateTodo(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateTodo(rctx, fc.Args["input"].(model.NewTodo), fc.Args["todoId"].(int))
+			return ec.resolvers.Mutation().UpdateTodo(rctx, fc.Args["input"].(model.NewTodo), fc.Args["todoId"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsActive == nil {
@@ -1910,7 +1887,7 @@ func (ec *executionContext) _Mutation_updateTodo(ctx context.Context, field grap
 		if data, ok := tmp.(*model.Todo); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.Todo`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.Todo`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1924,7 +1901,7 @@ func (ec *executionContext) _Mutation_updateTodo(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.Todo)
 	fc.Result = res
-	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodo(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1941,8 +1918,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTodo(ctx context.Context
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
+			case "userId":
+				return ec.fieldContext_Todo_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -1976,7 +1953,7 @@ func (ec *executionContext) _Mutation_markDoneTodo(ctx context.Context, field gr
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().MarkDoneTodo(rctx, fc.Args["todoId"].(int))
+			return ec.resolvers.Mutation().MarkDoneTodo(rctx, fc.Args["todoId"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsActive == nil {
@@ -1995,7 +1972,7 @@ func (ec *executionContext) _Mutation_markDoneTodo(ctx context.Context, field gr
 		if data, ok := tmp.(*model.Todo); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.Todo`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.Todo`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2009,7 +1986,7 @@ func (ec *executionContext) _Mutation_markDoneTodo(ctx context.Context, field gr
 	}
 	res := resTmp.(*model.Todo)
 	fc.Result = res
-	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodo(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_markDoneTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2026,8 +2003,8 @@ func (ec *executionContext) fieldContext_Mutation_markDoneTodo(ctx context.Conte
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
+			case "userId":
+				return ec.fieldContext_Todo_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -2061,7 +2038,7 @@ func (ec *executionContext) _Mutation_markUndoneTodo(ctx context.Context, field 
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().MarkUndoneTodo(rctx, fc.Args["todoId"].(int))
+			return ec.resolvers.Mutation().MarkUndoneTodo(rctx, fc.Args["todoId"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsActive == nil {
@@ -2080,7 +2057,7 @@ func (ec *executionContext) _Mutation_markUndoneTodo(ctx context.Context, field 
 		if data, ok := tmp.(*model.Todo); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.Todo`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.Todo`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2094,7 +2071,7 @@ func (ec *executionContext) _Mutation_markUndoneTodo(ctx context.Context, field 
 	}
 	res := resTmp.(*model.Todo)
 	fc.Result = res
-	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodo(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_markUndoneTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2111,8 +2088,8 @@ func (ec *executionContext) fieldContext_Mutation_markUndoneTodo(ctx context.Con
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
+			case "userId":
+				return ec.fieldContext_Todo_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -2159,7 +2136,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2176,8 +2153,6 @@ func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field 
 				return ec.fieldContext_User_username(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
 			case "isActive":
 				return ec.fieldContext_User_isActive(ctx, field)
 			case "isAdmin":
@@ -2223,7 +2198,7 @@ func (ec *executionContext) _Query_currentUser(ctx context.Context, field graphq
 		if data, ok := tmp.(*model.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/graphql/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2237,7 +2212,7 @@ func (ec *executionContext) _Query_currentUser(ctx context.Context, field graphq
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_currentUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2254,8 +2229,6 @@ func (ec *executionContext) fieldContext_Query_currentUser(ctx context.Context, 
 				return ec.fieldContext_User_username(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
 			case "isActive":
 				return ec.fieldContext_User_isActive(ctx, field)
 			case "isAdmin":
@@ -2301,7 +2274,7 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 		if data, ok := tmp.([]*model.Todo); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/Da-max/todo-go/graphql/model.Todo`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/Da-max/todo-go/internal/handlers/graph/model.Todo`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2315,7 +2288,7 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Todo)
 	fc.Result = res
-	return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodoᚄ(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2332,8 +2305,8 @@ func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field 
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
+			case "userId":
+				return ec.fieldContext_Todo_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -2572,7 +2545,7 @@ func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.Collecte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Todo().ID(rctx, obj)
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2584,17 +2557,17 @@ func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2int(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Todo_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Todo",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -2690,8 +2663,8 @@ func (ec *executionContext) fieldContext_Todo_done(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_user(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_user(ctx, field)
+func (ec *executionContext) _Todo_userId(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_userId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2704,7 +2677,7 @@ func (ec *executionContext) _Todo_user(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Todo().User(rctx, obj)
+		return obj.UserID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2716,33 +2689,19 @@ func (ec *executionContext) _Todo_user(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Todo_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Todo_userId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Todo",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
-			case "isActive":
-				return ec.fieldContext_User_isActive(ctx, field)
-			case "isAdmin":
-				return ec.fieldContext_User_isAdmin(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2850,7 +2809,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.User().ID(rctx, obj)
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2862,17 +2821,17 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2int(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -2956,50 +2915,6 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 }
 
 func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_password(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_password(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Password, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_password(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -5601,59 +5516,33 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Todo")
 		case "id":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Todo_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Todo_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "text":
 
 			out.Values[i] = ec._Todo_text(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "done":
 
 			out.Values[i] = ec._Todo_done(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
-		case "user":
-			field := field
+		case "userId":
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Todo_user(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Todo_userId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5711,59 +5600,39 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
 		case "id":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._User_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "username":
 
 			out.Values[i] = ec._User_username(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "email":
 
 			out.Values[i] = ec._User_email(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "password":
-
-			out.Values[i] = ec._User_password(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "isActive":
 
 			out.Values[i] = ec._User_isActive(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "isAdmin":
 
 			out.Values[i] = ec._User_isAdmin(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -6109,11 +5978,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNChangePasswordConfirm2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePasswordConfirm(ctx context.Context, sel ast.SelectionSet, v model.ChangePasswordConfirm) graphql.Marshaler {
+func (ec *executionContext) marshalNChangePasswordConfirm2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐChangePasswordConfirm(ctx context.Context, sel ast.SelectionSet, v model.ChangePasswordConfirm) graphql.Marshaler {
 	return ec._ChangePasswordConfirm(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNChangePasswordConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePasswordConfirm(ctx context.Context, sel ast.SelectionSet, v *model.ChangePasswordConfirm) graphql.Marshaler {
+func (ec *executionContext) marshalNChangePasswordConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐChangePasswordConfirm(ctx context.Context, sel ast.SelectionSet, v *model.ChangePasswordConfirm) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6123,11 +5992,11 @@ func (ec *executionContext) marshalNChangePasswordConfirm2ᚖgithubᚗcomᚋDa�
 	return ec._ChangePasswordConfirm(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNConfirm2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirm(ctx context.Context, sel ast.SelectionSet, v model.Confirm) graphql.Marshaler {
+func (ec *executionContext) marshalNConfirm2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐConfirm(ctx context.Context, sel ast.SelectionSet, v model.Confirm) graphql.Marshaler {
 	return ec._Confirm(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirm(ctx context.Context, sel ast.SelectionSet, v *model.Confirm) graphql.Marshaler {
+func (ec *executionContext) marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐConfirm(ctx context.Context, sel ast.SelectionSet, v *model.Confirm) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6137,11 +6006,11 @@ func (ec *executionContext) marshalNConfirm2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑ
 	return ec._Confirm(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNDeleteAccount2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐDeleteAccount(ctx context.Context, sel ast.SelectionSet, v model.DeleteAccount) graphql.Marshaler {
+func (ec *executionContext) marshalNDeleteAccount2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐDeleteAccount(ctx context.Context, sel ast.SelectionSet, v model.DeleteAccount) graphql.Marshaler {
 	return ec._DeleteAccount(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeleteAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐDeleteAccount(ctx context.Context, sel ast.SelectionSet, v *model.DeleteAccount) graphql.Marshaler {
+func (ec *executionContext) marshalNDeleteAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐDeleteAccount(ctx context.Context, sel ast.SelectionSet, v *model.DeleteAccount) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6151,13 +6020,13 @@ func (ec *executionContext) marshalNDeleteAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋt
 	return ec._DeleteAccount(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
+func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
+func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6166,26 +6035,26 @@ func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.Selectio
 	return res
 }
 
-func (ec *executionContext) unmarshalNIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐIdentifier(ctx context.Context, v interface{}) (model.Identifier, error) {
+func (ec *executionContext) unmarshalNIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐIdentifier(ctx context.Context, v interface{}) (model.Identifier, error) {
 	res, err := ec.unmarshalInputIdentifier(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐNewTodo(ctx context.Context, v interface{}) (model.NewTodo, error) {
+func (ec *executionContext) unmarshalNNewTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐNewTodo(ctx context.Context, v interface{}) (model.NewTodo, error) {
 	res, err := ec.unmarshalInputNewTodo(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
+func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
 	res, err := ec.unmarshalInputNewUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRequestConfirmAccount2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestConfirmAccount(ctx context.Context, sel ast.SelectionSet, v model.RequestConfirmAccount) graphql.Marshaler {
+func (ec *executionContext) marshalNRequestConfirmAccount2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestConfirmAccount(ctx context.Context, sel ast.SelectionSet, v model.RequestConfirmAccount) graphql.Marshaler {
 	return ec._RequestConfirmAccount(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRequestConfirmAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestConfirmAccount(ctx context.Context, sel ast.SelectionSet, v *model.RequestConfirmAccount) graphql.Marshaler {
+func (ec *executionContext) marshalNRequestConfirmAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestConfirmAccount(ctx context.Context, sel ast.SelectionSet, v *model.RequestConfirmAccount) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6195,16 +6064,16 @@ func (ec *executionContext) marshalNRequestConfirmAccount2ᚖgithubᚗcomᚋDa�
 	return ec._RequestConfirmAccount(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRequestPasswordResetIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestPasswordResetIdentifier(ctx context.Context, v interface{}) (model.RequestPasswordResetIdentifier, error) {
+func (ec *executionContext) unmarshalNRequestPasswordResetIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestPasswordResetIdentifier(ctx context.Context, v interface{}) (model.RequestPasswordResetIdentifier, error) {
 	res, err := ec.unmarshalInputRequestPasswordResetIdentifier(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRequestResetPassword2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestResetPassword(ctx context.Context, sel ast.SelectionSet, v model.RequestResetPassword) graphql.Marshaler {
+func (ec *executionContext) marshalNRequestResetPassword2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestResetPassword(ctx context.Context, sel ast.SelectionSet, v model.RequestResetPassword) graphql.Marshaler {
 	return ec._RequestResetPassword(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRequestResetPassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐRequestResetPassword(ctx context.Context, sel ast.SelectionSet, v *model.RequestResetPassword) graphql.Marshaler {
+func (ec *executionContext) marshalNRequestResetPassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐRequestResetPassword(ctx context.Context, sel ast.SelectionSet, v *model.RequestResetPassword) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6214,7 +6083,7 @@ func (ec *executionContext) marshalNRequestResetPassword2ᚖgithubᚗcomᚋDaᚑ
 	return ec._RequestResetPassword(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNResetPasswordIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐResetPasswordIdentifier(ctx context.Context, v interface{}) (model.ResetPasswordIdentifier, error) {
+func (ec *executionContext) unmarshalNResetPasswordIdentifier2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐResetPasswordIdentifier(ctx context.Context, v interface{}) (model.ResetPasswordIdentifier, error) {
 	res, err := ec.unmarshalInputResetPasswordIdentifier(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -6234,11 +6103,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v model.Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v model.Todo) graphql.Marshaler {
 	return ec._Todo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTodo2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Todo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6262,7 +6131,7 @@ func (ec *executionContext) marshalNTodo2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodo(ctx, sel, v[i])
+			ret[i] = ec.marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6282,7 +6151,7 @@ func (ec *executionContext) marshalNTodo2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑ
 	return ret
 }
 
-func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v *model.Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v *model.Todo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6292,11 +6161,11 @@ func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgo�
 	return ec._Todo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTokens2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTokens(ctx context.Context, sel ast.SelectionSet, v model.Tokens) graphql.Marshaler {
+func (ec *executionContext) marshalNTokens2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTokens(ctx context.Context, sel ast.SelectionSet, v model.Tokens) graphql.Marshaler {
 	return ec._Tokens(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTokens2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐTokens(ctx context.Context, sel ast.SelectionSet, v *model.Tokens) graphql.Marshaler {
+func (ec *executionContext) marshalNTokens2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐTokens(ctx context.Context, sel ast.SelectionSet, v *model.Tokens) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6306,16 +6175,16 @@ func (ec *executionContext) marshalNTokens2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑg
 	return ec._Tokens(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUpdateUser(ctx context.Context, v interface{}) (model.UpdateUser, error) {
+func (ec *executionContext) unmarshalNUpdateUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUpdateUser(ctx context.Context, v interface{}) (model.UpdateUser, error) {
 	res, err := ec.unmarshalInputUpdateUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6339,7 +6208,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6359,7 +6228,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑ
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6648,7 +6517,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOChangePassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐChangePassword(ctx context.Context, v interface{}) (*model.ChangePassword, error) {
+func (ec *executionContext) unmarshalOChangePassword2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐChangePassword(ctx context.Context, v interface{}) (*model.ChangePassword, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6656,7 +6525,7 @@ func (ec *executionContext) unmarshalOChangePassword2ᚖgithubᚗcomᚋDaᚑmax�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOConfirmIdentifier2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋgraphqlᚋmodelᚐConfirmIdentifier(ctx context.Context, v interface{}) (*model.ConfirmIdentifier, error) {
+func (ec *executionContext) unmarshalOConfirmIdentifier2ᚖgithubᚗcomᚋDaᚑmaxᚋtodoᚑgoᚋinternalᚋhandlersᚋgraphᚋmodelᚐConfirmIdentifier(ctx context.Context, v interface{}) (*model.ConfirmIdentifier, error) {
 	if v == nil {
 		return nil, nil
 	}

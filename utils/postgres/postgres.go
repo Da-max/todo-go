@@ -1,9 +1,11 @@
 package postgres
 
 import (
+	"github.com/Da-max/todo-go/internal/repositories/todo"
+	"github.com/Da-max/todo-go/internal/repositories/user"
+	"log"
 	"os"
 
-	"github.com/Da-max/todo-go/graphql/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -33,7 +35,11 @@ func Migrate() {
 
 	db := New()
 
-	db.AutoMigrate(&model.User{}, &model.Todo{})
+	var err = db.AutoMigrate(&user.User{}, &todo.Todo{})
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// db, err := sql.Open("postgres", getDsn(false))
 	// if err != nil {
