@@ -5,15 +5,6 @@ import (
 	"time"
 )
 
-type MessageType byte
-
-const (
-	ConfirmAccount       = 0
-	RequestResetPassword = 1
-	ResetPassword        = 2
-	DeleteAccount        = 3
-)
-
 type TodoRepository interface {
 	GetByUserId(userId string) ([]*domain.Todo, error)
 	GetAll() ([]*domain.Todo, error)
@@ -38,5 +29,5 @@ type UserRepository interface {
 }
 
 type MessageRepository interface {
-	SendMessage(messageType MessageType, args ...interface{}) (bool, error)
+	SendMessage(messageType domain.MessageType, subject string, to []string, args ...interface{}) (bool, error)
 }

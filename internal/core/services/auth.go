@@ -1,15 +1,18 @@
 package services
 
 import (
+	"fmt"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/core/ports"
+	"github.com/Da-max/todo-go/internal/repositories/message"
 	"github.com/Da-max/todo-go/utils/errors"
 	"time"
 )
 
 type AuthService struct {
-	authRepository ports.AuthRepository
-	userRepository ports.UserRepository
+	authRepository    ports.AuthRepository
+	userRepository    ports.UserRepository
+	messageRepository message.Repository
 }
 
 func NewAuthService(authRepository ports.AuthRepository, userRepository ports.UserRepository) *AuthService {
@@ -36,11 +39,11 @@ func (service *AuthService) Login(username string, password string) (*domain.Tok
 	}
 
 	if err != nil {
-		return nil, errors.Unauthorized
+		return nil, errors.NotFound
 	}
 
 	if res, err := service.authRepository.CheckPassword(user, password); !res || err != nil {
-		return nil, errors.Unauthorized
+		return nil, errors.NotFound
 	}
 
 	return service.authRepository.GenerateTokens(user, expiresIn)
@@ -83,6 +86,13 @@ func (service *AuthService) ChangePassword(id string, oldPassword string, newPas
 	if err = service.userRepository.Save(updateUser); err != nil {
 		return nil, errors.Internal
 	}
+
+	go func() {
+		val, err := service.messageRepository.SendMessage(domain.ResetPassword, "Mise à jour de votre mot de passe", []string{updateUser.Email}, updateUser)
+		if !val || err != nil {
+			fmt.Print("An mail error occured", err)
+		}
+	}()
 
 	return updateUser, nil
 }

@@ -1,23 +1,14 @@
-package mail
+package message
 
 import (
-	"github.com/Da-max/todo-go/graphql/model"
+	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/utils/config"
 	"github.com/matcornic/hermes/v2"
 )
 
-type Type byte
-
-const (
-	ConfirmAccount       = 0
-	RequestResetPassword = 1
-	ResetPassword        = 2
-	DeleteAccount        = 3
-)
-
-func generateRequestResetPasswordMail(h hermes.Hermes, user *model.User, token string) string {
+func (r *Repository) generateRequestResetPasswordMail(user *domain.User, token string) (string, error) {
 	var conf = config.GetConfig()
-	res, err := h.GenerateHTML(hermes.Email{
+	return r.h.GenerateHTML(hermes.Email{
 		Body: hermes.Body{
 			Name: user.Username,
 			Intros: []string{
@@ -39,16 +30,11 @@ func generateRequestResetPasswordMail(h hermes.Hermes, user *model.User, token s
 			Signature: "Merci",
 		},
 	})
-
-	if err != nil {
-		panic(err)
-	}
-	return res
 }
 
-func generateConfirmAccountMail(h hermes.Hermes, user *model.User, token string) string {
+func (r *Repository) generateConfirmAccountMail(user *domain.User, token string) (string, error) {
 	var conf = config.GetConfig()
-	res, err := h.GenerateHTML(hermes.Email{
+	return r.h.GenerateHTML(hermes.Email{
 		Body: hermes.Body{
 			Name: user.Username,
 			Intros: []string{
@@ -69,14 +55,10 @@ func generateConfirmAccountMail(h hermes.Hermes, user *model.User, token string)
 		},
 	})
 
-	if err != nil {
-		panic(err)
-	}
-	return res
 }
 
-func generateDeleteAccountMail(h hermes.Hermes, user *model.User) string {
-	res, err := h.GenerateHTML(hermes.Email{
+func (r *Repository) generateDeleteAccountMail(user *domain.User) (string, error) {
+	return r.h.GenerateHTML(hermes.Email{
 		Body: hermes.Body{
 			Name: user.Username,
 			Intros: []string{
@@ -88,15 +70,10 @@ func generateDeleteAccountMail(h hermes.Hermes, user *model.User) string {
 		},
 	})
 
-	if err != nil {
-		panic(err)
-	}
-
-	return res
 }
 
-func generateResetPasswordMail(h hermes.Hermes, user *model.User) string {
-	res, err := h.GenerateHTML(hermes.Email{
+func (r *Repository) generateResetPasswordMail(user *domain.User) (string, error) {
+	return r.h.GenerateHTML(hermes.Email{
 		Body: hermes.Body{
 			Name: user.Username,
 			Intros: []string{
@@ -108,48 +85,4 @@ func generateResetPasswordMail(h hermes.Hermes, user *model.User) string {
 		},
 	})
 
-	if err != nil {
-		panic(err)
-	}
-
-	return res
-}
-
-func GenerateMail(h hermes.Hermes, mailType Type, args ...interface{}) string {
-	var (
-		user  *model.User
-		token string
-		res   string
-	)
-
-	for _, v := range args {
-		switch v.(type) {
-		case *model.User:
-			user = v.(*model.User)
-		case string:
-			token = v.(string)
-		}
-	}
-
-	switch mailType {
-	case RequestResetPassword:
-		if token == "" || user == nil {
-			panic("Some params are missing")
-		}
-		res = generateRequestResetPasswordMail(h, user, token)
-	case ConfirmAccount:
-		if token == "" || user == nil {
-			panic("Some params are missing")
-		}
-		res = generateConfirmAccountMail(h, user, token)
-	case ResetPassword:
-		if user == nil {
-			panic("Some params are missing")
-		}
-		res = generateResetPasswordMail(h, user)
-	case DeleteAccount:
-		res = generateDeleteAccountMail(h, user)
-	}
-
-	return res
 }

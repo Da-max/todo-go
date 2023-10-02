@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/core/ports"
 	"github.com/Da-max/todo-go/utils/errors"
@@ -8,8 +9,9 @@ import (
 )
 
 type UserService struct {
-	authRepository ports.AuthRepository
-	userRepository ports.UserRepository
+	authRepository    ports.AuthRepository
+	userRepository    ports.UserRepository
+	messageRepository ports.MessageRepository
 }
 
 func NewUserService(authRepository ports.AuthRepository, userRepository ports.UserRepository) *UserService {
@@ -66,6 +68,12 @@ func (service *UserService) Create(username string, email string, password strin
 		return nil, errors.Internal
 	}
 	user := domain.NewUser(uuid.New().String(), username, email, cryptPassword, isActive, isAdmin)
+
+	go func() {
+		if val, err := service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirmer votre compte", []string{user.Email}, user); !val || err != nil {
+			fmt.Print("A mail error occured", err)
+		}
+	}()
 
 	return &user, service.userRepository.Save(&user)
 }

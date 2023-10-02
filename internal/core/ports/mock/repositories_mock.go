@@ -13,7 +13,6 @@ import (
 	time "time"
 
 	domain "github.com/Da-max/todo-go/internal/core/domain"
-	ports "github.com/Da-max/todo-go/internal/core/ports"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -316,9 +315,9 @@ func (m *MockMessageRepository) EXPECT() *MockMessageRepositoryMockRecorder {
 }
 
 // SendMessage mocks base method.
-func (m *MockMessageRepository) SendMessage(messageType ports.MessageType, args ...any) (bool, error) {
+func (m *MockMessageRepository) SendMessage(messageType domain.MessageType, subject string, to []string, args ...any) (bool, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{messageType}
+	varargs := []any{messageType, subject, to}
 	for _, a := range args {
 		varargs = append(varargs, a)
 	}
@@ -329,8 +328,8 @@ func (m *MockMessageRepository) SendMessage(messageType ports.MessageType, args 
 }
 
 // SendMessage indicates an expected call of SendMessage.
-func (mr *MockMessageRepositoryMockRecorder) SendMessage(messageType any, args ...any) *gomock.Call {
+func (mr *MockMessageRepositoryMockRecorder) SendMessage(messageType, subject, to any, args ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{messageType}, args...)
+	varargs := append([]any{messageType, subject, to}, args...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessage", reflect.TypeOf((*MockMessageRepository)(nil).SendMessage), varargs...)
 }

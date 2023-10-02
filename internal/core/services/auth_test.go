@@ -44,7 +44,7 @@ func TestAuthService_GetCurrentUser2(t *testing.T) {
 	}
 }
 
-func TestAuthService_Login(t *testing.T) {
+func TestAuthService_LoginGoodPassword(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	authRepo := mock_ports.NewMockAuthRepository(ctrl)
 	userRepo := mock_ports.NewMockUserRepository(ctrl)
@@ -63,5 +63,47 @@ func TestAuthService_Login(t *testing.T) {
 
 	if generateToken != token || err != nil {
 		t.Fatalf("The token must not be empty and the error must be empty.")
+	}
+}
+
+func TestAuthService_LoginBadUsername(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	authRepo := mock_ports.NewMockAuthRepository(ctrl)
+	userRepo := mock_ports.NewMockUserRepository(ctrl)
+
+	userRepo.EXPECT().GetByUsername(gomock.Eq("bad username")).Return(nil, errors.New("ERROR"))
+
+	service := NewAuthService(authRepo, userRepo)
+
+	generateToken, err := service.Login("bad username", "password")
+
+	if generateToken != nil || err == nil {
+		t.Fatalf("The token must be nil and the error must be nil")
+	}
+
+	if err != myErrors.NotFound {
+		t.Fatalf("The error must be NotFound")
+	}
+}
+
+func TestAuthService_LoginBadPassword(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	authRepo := mock_ports.NewMockAuthRepository(ctrl)
+	userRepo := mock_ports.NewMockUserRepository(ctrl)
+	user := &domain.User{}
+
+	userRepo.EXPECT().GetByUsername(gomock.Eq("test")).Return(user, nil)
+	authRepo.EXPECT().CheckPassword(gomock.Eq(user), gomock.Eq("bad password")).Return(false, errors.New("BAD_PASSWORD"))
+
+	service := NewAuthService(authRepo, userRepo)
+
+	generateToken, err := service.Login("test", "bad password")
+
+	if generateToken != nil || err == nil {
+		t.Fatalf("The token must be nil and the error must be nil")
+	}
+
+	if err != myErrors.NotFound {
+		t.Fatalf("The error must be NotFound")
 	}
 }
