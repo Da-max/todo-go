@@ -18,7 +18,7 @@ const { modalOpen, modalClose } = useModal({
 
 const sendRequestResetPassword = async () => {
     if (form.value) {
-        const res: boolean = await form.value.sendRequestEmail()
+        const res = await form.value.sendRequestEmail()
         if (res) {
             await router.push({ name: 'home' })
         }

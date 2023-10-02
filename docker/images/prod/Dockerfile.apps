@@ -1,0 +1,44 @@
+LABEL authors="da-max"
+
+FROM node:20-slim as base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable
+
+VOLUME [ "/pnpm-store", "/app/node_modules" ]
+RUN pnpm config --global set store-dir /pnpm-store
+
+WORKDIR /app
+
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY .npmrc ./
+RUN mkdir -p apps/web/ apps/mobile
+COPY apps/web/package.json ./apps/web/
+COPY apps/mobile/package.json ./apps/mobile
+
+FROM base as prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+
+FROM base as build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN pnpm run -r build
+
+FROM base as mobile
+COPY --from=prod-deps /app/apps/mobile/node_modules /app/apps/mobile/node_modules
+COPY --from=build /app/apps/mobile/ios /app/apps/mobile/ios
+COPY --from=build /app/apps/mobile/android /app/apps/mobile/android
+
+WORKDIR /app/apps/mobile
+
+EXPOSE 8081
+CMD ["pnpm", "run", "start", "--port", "8081"]
+
+FROM base as web
+COPY --from=prod-deps /app/apps/web/node_modules /app/apps/web/node_modules
+COPY --from=build /app/apps/web/dist /app/apps/web/dist
+
+WORKDIR /app/apps/web
+
+EXPOSE 3000
+CMD ["pnpm", "run", "dev", "--host"]

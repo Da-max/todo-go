@@ -13,10 +13,11 @@
         },
         "assetBundlePatterns": ["**/*"],
         "ios": {
-            "supportsTablet": true
+            "supportsTablet": true,
+            "bundleIdentifier": "fr.fedabian.TodoGo"
         },
         "android": {
-            "package": "todo-go",
+            "package": "fr.fedabian.TodoGo",
             "adaptiveIcon": {
                 "foregroundImage": "./assets/adaptive-icon.png",
                 "backgroundColor": "#ffffff"
