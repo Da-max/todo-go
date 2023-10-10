@@ -13,7 +13,6 @@ type Tokens {
 
 type Confirm {
     ok: Boolean!
-    token: String!
 }
 
 type RequestResetPassword {
