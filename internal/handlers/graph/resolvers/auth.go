@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Da-max/todo-go/internal/core/domain"
-	"github.com/go-chi/jwtauth/v5"
+	"github.com/Da-max/todo-go/utils/auth"
 
 	"github.com/Da-max/todo-go/internal/handlers/graph/generated"
 	"github.com/Da-max/todo-go/internal/handlers/graph/model"
@@ -37,13 +37,23 @@ func (r *mutationResolver) SignUp(ctx context.Context, input model.NewUser) (*mo
 
 // ConfirmAccount is the resolver for the confirmAccount field.
 func (r *mutationResolver) ConfirmAccount(ctx context.Context, input *model.ConfirmIdentifier) (*model.Confirm, error) {
-	panic(fmt.Errorf("not implemented: ConfirmAccount - confirmAccount"))
+	var user, err = r.AuthService.GetCurrentUser(ctx.Value(auth.TokenCtxKey).(*domain.Token))
+
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := r.UserService.ConfirmAccount(user.ID, model.ToTokenDomain(input.Token)); err != nil {
+		return nil, err
+	}
+
+	return &model.Confirm{Ok: true}, nil
 }
 
 // UpdateAccount is the resolver for the updateAccount field.
 func (r *mutationResolver) UpdateAccount(ctx context.Context, input model.UpdateUser) (*model.User, error) {
 	var (
-		token            = ctx.Value(jwtauth.TokenCtxKey).(*domain.Token)
+		token            = ctx.Value(auth.TokenCtxKey).(*domain.Token)
 		currentUser, err = r.AuthService.GetCurrentUser(token)
 		user             *domain.User
 	)
@@ -64,12 +74,38 @@ func (r *mutationResolver) UpdateAccount(ctx context.Context, input model.Update
 
 // ChangePassword is the resolver for the changePassword field.
 func (r *mutationResolver) ChangePassword(ctx context.Context, input *model.ChangePassword) (*model.ChangePasswordConfirm, error) {
-	panic(fmt.Errorf("not implemented: ChangePassword - changePassword"))
+	var (
+		token     = ctx.Value(auth.TokenCtxKey).(*domain.Token)
+		user, err = r.AuthService.GetCurrentUser(token)
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := r.AuthService.ChangePassword(user.ID, input.OldPassword, input.Password, token); err != nil {
+		return nil, err
+	}
+
+	return &model.ChangePasswordConfirm{Ok: true}, nil
 }
 
 // DeleteAccount is the resolver for the deleteAccount field.
 func (r *mutationResolver) DeleteAccount(ctx context.Context) (*model.DeleteAccount, error) {
-	panic(fmt.Errorf("not implemented: DeleteAccount - deleteAccount"))
+	var (
+		token     = ctx.Value(auth.TokenCtxKey).(*domain.Token)
+		user, err = r.AuthService.GetCurrentUser(token)
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.UserService.Remove(user.ID, token); err != nil {
+		return nil, err
+	}
+
+	return &model.DeleteAccount{Ok: true}, nil
 }
 
 // RequestConfirmAccount is the resolver for the requestConfirmAccount field.

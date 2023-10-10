@@ -16,3 +16,7 @@ func ToTokensModel(token *domain.Tokens) *Tokens {
 		AccessToken:  token.Token,
 	}
 }
+
+func ToTokenDomain(token string) *domain.Token {
+	return domain.NewToken(token)
+}
