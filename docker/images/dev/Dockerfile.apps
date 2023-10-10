@@ -8,34 +8,32 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY .npmrc pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY .npmrc pnpm-workspace.yaml ./
 RUN mkdir -p apps/web apps/mobile
 COPY apps/web/package.json ./apps/web/package.json
 COPY apps/mobile/package.json ./apps/mobile/package.json
 
 FROM base as install
 
-RUN pnpm install
-
-RUN ls /app/node_modules
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 
 FROM base as mobile
+
+VOLUME ["/app/node_modules", "/app/apps/mobile/node_modules", "/app/apps/web/node_modules"]
+
 COPY --from=install /app/apps/mobile/node_modules /app/apps/mobile/node_modules
 COPY --from=install /app/node_modules /app/node_modules
 
 WORKDIR /app/apps/mobile
 
-RUN ls /app/node_modules
-
-EXPOSE 8081
-CMD ["pnpm", "run", "start", "--port", "8081"]
+CMD ["pnpm", "run", "start"]
 
 FROM base as web
+
+VOLUME ["/app/node_modules", "/app/apps/web/node_modules"]
+
 COPY --from=install /app/node_modules /app/node_modules
 
 WORKDIR /app/apps/web
 
-RUN ls /app/node_modules
-
-EXPOSE 3000
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "run", "dev", "--host"]

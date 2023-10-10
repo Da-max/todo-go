@@ -1,8 +1,16 @@
-const { makeMetroConfig } = require("@rnx-kit/metro-config");
-const MetroSymlinksResolver = require("@rnx-kit/metro-resolver-symlinks");
+const { getDefaultConfig } = require("expo/metro-config");
+const path = require("path");
 
-module.exports = makeMetroConfig({
-    resolver: {
-        resolverRequest: MetroSymlinksResolver(),
-    },
-});
+const workspaceRoot = path.resolve(__dirname, "../../");
+const projectRoot = __dirname;
+
+const config = getDefaultConfig(projectRoot);
+
+config.watchFolders = [workspaceRoot];
+
+config.resolver.nodeModulesPaths = [
+    path.resolve(projectRoot, "node_modules"),
+    path.resolve(workspaceRoot, "node_modules"),
+];
+
+module.exports = config;
