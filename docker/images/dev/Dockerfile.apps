@@ -9,9 +9,12 @@ RUN corepack enable
 WORKDIR /app
 
 COPY .npmrc pnpm-workspace.yaml ./
-RUN mkdir -p apps/web apps/mobile
+RUN mkdir -p apps/web apps/mobile libs/colors
 COPY apps/web/package.json ./apps/web/package.json
 COPY apps/mobile/package.json ./apps/mobile/package.json
+COPY libs/colors/package.json ./libs/colors/package.json
+COPY libs/core/package.json ./libs/core/package.json
+
 
 FROM base as install
 
@@ -26,6 +29,8 @@ COPY --from=install /app/node_modules /app/node_modules
 
 WORKDIR /app/apps/mobile
 
+ENV REACT_NATIVE_PACKAGER_HOSTNAME="192.168.1.29"
+
 CMD ["pnpm", "run", "start"]
 
 FROM base as web
@@ -33,6 +38,7 @@ FROM base as web
 VOLUME ["/app/node_modules", "/app/apps/web/node_modules"]
 
 COPY --from=install /app/node_modules /app/node_modules
+COPY --from=install /app/apps/web/node_modules /app/apps/web/node_modules
 
 WORKDIR /app/apps/web
 

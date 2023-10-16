@@ -1,5 +1,5 @@
 {
-    "extends": "expo/tsconfig.base",
+    "extends": ["@todo-go/core/tsconfig.json", "expo/tsconfig.base"],
     "compilerOptions": {
         "strict": true
     }

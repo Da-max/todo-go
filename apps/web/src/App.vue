@@ -6,6 +6,7 @@
         </div>
     </toast-provider>
 </template>
+
 <script setup lang="ts">
 import Navbar from './components/Partials/Navbar.vue'
 import { ToastProvider } from 'flowbite-vue'

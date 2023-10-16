@@ -1,15 +1,11 @@
 {
+    "extends": "@todo-go/core/tsconfig.json",
     "compilerOptions": {
         "target": "esnext",
-        "useDefineForClassFields": true,
         "module": "esnext",
-        "moduleResolution": "node",
         "strict": true,
         "jsx": "preserve",
         "sourceMap": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "esModuleInterop": true,
         "lib": ["esnext", "dom"],
         "skipLibCheck": true,
         "types": ["vitest/globals"],
@@ -17,7 +13,7 @@
             "~/*": ["./src/*"]
         }
     },
-    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+    "include": ["src/**/*.vue"],
     "references": [
         {
             "path": "./tsconfig.node.json"

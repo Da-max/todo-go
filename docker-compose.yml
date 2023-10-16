@@ -49,7 +49,7 @@ services:
             - "8081:8081"
             - "8082:8082"
         environment:
-            REACT_NATIVE_PACKAGER_HOSTNAME: "192.168.1.29"
+            REACT_NATIVE_PACKAGER_HOSTNAME: "192.168.87.206"
             EXPO_DEVTOOLS_LISTEN_ADDRESS: "0.0.0.0"
 
     adminer:

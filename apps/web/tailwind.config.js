@@ -1,7 +1,8 @@
-const colors = require('tailwindcss/colors')
+import * as colors from 'tailwindcss/colors'
+import * as themeColors from './node_modules/@todo-go/colors'
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
     content: [
         './index.html',
         './src/**/*.{vue,js,ts,jsx,tsx}',
@@ -12,10 +13,10 @@ module.exports = {
         extend: {
             colors: {
                 blue: colors.indigo,
-                primary: colors.indigo[700],
-                secondary: colors.blue[100],
-                error: colors.red[500],
-                success: colors.green[500],
+                primary: themeColors['primary'],
+                secondary: themeColors['secondary'],
+                error: themeColors['error'],
+                success: themeColors['success'],
             },
         },
     },

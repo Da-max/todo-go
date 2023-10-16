@@ -1,0 +1,7 @@
+{
+    "name": "@todo-go/eslint-config",
+    "version": "1.0.0",
+    "peerDependencies": {
+        "eslint": "^8.51.0"
+    }
+}
