@@ -18,6 +18,8 @@ type AuthRepository interface {
 	GetCurrentUser(token *domain.Token) (*domain.User, error)
 	CheckPassword(user *domain.User, password string) (bool, error)
 	GenerateTokens(user *domain.User, expiresIn time.Duration) (*domain.Tokens, error)
+	GenerateToken(id string) (*domain.Token, error)
+	DecodeToken(token *domain.Token) (string, error)
 }
 
 type UserRepository interface {

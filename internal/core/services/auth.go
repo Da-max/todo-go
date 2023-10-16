@@ -5,7 +5,7 @@ import (
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/core/ports"
 	"github.com/Da-max/todo-go/internal/repositories/message"
-	"github.com/Da-max/todo-go/utils/errors"
+	"github.com/Da-max/todo-go/internal/utils/errors"
 	"time"
 )
 
@@ -95,4 +95,51 @@ func (service *AuthService) ChangePassword(id string, oldPassword string, newPas
 	}()
 
 	return updateUser, nil
+}
+
+func (service *AuthService) RequestResetPassword(id string) (bool, error) {
+	var user, err = service.userRepository.Get(id)
+
+	if err != nil {
+		return false, errors.NotFound
+	}
+
+	var resetToken, errToken = service.authRepository.GenerateToken(id)
+
+	if errToken != nil {
+		return false, errors.Internal
+	}
+
+	go func() {
+		if val, err := service.messageRepository.SendMessage(domain.RequestResetPassword, "Demande de réinitialisation du mot de passe", []string{user.Email}, user, resetToken); !val || err != nil {
+			fmt.Print("A message error occurred", err)
+		}
+	}()
+
+	return true, nil
+}
+
+func (service *AuthService) ResetPassword(password string, token *domain.Token) (*domain.User, error) {
+	var id, err = service.authRepository.DecodeToken(token)
+	if err != nil {
+		return nil, errors.Internal
+	}
+
+	var user, userErr = service.userRepository.Get(id)
+
+	if userErr != nil {
+		return nil, errors.Internal
+	}
+
+	user.Password, err = service.authRepository.GeneratePassword(password)
+
+	if err != nil {
+		return nil, errors.Internal
+	}
+
+	if err = service.userRepository.Save(user); err != nil {
+		return nil, errors.Internal
+	}
+
+	return user, nil
 }

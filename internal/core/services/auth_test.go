@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	mock_ports "github.com/Da-max/todo-go/internal/core/ports/mock"
-	myErrors "github.com/Da-max/todo-go/utils/errors"
+	myErrors "github.com/Da-max/todo-go/internal/utils/errors"
 	"go.uber.org/mock/gomock"
 	"testing"
 	"time"

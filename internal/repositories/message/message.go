@@ -3,7 +3,7 @@ package message
 import (
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/handlers/graph/model"
-	"github.com/Da-max/todo-go/utils/config"
+	"github.com/Da-max/todo-go/internal/utils/config"
 	"github.com/matcornic/hermes/v2"
 	"net/smtp"
 	"strconv"
@@ -11,6 +11,12 @@ import (
 
 type Repository struct {
 	h hermes.Hermes
+}
+
+func NewMessageRepository(h hermes.Hermes) *Repository {
+	return &Repository{
+		h: h,
+	}
 }
 
 func (r *Repository) SendMessage(messageType domain.MessageType, subject string, to []string, args ...interface{}) (bool, error) {

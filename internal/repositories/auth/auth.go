@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/repositories/user"
 	"github.com/go-chi/jwtauth/v5"
@@ -79,4 +80,32 @@ func (r *Repository) GenerateTokens(user *domain.User, expiresIn time.Duration) 
 	}
 
 	return domain.NewTokens(tokenString, rtTokenString, int(expiresIn)), nil
+}
+
+func (r *Repository) GenerateToken(id string) (*domain.Token, error) {
+	var claims = map[string]interface{}{"ID": id}
+
+	var _, tokenString, err = r.TokenAuth.Encode(claims)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return domain.NewToken(tokenString), nil
+}
+
+func (r *Repository) DecodeToken(token *domain.Token) (string, error) {
+	var t, err = jwtauth.VerifyToken(r.TokenAuth, *token)
+
+	if err != nil {
+		return "", err
+	}
+
+	var id, find = t.Get("ID")
+
+	if !find {
+		return "", errors.New("content not found")
+	}
+
+	return id.(string), nil
 }

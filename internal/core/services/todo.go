@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/core/ports"
-	"github.com/Da-max/todo-go/utils/errors"
+	"github.com/Da-max/todo-go/internal/utils/errors"
 	"github.com/google/uuid"
 )
 

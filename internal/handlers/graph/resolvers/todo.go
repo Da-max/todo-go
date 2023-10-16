@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/handlers/graph/model"
-	"github.com/Da-max/todo-go/utils/auth"
-	myErrors "github.com/Da-max/todo-go/utils/errors"
+	"github.com/Da-max/todo-go/internal/utils/auth"
+	myErrors "github.com/Da-max/todo-go/internal/utils/errors"
 	"github.com/go-chi/jwtauth/v5"
 )
 

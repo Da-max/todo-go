@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Da-max/todo-go/internal/core/domain"
-	"github.com/Da-max/todo-go/utils/auth"
+	"github.com/Da-max/todo-go/internal/utils/auth"
 
 	"github.com/Da-max/todo-go/internal/handlers/graph/generated"
 	"github.com/Da-max/todo-go/internal/handlers/graph/model"
@@ -125,12 +125,35 @@ func (r *mutationResolver) ResetPassword(ctx context.Context, input model.ResetP
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+	var (
+		token      = ctx.Value(auth.TokenCtxKey).(*domain.Token)
+		users, err = r.UserService.GetAll(token)
+		results    []*model.User
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, user := range users {
+		results = append(results, model.ToUserModel(user))
+	}
+
+	return results, nil
+
 }
 
 // CurrentUser is the resolver for the currentUser field.
 func (r *queryResolver) CurrentUser(ctx context.Context) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: CurrentUser - currentUser"))
+	var (
+		token            = ctx.Value(auth.TokenCtxKey).(*domain.Token)
+		currentUser, err = r.AuthService.GetCurrentUser(token)
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.ToUserModel(currentUser), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

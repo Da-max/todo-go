@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/core/ports"
-	"github.com/Da-max/todo-go/utils/errors"
+	"github.com/Da-max/todo-go/internal/utils/errors"
 	"github.com/google/uuid"
 )
 
@@ -116,6 +116,38 @@ func (service *UserService) Remove(id string, token *domain.Token) error {
 	}
 
 	return service.userRepository.Remove(user)
+}
+
+func (service *UserService) RequestConfirmAccount(id string, token *domain.Token) (bool, error) {
+	var currentUser, err = service.authRepository.GetCurrentUser(token)
+	if err != nil {
+		return false, errors.Internal
+	}
+
+	if !currentUser.IsAdmin && currentUser.ID != id {
+		return false, errors.Unauthorized
+	}
+
+	if currentUser.ID != id {
+		currentUser, err = service.userRepository.Get(id)
+		if err != nil {
+			return false, errors.Internal
+		}
+	}
+
+	var confirmToken, tokenErr = service.authRepository.GenerateToken(id)
+
+	if tokenErr != nil {
+		return false, errors.Internal
+	}
+
+	go func() {
+		if val, err := service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirm your account", []string{currentUser.Email}, currentUser, confirmToken); !val || err != nil {
+			fmt.Print("An message error occurred", err)
+		}
+	}()
+
+	return true, nil
 }
 
 func (service *UserService) ConfirmAccount(id string, token *domain.Token) (*domain.User, error) {

@@ -2,7 +2,7 @@ package message
 
 import (
 	"github.com/Da-max/todo-go/internal/core/domain"
-	"github.com/Da-max/todo-go/utils/config"
+	"github.com/Da-max/todo-go/internal/utils/config"
 	"github.com/matcornic/hermes/v2"
 )
 

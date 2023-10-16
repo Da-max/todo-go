@@ -15,6 +15,8 @@ type AuthService interface {
 	GetCurrentUser(token *domain.Token) (*domain.User, error)
 	Login(username string, password string) (*domain.Tokens, error)
 	ChangePassword(id string, oldPassword string, newPassword string, token *domain.Token) (*domain.User, error)
+	RequestResetPassword(id string) (bool, error)
+	ResetPassword(password string, token *domain.Token) (*domain.User, error)
 }
 
 type UserService interface {
@@ -22,5 +24,6 @@ type UserService interface {
 	Create(username string, email string, password string, isAdmin bool, isActive bool) (*domain.User, error)
 	Update(id string, username string, email string, password string, isActive bool, isAdmin bool, token *domain.Token) (*domain.User, error)
 	Remove(id string, token *domain.Token) error
+	RequestConfirmAccount(id string, token *domain.Token) (bool, error)
 	ConfirmAccount(id string, token *domain.Token) (*domain.User, error)
 }

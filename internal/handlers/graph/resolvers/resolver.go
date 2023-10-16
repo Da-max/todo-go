@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"github.com/Da-max/todo-go/internal/core/ports"
-	"github.com/Da-max/todo-go/utils/config"
+	"github.com/Da-max/todo-go/internal/utils/config"
 )
 
 type Resolver struct {
