@@ -5,3 +5,9 @@ generates:
         plugins:
             - typescript
             - typescript-operations
+    ./src/validation.ts:
+        plugins:
+            - "@anatine/graphql-zod-validation"
+        config:
+            schema: zod
+            importFrom: ./types/generated

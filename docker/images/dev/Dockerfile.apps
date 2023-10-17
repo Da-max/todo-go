@@ -14,6 +14,7 @@ COPY apps/web/package.json ./apps/web/package.json
 COPY apps/mobile/package.json ./apps/mobile/package.json
 COPY libs/colors/package.json ./libs/colors/package.json
 COPY libs/core/package.json ./libs/core/package.json
+COPY libs/eslint-config/package.json ./libs/eslint-config/package.json
 
 
 FROM base as install

@@ -1,9 +1,7 @@
 {
-    "env": {
-        "browser": true,
-        "node": true
-    },
-    "globals": {
-        "@todo-go": true
+    "extends": ["@todo-go"],
+    "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/ban-types": "off"
     }
 }

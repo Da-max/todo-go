@@ -9,43 +9,54 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
     [SubKey in K]: Maybe<T[SubKey]>;
 };
+export type MakeEmpty<
+    T extends { [key: string]: unknown },
+    K extends keyof T,
+> = { [_ in K]?: never };
+export type Incremental<T> =
+    | T
+    | {
+          [P in keyof T]?: P extends " $fragmentName" | "__typename"
+              ? T[P]
+              : never;
+      };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-    ID: string;
-    String: string;
-    Boolean: boolean;
-    Int: number;
-    Float: number;
+    ID: { input: string; output: string };
+    String: { input: string; output: string };
+    Boolean: { input: boolean; output: boolean };
+    Int: { input: number; output: number };
+    Float: { input: number; output: number };
 };
 
 export type ChangePassword = {
-    confirmPassword: Scalars["String"];
-    oldPassword: Scalars["String"];
-    password: Scalars["String"];
+    confirmPassword: Scalars["String"]["input"];
+    oldPassword: Scalars["String"]["input"];
+    password: Scalars["String"]["input"];
 };
 
 export type ChangePasswordConfirm = {
     __typename?: "ChangePasswordConfirm";
-    ok: Scalars["Boolean"];
+    ok: Scalars["Boolean"]["output"];
 };
 
 export type Confirm = {
     __typename?: "Confirm";
-    ok: Scalars["Boolean"];
+    ok: Scalars["Boolean"]["output"];
 };
 
 export type ConfirmIdentifier = {
-    token: Scalars["String"];
+    token: Scalars["String"]["input"];
 };
 
 export type DeleteAccount = {
     __typename?: "DeleteAccount";
-    ok: Scalars["Boolean"];
+    ok: Scalars["Boolean"]["output"];
 };
 
 export type Identifier = {
-    password: Scalars["String"];
-    username: Scalars["String"];
+    password: Scalars["String"]["input"];
+    username: Scalars["String"]["input"];
 };
 
 export type Mutation = {
@@ -57,7 +68,7 @@ export type Mutation = {
     login: Tokens;
     markDoneTodo: Todo;
     markUndoneTodo: Todo;
-    removeTodo: Scalars["ID"];
+    removeTodo: Scalars["ID"]["output"];
     requestConfirmAccount: RequestConfirmAccount;
     requestResetPassword: RequestResetPassword;
     resetPassword: Confirm;
@@ -83,15 +94,15 @@ export type MutationLoginArgs = {
 };
 
 export type MutationMarkDoneTodoArgs = {
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 };
 
 export type MutationMarkUndoneTodoArgs = {
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 };
 
 export type MutationRemoveTodoArgs = {
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 };
 
 export type MutationRequestResetPasswordArgs = {
@@ -112,17 +123,17 @@ export type MutationUpdateAccountArgs = {
 
 export type MutationUpdateTodoArgs = {
     input: NewTodo;
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 };
 
 export type NewTodo = {
-    text: Scalars["String"];
+    text: Scalars["String"]["input"];
 };
 
 export type NewUser = {
-    email: Scalars["String"];
-    password: Scalars["String"];
-    username: Scalars["String"];
+    email: Scalars["String"]["input"];
+    password: Scalars["String"]["input"];
+    username: Scalars["String"]["input"];
 };
 
 export type Query = {
@@ -134,49 +145,49 @@ export type Query = {
 
 export type RequestConfirmAccount = {
     __typename?: "RequestConfirmAccount";
-    ok: Scalars["Boolean"];
+    ok: Scalars["Boolean"]["output"];
 };
 
 export type RequestPasswordResetIdentifier = {
-    email: Scalars["String"];
+    email: Scalars["String"]["input"];
 };
 
 export type RequestResetPassword = {
     __typename?: "RequestResetPassword";
-    ok: Scalars["Boolean"];
+    ok: Scalars["Boolean"]["output"];
 };
 
 export type ResetPasswordIdentifier = {
-    password: Scalars["String"];
-    token: Scalars["String"];
+    password: Scalars["String"]["input"];
+    token: Scalars["String"]["input"];
 };
 
 export type Todo = {
     __typename?: "Todo";
-    done: Scalars["Boolean"];
-    id: Scalars["ID"];
-    text: Scalars["String"];
-    userId: Scalars["ID"];
+    done: Scalars["Boolean"]["output"];
+    id: Scalars["ID"]["output"];
+    text: Scalars["String"]["output"];
+    userId: Scalars["ID"]["output"];
 };
 
 export type Tokens = {
     __typename?: "Tokens";
-    accessToken: Scalars["String"];
-    refreshToken: Scalars["String"];
+    accessToken: Scalars["String"]["output"];
+    refreshToken: Scalars["String"]["output"];
 };
 
 export type UpdateUser = {
-    email?: InputMaybe<Scalars["String"]>;
-    username?: InputMaybe<Scalars["String"]>;
+    email?: InputMaybe<Scalars["String"]["input"]>;
+    username?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type User = {
     __typename?: "User";
-    email: Scalars["String"];
-    id: Scalars["ID"];
-    isActive: Scalars["Boolean"];
-    isAdmin: Scalars["Boolean"];
-    username: Scalars["String"];
+    email: Scalars["String"]["output"];
+    id: Scalars["ID"]["output"];
+    isActive: Scalars["Boolean"]["output"];
+    isAdmin: Scalars["Boolean"]["output"];
+    username: Scalars["String"]["output"];
 };
 
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>;
@@ -320,7 +331,7 @@ export type AllTodosQuery = {
 };
 
 export type RemoveTodoMutationVariables = Exact<{
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 }>;
 
 export type RemoveTodoMutation = {
@@ -330,7 +341,7 @@ export type RemoveTodoMutation = {
 
 export type UpdateTodoMutationVariables = Exact<{
     input: NewTodo;
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 }>;
 
 export type UpdateTodoMutation = {
@@ -360,7 +371,7 @@ export type AddTodoMutation = {
 };
 
 export type MarkDoneTodoMutationVariables = Exact<{
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 }>;
 
 export type MarkDoneTodoMutation = {
@@ -375,7 +386,7 @@ export type MarkDoneTodoMutation = {
 };
 
 export type MarkUndoneTodoMutationVariables = Exact<{
-    todoId: Scalars["ID"];
+    todoId: Scalars["ID"]["input"];
 }>;
 
 export type MarkUndoneTodoMutation = {

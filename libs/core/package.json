@@ -3,19 +3,24 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "build": "npm run generate && node ./esbuild.config.mjs && tsc --declaration --emitDeclarationOnly --outDir ./dist",
-        "generate": "graphql-codegen"
+        "build": "node ./esbuild.config.mjs && tsc --declaration --emitDeclarationOnly --outDir ./dist",
+        "generate": "graphql-codegen",
+        "start": "npm run generate --watch"
     },
     "dependencies": {
-        "@graphql-codegen/cli": "^2.8.0",
-        "@graphql-codegen/typescript": "^2.7.1",
-        "@graphql-codegen/typescript-operations": "^2.5.1",
-        "@graphql-codegen/typescript-vue-urql": "^2.3.1",
+        "@graphql-codegen/cli": "5.0.0",
+        "@graphql-codegen/typescript": "^4.0.1",
+        "@graphql-codegen/typescript-operations": "^4.0.1",
         "@todo-go/eslint-config": "workspace:^",
-        "esbuild": "0.19.4",
-        "glob": "^10.3.10"
+        "esbuild": "^0.19.4",
+        "glob": "^10.3.10",
+        "zod": "^3.22.4"
     },
     "peerDependencies": {
+        "graphql-tag": "^2.12.6",
         "typescript": "^5.2.2"
+    },
+    "devDependencies": {
+        "@anatine/graphql-zod-validation": "^0.9.0"
     }
 }
