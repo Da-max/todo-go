@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TodoFragment } from '../../types/generated'
+import { TodoFragment } from '@todo-go/core'
 import TodoInput from './TodoInput.vue'
 import { useMarkDoneTodo } from '../../hooks/todo/useMarkDoneTodo'
 import { useMarkUndoneTodo } from '../../hooks/todo/useMarkUndoneTodo'

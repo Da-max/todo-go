@@ -1,9 +1,6 @@
 import { useMutation } from 'villus'
-import {
-    RemoveTodoMutation,
-    RemoveTodoMutationVariables,
-} from '../../types/generated'
-import { removeTodo as removeTodoMutatation } from '../../graphql/todos'
+import { RemoveTodoMutation, RemoveTodoMutationVariables } from '@todo-go/core'
+import { removeTodo as removeTodoMutatation } from '@todo-go/core'
 import { tags } from './index'
 import { AlertTypes } from '../../types/utils'
 import { useMessageStore } from '../../stores/message'

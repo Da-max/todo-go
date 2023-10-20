@@ -3,8 +3,8 @@ import {
     NewTodo,
     UpdateTodoMutation,
     UpdateTodoMutationVariables,
-} from '~/types/generated'
-import { updateTodo as updateTodoMutation } from '../../graphql/todos'
+} from '@todo-go/core'
+import { updateTodo as updateTodoMutation } from '@todo-go/core'
 import { tags } from './index'
 import { AlertTypes } from '~/types/utils'
 import { Ref } from 'vue'

@@ -1,4 +1,4 @@
-import { NewUser, UserFragment } from './generated'
+import { NewUser, UserFragment } from '@todo-go/core'
 
 export const USER_STORE_NAME = 'user' as const
 

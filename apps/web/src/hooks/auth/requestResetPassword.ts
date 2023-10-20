@@ -1,13 +1,13 @@
 import { ref } from 'vue'
 import { useMutation } from 'villus'
-import { requestResetPassword } from '../../graphql/auth'
 import {
     RequestResetPasswordMutation,
     RequestResetPasswordMutationVariables,
-} from '../../types/generated'
+} from '@todo-go/core'
 import { useUtils } from '../utils'
 import { ErrorTypes } from '../../types/utils'
 import { useToast } from 'flowbite-vue'
+import { requestResetPassword } from '@todo-go/core'
 
 export const useRequestResetPassword = () => {
     const email = ref<string>('')

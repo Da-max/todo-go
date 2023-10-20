@@ -2,12 +2,12 @@ import {
     ChangePassword,
     ChangePasswordMutation,
     ChangePasswordMutationVariables,
-} from '~/types/generated'
+    changePassword as changePasswordMutation,
+} from '@todo-go/core'
 import { computed, ref } from 'vue'
 import { useMutation } from 'villus'
 import { useUtils } from '~/hooks/utils'
 import { ErrorTypes } from '~/types/utils'
-import { changePassword as changePasswordMutation } from '~/graphql/auth'
 
 export const useChangePassword = (options?: {
     onData: (data: ChangePasswordMutation) => void

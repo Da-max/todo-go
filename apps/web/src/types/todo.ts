@@ -1,4 +1,4 @@
-import { TodoFragment } from './generated'
+import { TodoFragment } from '@todo-go/core'
 
 export const TODO_STORE_NAME = 'todo' as const
 

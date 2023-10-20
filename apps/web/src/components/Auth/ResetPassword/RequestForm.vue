@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FormInput from '../../Utils/Form/FormInput.vue'
-import { useRequestResetPassword } from '../../../hooks/auth/requestResetPassword'
+import { useRequestResetPassword } from '~/hooks/auth/requestResetPassword'
 
 const { email, sendRequestEmail, error } = useRequestResetPassword()
 

@@ -1,7 +1,6 @@
 import { useQuery } from 'villus'
-import { AllTodosQuery, AllTodosQueryVariables } from '../../types/generated'
-import { allTodos } from '../../graphql/todos'
 import { tags } from './index'
+import { allTodos, AllTodosQuery, AllTodosQueryVariables } from '@todo-go/core'
 
 export const useAllTodos = () => {
     return useQuery<AllTodosQuery, AllTodosQueryVariables>({

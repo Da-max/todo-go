@@ -1,2 +1,3 @@
-export * as auth from "./graphql/auth";
-export * as todo from "./graphql/todos";
+export * from "./graphql/todos";
+export * from "./types/generated";
+export * from "./graphql/auth";

@@ -2,8 +2,8 @@ import { useMutation } from 'villus'
 import {
     MarkDoneTodoMutation,
     MarkDoneTodoMutationVariables,
-} from '../../types/generated'
-import { markDoneTodo as markDoneTodoMutation } from '../../graphql/todos'
+} from '@todo-go/core'
+import { markDoneTodo as markDoneTodoMutation } from '@todo-go/core'
 import { tags } from './index'
 import { AlertTypes } from '../../types/utils'
 import { useUtils } from '../utils'

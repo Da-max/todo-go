@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FormInput from '~/components/Utils/Form/FormInput.vue'
-import { ChangePassword } from '~/types/generated'
+import { ChangePassword } from '@todo-go/core'
 import { useVModels } from '@vueuse/core'
 import { computed, ref } from 'vue'
 

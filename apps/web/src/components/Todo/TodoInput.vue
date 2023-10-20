@@ -3,13 +3,13 @@ import Loader from '../Utils/Loader.vue'
 import { Button } from 'flowbite-vue'
 import { logicOr } from '@vueuse/math'
 import { ref } from 'vue'
-import { NewTodo } from '../../types/generated'
 import { useAddTodo } from '../../hooks/todo/useAddTodo'
 import { useUpdateTodo } from '../../hooks/todo/useUpdateTodo'
 import { useFindTodoById } from '../../hooks/todo/useFindTodoById'
 import { TodoInputEmit } from '../../types/todo'
 import { whenever } from '@vueuse/core'
 import FormInput from '../Utils/Form/FormInput.vue'
+import { NewTodo } from '@todo-go/core'
 
 type TodoInputProps = {
     update: boolean

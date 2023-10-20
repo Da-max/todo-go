@@ -1,12 +1,11 @@
 import { useMutation } from 'villus'
-import { confirmAccount as confirmAccountMutation } from '~/graphql/auth'
 import { useUserStore } from '~/stores/user'
 import {
     ConfirmAccountMutation,
     ConfirmAccountMutationVariables,
-} from '~/types/generated'
+    confirmAccount as confirmAccountMutation,
+} from '@todo-go/core'
 import { AlertTypes, ErrorTypes } from '~/types/utils'
-import auth from '~/utils/auth'
 import { useUtils } from '../utils'
 import { tags as todoTags } from '../todo'
 import { tags as authTags } from './index'
@@ -25,7 +24,6 @@ export function useConfirmAccount() {
         const { data } = await confirmAccountExecute({ input: { token } })
 
         if (data && data.confirmAccount.ok) {
-            auth.token = data.confirmAccount.token
             await userStore.getCurrent()
             setAlert(AlertTypes.SUCCESS, 'Votre compte a bien été activé.')
         } else {

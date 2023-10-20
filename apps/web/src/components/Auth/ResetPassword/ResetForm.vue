@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FormInput from '../../Utils/Form/FormInput.vue'
 import { useVModels } from '@vueuse/core'
-import { ResetPasswordFields } from '../../../types/auth'
+import { ResetPasswordFields } from '~/types/auth'
 import { computed, ref, watch } from 'vue'
 
 export type Props = {

@@ -2,7 +2,7 @@
 import TodoInput from './TodoInput.vue'
 import Loader from '../Utils/Loader.vue'
 import TodoItem from './TodoItem.vue'
-import { useAllTodos } from '../../hooks/todo/useAllTodos'
+import { useAllTodos } from '~/hooks/todo/useAllTodos'
 import { computed } from 'vue'
 
 const { data, isFetching } = useAllTodos()

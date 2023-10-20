@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UserFragment } from '~/types/generated'
+import { UserFragment } from '@todo-go/core'
 import { useVModels, whenever } from '@vueuse/core'
 import { ref } from 'vue'
 import FormInput from '~/components/Utils/Form/FormInput.vue'

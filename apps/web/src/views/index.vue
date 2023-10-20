@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import Todo from '../components/Todo/Todo.vue'
 import { Alert } from 'flowbite-vue'
-import { useUserStore } from '../stores/user'
-import { useRequestConfirmAccount } from '../hooks/auth/requestConfirmAccount'
+import { useUserStore } from '~/stores/user'
+import { useRequestConfirmAccount } from '~/hooks/auth/requestConfirmAccount'
 import { storeToRefs } from 'pinia'
 
 const { user, isAuthenticated, isActive } = storeToRefs(useUserStore())

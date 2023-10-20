@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UpdateUser } from '~/types/generated'
+import { UpdateUser } from '@todo-go/core'
 import { useVModels } from '@vueuse/core'
 import FormInput from '~/components/Utils/Form/FormInput.vue'
 import { ref, watch } from 'vue'

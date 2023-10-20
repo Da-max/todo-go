@@ -11,3 +11,8 @@ generates:
         config:
             schema: zod
             importFrom: ./types/generated
+            notAllowEmptyString: true
+            enumsAsTypes: true
+            scalarSchemas:
+                String: z.string().min(1)
+                ID: z.string().min(1)

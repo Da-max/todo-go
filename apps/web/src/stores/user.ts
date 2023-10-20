@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import { Client, getActiveClient, useQuery } from 'villus'
-import { currentUser as currentUserMutation } from '~/graphql/auth'
+import { currentUser as currentUserMutation } from '@todo-go/core'
 import {
     userStoreActions,
     userStoreGetters,
     userStoreState,
     USER_STORE_NAME,
 } from '~/types/auth'
-import { CurrentUserQuery, CurrentUserQueryVariables } from '~/types/generated'
+import { CurrentUserQuery, CurrentUserQueryVariables } from '@todo-go/core'
 import auth from '~/utils/auth'
 import { tags as profileTags } from '~/hooks/profile'
 import { tags as todoTags } from '~/hooks/todo'

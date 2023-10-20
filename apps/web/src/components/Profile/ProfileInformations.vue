@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UserFragment } from '~/types/generated'
+import { UserFragment } from '@todo-go/core'
 import Badge from '../Utils/Badge.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Button } from 'flowbite-vue'

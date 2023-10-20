@@ -19,6 +19,7 @@ const signUpForm = ref<InstanceType<typeof SignupForm> | null>(null)
 const signUp = function () {
     if (signUpForm.value) {
         signUpForm.value.signUp()
+        modalOpen.value = false
     } else {
         console.log('Merci de réessayer')
     }

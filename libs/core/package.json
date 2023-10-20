@@ -2,25 +2,32 @@
     "name": "@todo-go/core",
     "version": "1.0.0",
     "type": "module",
+    "main": "dist/index.cjs",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
     "scripts": {
-        "build": "node ./esbuild.config.mjs && tsc --declaration --emitDeclarationOnly --outDir ./dist",
+        "build:esm": "esbuild --bundle --format=esm --outfile=./dist/index.mjs --sourcemap --minify --platform=neutral ./src/index.ts",
+        "build:cjs": "esbuild --bundle --format=cjs --outfile=./dist/index.cjs --sourcemap --minify --platform=node ./src/index.ts",
+        "build:types": "tsc --declaration --emitDeclarationOnly --outDir ./dist",
         "generate": "graphql-codegen",
-        "start": "npm run generate --watch"
+        "start": "concurrently \"graphql-codegen --watch\" \"esbuild --bundle --format=cjs --outfile=./dist/index.cjs --sourcemap --minify --platform=node ./src/index.ts --watch\" \"esbuild --bundle --format=esm --outfile=./dist/index.mjs --sourcemap --minify --platform=node --watch ./src/index.ts\" \"tsc --declaration --emitDeclarationOnly --watch --outDir ./dist\""
     },
     "dependencies": {
-        "@graphql-codegen/cli": "5.0.0",
-        "@graphql-codegen/typescript": "^4.0.1",
-        "@graphql-codegen/typescript-operations": "^4.0.1",
-        "@todo-go/eslint-config": "workspace:^",
         "esbuild": "^0.19.4",
         "glob": "^10.3.10",
         "zod": "^3.22.4"
     },
     "peerDependencies": {
         "graphql-tag": "^2.12.6",
-        "typescript": "^5.2.2"
+        "typescript": "^5.2.2",
+        "@parcel/watcher": "2.3.0"
     },
     "devDependencies": {
-        "@anatine/graphql-zod-validation": "^0.9.0"
+        "@anatine/graphql-zod-validation": "^0.9.0",
+        "@graphql-codegen/cli": "^5.0.0",
+        "@graphql-codegen/typescript": "^4.0.1",
+        "@graphql-codegen/typescript-operations": "^4.0.1",
+        "@todo-go/eslint-config": "workspace:^",
+        "concurrently": "^8.2.1"
     }
 }

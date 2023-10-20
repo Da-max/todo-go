@@ -2,11 +2,11 @@ import { useMutation } from 'villus'
 import {
     RequestConfirmAccountMutation,
     RequestConfirmAccountMutationVariables,
-} from '~/types/generated'
+} from '@todo-go/core'
 import { useUtils } from '../utils'
 import { useToast } from 'flowbite-vue'
 import { ErrorTypes } from '~/types/utils'
-import { requestConfirmAccount as requestConfirmAccountMutation } from '~/graphql/auth'
+import { requestConfirmAccount as requestConfirmAccountMutation } from '@todo-go/core'
 
 export const useRequestConfirmAccount = () => {
     const { execute: requestConfirmAccountExecute } = useMutation<

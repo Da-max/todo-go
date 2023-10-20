@@ -1,9 +1,9 @@
 import { useMutation } from 'villus'
-import { deleteAccount } from '~/graphql/auth'
+import { deleteAccount } from '@todo-go/core'
 import {
     DeleteAccountMutation,
     DeleteAccountMutationVariables,
-} from '~/types/generated'
+} from '@todo-go/core'
 import { useUtils } from '~/hooks/utils'
 import { ErrorTypes } from '~/types/utils'
 

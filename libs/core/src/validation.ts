@@ -27,9 +27,9 @@ export function ChangePasswordSchema(): z.ZodObject<
     Properties<ChangePassword>
 > {
     return z.object({
-        confirmPassword: z.string(),
-        oldPassword: z.string(),
-        password: z.string(),
+        confirmPassword: z.string().min(1),
+        oldPassword: z.string().min(1),
+        password: z.string().min(1),
     });
 }
 
@@ -37,28 +37,28 @@ export function ConfirmIdentifierSchema(): z.ZodObject<
     Properties<ConfirmIdentifier>
 > {
     return z.object({
-        token: z.string(),
+        token: z.string().min(1),
     });
 }
 
 export function IdentifierSchema(): z.ZodObject<Properties<Identifier>> {
     return z.object({
-        password: z.string(),
-        username: z.string(),
+        password: z.string().min(1),
+        username: z.string().min(1),
     });
 }
 
 export function NewTodoSchema(): z.ZodObject<Properties<NewTodo>> {
     return z.object({
-        text: z.string(),
+        text: z.string().min(1),
     });
 }
 
 export function NewUserSchema(): z.ZodObject<Properties<NewUser>> {
     return z.object({
-        email: z.string(),
-        password: z.string(),
-        username: z.string(),
+        email: z.string().min(1),
+        password: z.string().min(1),
+        username: z.string().min(1),
     });
 }
 
@@ -66,7 +66,7 @@ export function RequestPasswordResetIdentifierSchema(): z.ZodObject<
     Properties<RequestPasswordResetIdentifier>
 > {
     return z.object({
-        email: z.string(),
+        email: z.string().min(1),
     });
 }
 
@@ -74,14 +74,14 @@ export function ResetPasswordIdentifierSchema(): z.ZodObject<
     Properties<ResetPasswordIdentifier>
 > {
     return z.object({
-        password: z.string(),
-        token: z.string(),
+        password: z.string().min(1),
+        token: z.string().min(1),
     });
 }
 
 export function UpdateUserSchema(): z.ZodObject<Properties<UpdateUser>> {
     return z.object({
-        email: z.string().nullish(),
-        username: z.string().nullish(),
+        email: z.string().min(1).nullish(),
+        username: z.string().min(1).nullish(),
     });
 }

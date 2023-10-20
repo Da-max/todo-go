@@ -6,8 +6,8 @@ import { useMutation } from 'villus'
 import {
     ResetPasswordMutation,
     ResetPasswordMutationVariables,
-} from '~/types/generated'
-import { resetPassword } from '~/graphql/auth'
+} from '@todo-go/core'
+import { resetPassword } from '@todo-go/core'
 import { ErrorTypes } from '~/types/utils'
 
 export const useResetPassword = () => {

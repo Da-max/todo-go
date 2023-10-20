@@ -7,8 +7,10 @@ build({
     entryPoints: entryPoints,
     bundle: true,
     format: "esm",
-    outdir: "./dist",
+    outfile: "./dist/index.mjs",
     sourcemap: true,
+    minify: true,
+    platform: "node",
 });
 
 build({

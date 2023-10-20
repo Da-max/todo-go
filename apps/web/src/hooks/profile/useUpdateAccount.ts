@@ -3,10 +3,10 @@ import {
     UpdateAccountMutation,
     UpdateAccountMutationVariables,
     UpdateUser,
-} from '~/types/generated'
+} from '@todo-go/core'
 import { useUtils } from '~/hooks/utils'
 import { useMutation } from 'villus'
-import { updateAccount as updateAccountMutation } from '~/graphql/auth'
+import { updateAccount as updateAccountMutation } from '@todo-go/core'
 import { tags } from '~/hooks/profile'
 import { ErrorTypes } from '~/types/utils'
 import { useToast } from 'flowbite-vue'

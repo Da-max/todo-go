@@ -1,10 +1,13 @@
 import { useMutation } from 'villus'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { signUp as signUpMutation } from '../../graphql/auth'
-import { SignUpFields } from '../../types/auth'
-import { SignUpMutation, SignUpMutationVariables } from '../../types/generated'
-import { ErrorTypes } from '../../types/utils'
+import {
+    SignUpMutation,
+    SignUpMutationVariables,
+    signUp as signUpMutation,
+} from '@todo-go/core'
+import { SignUpFields } from '~/types/auth'
+import { ErrorTypes } from '~/types/utils'
 import { useForm } from '../form'
 import { useUtils } from '../utils'
 
