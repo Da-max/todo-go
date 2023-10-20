@@ -1,5 +1,4 @@
 import { build } from "esbuild";
-import { sync } from "glob";
 
 const entryPoints = ["./src/index.ts"];
 

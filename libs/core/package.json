@@ -18,15 +18,16 @@
         "zod": "^3.22.4"
     },
     "peerDependencies": {
+        "@parcel/watcher": "2.3.0",
         "graphql-tag": "^2.12.6",
-        "typescript": "^5.2.2",
-        "@parcel/watcher": "2.3.0"
+        "typescript": "^5.2.2"
     },
     "devDependencies": {
         "@anatine/graphql-zod-validation": "^0.9.0",
         "@graphql-codegen/cli": "^5.0.0",
         "@graphql-codegen/typescript": "^4.0.1",
         "@graphql-codegen/typescript-operations": "^4.0.1",
+        "@stylistic/eslint-plugin": "^0.1.0",
         "@todo-go/eslint-config": "workspace:^",
         "concurrently": "^8.2.1"
     }

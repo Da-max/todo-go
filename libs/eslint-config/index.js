@@ -6,15 +6,11 @@ module.exports = {
         browser: true,
         es2021: true,
     },
-    extends: [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
-    ],
-    plugins: ["@typescript-eslint"],
-    parserOptions: {
-        ecmaVersion: "latest",
-        parser: "@typescript-eslint/parser",
-        sourceType: "module",
+    plugins: ["@stylistic"],
+    parser: "@typescript-eslint/parser",
+    rules: {
+        "@stylistic/semi": ["error", "never"],
+        "@stylistic/quotes": ["error", "single"],
+        "@stylistic/indent": ["error", 4],
     },
 };
