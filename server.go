@@ -9,11 +9,13 @@ import (
 	"github.com/Da-max/todo-go/internal/handlers/graph/generated"
 	"github.com/Da-max/todo-go/internal/handlers/graph/resolvers"
 	auth2 "github.com/Da-max/todo-go/internal/repositories/auth"
+	"github.com/Da-max/todo-go/internal/repositories/message"
 	"github.com/Da-max/todo-go/internal/repositories/todo"
 	"github.com/Da-max/todo-go/internal/repositories/user"
 	"github.com/Da-max/todo-go/internal/utils/auth"
 	"github.com/Da-max/todo-go/internal/utils/config"
 	"github.com/Da-max/todo-go/internal/utils/postgres"
+	"github.com/matcornic/hermes/v2"
 	"log"
 	"net/http"
 
@@ -28,15 +30,26 @@ import (
 func Router(config config.Config) *chi.Mux {
 
 	var (
-		r              = chi.NewRouter()
-		db             = postgres.New()
-		todoRepository = todo.NewTodoRepository(db)
-		authRepository = auth2.NewAuthRepository(auth.TokenAuth, db)
-		userRepository = user.NewUserRepository(db)
-		todoService    = services.NewTodoService(todoRepository, authRepository)
-		authService    = services.NewAuthService(authRepository, userRepository)
-		userService    = services.NewUserService(authRepository, userRepository)
-		resolver       = &resolvers.Resolver{
+		r                 = chi.NewRouter()
+		db                = postgres.New()
+		todoRepository    = todo.NewTodoRepository(db)
+		authRepository    = auth2.NewAuthRepository(auth.TokenAuth, db)
+		userRepository    = user.NewUserRepository(db)
+		messageRepository = message.NewMessageRepository(hermes.Hermes{
+			// Optional Theme
+			// Theme: new(Default)
+			Product: hermes.Product{
+				// Appears in header & footer of e-mails
+				Name: "Todo-g",
+				Link: "https://example-hermes.com/",
+				// Optional product logo
+				Logo: "http://www.duchess-france.org/wp-content/uploads/2016/01/gopher.png",
+			},
+		})
+		todoService = services.NewTodoService(todoRepository, authRepository)
+		authService = services.NewAuthService(authRepository, userRepository, messageRepository)
+		userService = services.NewUserService(authRepository, userRepository, messageRepository)
+		resolver    = &resolvers.Resolver{
 			Config:      config,
 			TodoService: todoService,
 			AuthService: authService,
