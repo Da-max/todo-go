@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/core/ports"
-	"github.com/Da-max/todo-go/internal/repositories/message"
 	"github.com/Da-max/todo-go/internal/utils/errors"
 	"time"
 )
@@ -12,11 +11,15 @@ import (
 type AuthService struct {
 	authRepository    ports.AuthRepository
 	userRepository    ports.UserRepository
-	messageRepository message.Repository
+	messageRepository ports.MessageRepository
 }
 
-func NewAuthService(authRepository ports.AuthRepository, userRepository ports.UserRepository) *AuthService {
-	return &AuthService{authRepository: authRepository, userRepository: userRepository}
+func NewAuthService(authRepository ports.AuthRepository, userRepository ports.UserRepository, messageRepository ports.MessageRepository) *AuthService {
+	return &AuthService{
+		authRepository:    authRepository,
+		userRepository:    userRepository,
+		messageRepository: messageRepository,
+	}
 }
 
 func (service *AuthService) GetCurrentUser(token *domain.Token) (*domain.User, error) {
@@ -88,9 +91,10 @@ func (service *AuthService) ChangePassword(id string, oldPassword string, newPas
 	}
 
 	go func() {
-		val, err := service.messageRepository.SendMessage(domain.ResetPassword, "Mise à jour de votre mot de passe", []string{updateUser.Email}, updateUser)
-		if !val || err != nil {
-			fmt.Print("An mail error occured", err)
+		var mailError chan error = make(chan error, 1)
+		mailError <- service.messageRepository.SendMessage(domain.ResetPassword, "Mise à jour de votre mot de passe", []string{updateUser.Email}, updateUser)
+		if mailError != nil {
+			fmt.Print("An mail error occured", mailError)
 		}
 	}()
 
@@ -111,8 +115,9 @@ func (service *AuthService) RequestResetPassword(id string) (bool, error) {
 	}
 
 	go func() {
-		if val, err := service.messageRepository.SendMessage(domain.RequestResetPassword, "Demande de réinitialisation du mot de passe", []string{user.Email}, user, resetToken); !val || err != nil {
-			fmt.Print("A message error occurred", err)
+		var mailError chan error = make(chan error, 1)
+		if mailError <- service.messageRepository.SendMessage(domain.RequestResetPassword, "Demande de réinitialisation du mot de passe", []string{user.Email}, user, resetToken); mailError != nil {
+			fmt.Print("A message error occurred", mailError)
 		}
 	}()
 

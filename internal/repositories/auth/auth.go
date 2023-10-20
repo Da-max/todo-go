@@ -44,7 +44,7 @@ func (r *Repository) GetCurrentUser(token *domain.Token) (*domain.User, error) {
 	)
 
 	if !find || !findUsername {
-		return nil, err
+		return nil, errors.New("context not found")
 	}
 
 	if res := r.DB.Where("username = ?", username).Where("id = ?", id).First(userObj); res.Error != nil {

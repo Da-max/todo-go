@@ -31,5 +31,5 @@ type UserRepository interface {
 }
 
 type MessageRepository interface {
-	SendMessage(messageType domain.MessageType, subject string, to []string, args ...interface{}) (bool, error)
+	SendMessage(messageType domain.MessageType, subject string, to []string, args ...interface{}) error
 }

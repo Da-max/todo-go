@@ -14,10 +14,11 @@ type UserService struct {
 	messageRepository ports.MessageRepository
 }
 
-func NewUserService(authRepository ports.AuthRepository, userRepository ports.UserRepository) *UserService {
+func NewUserService(authRepository ports.AuthRepository, userRepository ports.UserRepository, messageRepository ports.MessageRepository) *UserService {
 	return &UserService{
-		authRepository: authRepository,
-		userRepository: userRepository,
+		authRepository:    authRepository,
+		userRepository:    userRepository,
+		messageRepository: messageRepository,
 	}
 }
 
@@ -64,18 +65,30 @@ func (service *UserService) GetAll(token *domain.Token) ([]*domain.User, error) 
 
 func (service *UserService) Create(username string, email string, password string, isAdmin bool, isActive bool) (*domain.User, error) {
 	cryptPassword, err := service.authRepository.GeneratePassword(password)
+
 	if err != nil {
 		return nil, errors.Internal
 	}
+
 	user := domain.NewUser(uuid.New().String(), username, email, cryptPassword, isActive, isAdmin)
+	token, tokenErr := service.authRepository.GenerateToken(user.ID)
+
+	if tokenErr != nil {
+		return nil, errors.Internal
+	}
 
 	go func() {
-		if val, err := service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirmer votre compte", []string{user.Email}, user); !val || err != nil {
-			fmt.Print("A mail error occured", err)
+		var mailError chan error = make(chan error, 1)
+		if mailError <- service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirmer votre compte", []string{user.Email}, &user, token); mailError != nil {
+			fmt.Print("A mail error occured", mailError)
 		}
 	}()
 
-	return &user, service.userRepository.Save(&user)
+	if err = service.userRepository.Save(&user); err != nil {
+		return nil, errors.Internal
+	}
+
+	return &user, nil
 }
 
 func (service *UserService) Update(id string, username string, email string, password string, isAdmin bool, isActive bool, token *domain.Token) (*domain.User, error) {
@@ -142,8 +155,10 @@ func (service *UserService) RequestConfirmAccount(id string, token *domain.Token
 	}
 
 	go func() {
-		if val, err := service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirm your account", []string{currentUser.Email}, currentUser, confirmToken); !val || err != nil {
-			fmt.Print("An message error occurred", err)
+		var mailError chan error = make(chan error, 1)
+
+		if mailError <- service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirm your account", []string{currentUser.Email}, currentUser, confirmToken); mailError != nil {
+			fmt.Print("An message error occurred", mailError)
 		}
 	}()
 
