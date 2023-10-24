@@ -1,48 +1,47 @@
 <script lang="ts" setup>
-import { Modal } from 'flowbite-vue'
-import LoginForm from '../../components/Auth/Login/LoginForm.vue'
-import { Button } from 'flowbite-vue'
-import { computed, reactive, ref, watch } from 'vue'
-import { Router, useRouter } from 'vue-router'
-import { useUserStore } from '~/stores/user'
-import { whenever } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
+import { FwbModal, FwbButton } from "flowbite-vue";
+import LoginForm from "../../components/Auth/Login/LoginForm.vue";
+import { reactive, ref } from "vue";
+import { Router, useRouter } from "vue-router";
+import { useUserStore } from "~/stores/user";
+import { whenever } from "@vueuse/core";
+import { storeToRefs } from "pinia";
 
 type State = {
-    modalOpen: boolean
-    router: Router
-}
+    modalOpen: boolean;
+    router: Router;
+};
 
 const state = reactive<State>({
     modalOpen: true,
     router: useRouter(),
-})
-const { isAuthenticated, user } = storeToRefs(useUserStore())
-const loginForm = ref<InstanceType<typeof LoginForm> | null>(null)
+});
+const { isAuthenticated, user } = storeToRefs(useUserStore());
+const loginForm = ref<InstanceType<typeof LoginForm> | null>(null);
 
 const modalClose = function () {
-    state.router.push({ name: 'home' })
-}
+    state.router.push({ name: "home" });
+};
 
 const login = async () => {
     if (loginForm.value) {
-        await loginForm.value.login()
+        await loginForm.value.login();
     } else {
-        console.log('Merci de réessayer')
+        console.log("Merci de réessayer");
     }
-}
+};
 
 whenever(
     isAuthenticated,
     () => {
-        state.router.push({ name: 'home' })
+        state.router.push({ name: "home" });
     },
     { immediate: true },
-)
+);
 </script>
 
 <template>
-    <Modal :open="state.modalOpen" @close="modalClose">
+    <FwbModal :open="state.modalOpen" @close="modalClose">
         <template #header>
             <h1 class="text-3xl">Se connecter</h1>
         </template>
@@ -58,14 +57,14 @@ whenever(
         </template>
         <template #footer>
             <div class="inline-flex w-full items-center flex-col mb-4 gap-4">
-                <Button @click.prevent="login">Se connecter</Button>
-                <Button
+                <FwbButton @click.prevent="login">Se connecter</FwbButton>
+                <FwbButton
                     color="alternative"
                     size="sm"
                     @click.prevent="modalClose"
-                    >Annuler</Button
+                    >Annuler</FwbButton
                 >
             </div>
         </template>
-    </Modal>
+    </FwbModal>
 </template>

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { UserFragment } from '@todo-go/core'
-import Badge from '../Utils/Badge.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { Button } from 'flowbite-vue'
+import { UserFragment } from "@todo-go/core";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { FwbButton, FwbBadge } from "flowbite-vue";
 
 type Props = {
-    user: UserFragment
-}
-defineProps<Props>()
+    user: UserFragment;
+};
+defineProps<Props>();
 </script>
 
 <template>
@@ -15,19 +14,17 @@ defineProps<Props>()
         <div class="flex justify-around">
             <div class="flex flex-col gap-10">
                 <p>
-                    <Badge type="secondary" class="mx-2">Email</Badge>
+                    <FwbBadge class="mx-2">Email</FwbBadge>
                     {{ user.email }}
                 </p>
                 <p>
-                    <Badge type="secondary" class="mx-2"
-                        >Nom d’utilisateur</Badge
-                    >
+                    <FwbBadge class="mx-2">Nom d’utilisateur </FwbBadge>
                     {{ user.username }}
                 </p>
             </div>
             <div class="flex flex-col gap-10">
                 <p>
-                    <Badge type="secondary" class="mx-2">Est actif</Badge>
+                    <FwbBadge class="mx-2">Est actif</FwbBadge>
                     <FontAwesomeIcon
                         v-if="user.isActive"
                         :icon="['fas', 'check']"
@@ -40,9 +37,7 @@ defineProps<Props>()
                     />
                 </p>
                 <p>
-                    <Badge type="secondary" class="mx-2"
-                        >Est administrateur</Badge
-                    >
+                    <FwbBadge class="mx-2">Est administrateur </FwbBadge>
                     <FontAwesomeIcon
                         v-if="user.isAdmin"
                         :icon="['fas', 'check']"
@@ -58,22 +53,22 @@ defineProps<Props>()
         </div>
         <div class="mt-10 flex justify-around gap-8 flex-wrap">
             <router-link :to="{ name: 'profile:update' }">
-                <Button>
-                    <font-awesome-icon class="mr-2" :icon="['fas', 'pencil']" />
-                    Modifier mes informations</Button
-                >
+                <FwbButton>
+                    <FontAwesomeIcon class="mr-2" :icon="['fas', 'pencil']" />
+                    Modifier mes informations
+                </FwbButton>
             </router-link>
             <router-link :to="{ name: 'profile:delete' }">
-                <Button color="red"
-                    ><FontAwesomeIcon class="mr-2" :icon="['fas', 'trash']" />
-                    Supprimer mon compte</Button
-                ></router-link
-            >
+                <FwbButton color="red">
+                    <FontAwesomeIcon class="mr-2" :icon="['fas', 'trash']" />
+                    Supprimer mon compte
+                </FwbButton>
+            </router-link>
             <router-link :to="{ name: 'auth:change-password' }">
-                <Button color="yellow"
-                    ><FontAwesomeIcon class="mr-2" :icon="['fas', 'key']" />
+                <FwbButton color="yellow">
+                    <FontAwesomeIcon class="mr-2" :icon="['fas', 'key']" />
                     Modifier mon mot de passe
-                </Button>
+                </FwbButton>
             </router-link>
         </div>
     </div>

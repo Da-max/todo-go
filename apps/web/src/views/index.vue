@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import Todo from "../components/Todo/Todo.vue";
-import { Alert } from "flowbite-vue";
+import { FwbAlert } from "flowbite-vue";
 import { useUserStore } from "~/stores/user";
 import { useRequestConfirmAccount } from "~/hooks/auth/requestConfirmAccount";
 import { storeToRefs } from "pinia";
@@ -11,7 +11,7 @@ const { requestConfirmAccount, error } = useRequestConfirmAccount();
 
 <template>
     <div class="bg-gray-100 dark:bg-gray-700 dark:text-white flex flex-col">
-        <Alert
+        <FwbAlert
             v-if="isAuthenticated && isActive"
             class="mb-8"
             type="warning"
@@ -32,11 +32,11 @@ const { requestConfirmAccount, error } = useRequestConfirmAccount();
                     >vous pouvez cliquer ici afin de renvoyer un mail</a
                 >.
             </p>
-        </Alert>
+        </FwbAlert>
 
-        <Alert v-if="error" type="danger">
+        <FwbAlert v-if="error" type="danger">
             {{ error.text }}
-        </Alert>
+        </FwbAlert>
         <Todo />
         <RouterView />
     </div>

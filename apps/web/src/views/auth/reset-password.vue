@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { Button, Modal } from 'flowbite-vue'
-import { useModal } from '~/hooks/modal'
-import ResetForm from '~/components/Auth/ResetPassword/ResetForm.vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ref } from 'vue'
-import { useResetPassword } from '~/hooks/auth/resetPassword'
+import { FwbButton, FwbModal } from "flowbite-vue";
+import { useModal } from "~/hooks/modal";
+import ResetForm from "~/components/Auth/ResetPassword/ResetForm.vue";
+import { useRoute, useRouter } from "vue-router";
+import { ref } from "vue";
+import { useResetPassword } from "~/hooks/auth/resetPassword";
 
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 
-const { sendResetPassword, fields, error, isValid } = useResetPassword()
+const { sendResetPassword, fields, error, isValid } = useResetPassword();
 
 const { modalOpen, modalClose } = useModal({
     initialValue: false,
-    onClose: () => router.push({ name: 'home' }),
-})
+    onClose: () => router.push({ name: "home" }),
+});
 
-const token = ref<string>(route.query['token'] as string)
+const token = ref<string>(route.query["token"] as string);
 
 const resetPassword = async () => {
-    await sendResetPassword(token)
-    modalClose()
-}
+    await sendResetPassword(token);
+    modalClose();
+};
 </script>
 
 <template>
-    <Modal :open="modalOpen" @keyup.esc="modalClose" @close="modalClose">
+    <FwbModal :open="modalOpen" @keyup.esc="modalClose" @close="modalClose">
         <template #header>
             <h1 class="text-3xl">Réinitialiser votre mot de passe</h1>
         </template>
@@ -49,16 +49,16 @@ const resetPassword = async () => {
         </template>
         <template #footer>
             <div class="flex items-center justify-center flex-col gap-4">
-                <Button :disabled="!isValid" @click.prevent="resetPassword"
-                    >Se connecter</Button
+                <FwbButton :disabled="!isValid" @click.prevent="resetPassword"
+                    >Se connecter</FwbButton
                 >
-                <Button
+                <FwbButton
                     color="alternative"
                     size="sm"
                     @click.prevent="modalClose"
-                    >Annuler</Button
+                    >Annuler</FwbButton
                 >
             </div>
         </template>
-    </Modal>
+    </FwbModal>
 </template>

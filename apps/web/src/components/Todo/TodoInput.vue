@@ -1,60 +1,60 @@
 <script setup lang="ts">
-import Loader from '../Utils/Loader.vue'
-import { Button } from 'flowbite-vue'
-import { logicOr } from '@vueuse/math'
-import { ref } from 'vue'
-import { useAddTodo } from '../../hooks/todo/useAddTodo'
-import { useUpdateTodo } from '../../hooks/todo/useUpdateTodo'
-import { useFindTodoById } from '../../hooks/todo/useFindTodoById'
-import { TodoInputEmit } from '../../types/todo'
-import { whenever } from '@vueuse/core'
-import FormInput from '../Utils/Form/FormInput.vue'
-import { NewTodo } from '@todo-go/core'
+import Loader from "../Utils/Loader.vue";
+import { FwbButton } from "flowbite-vue";
+import { logicOr } from "@vueuse/math";
+import { ref } from "vue";
+import { useAddTodo } from "~/hooks/todo/useAddTodo";
+import { useUpdateTodo } from "~/hooks/todo/useUpdateTodo";
+import { useFindTodoById } from "~/hooks/todo/useFindTodoById";
+import { TodoInputEmit } from "~/types/todo";
+import { whenever } from "@vueuse/core";
+import FormInput from "../Utils/Form/FormInput.vue";
+import { NewTodo } from "@todo-go/core";
 
 type TodoInputProps = {
-    update: boolean
-    todoId?: string
-}
+    update: boolean;
+    todoId?: string;
+};
 
-const emit = defineEmits<TodoInputEmit>()
+const emit = defineEmits<TodoInputEmit>();
 
 const props = withDefaults(defineProps<TodoInputProps>(), {
     update: false,
     todoId: undefined,
-})
+});
 
 const newTodo = ref<NewTodo>({
-    text: '',
-})
+    text: "",
+});
 
-const currentTodo = useFindTodoById(props.todoId)
+const currentTodo = useFindTodoById(props.todoId);
 
 whenever(currentTodo, () => {
     if (props.todoId && currentTodo.value?.text) {
-        newTodo.value.text = currentTodo.value.text
+        newTodo.value.text = currentTodo.value.text;
     }
-})
+});
 
-const { addTodo, loading: addTodoLoading } = useAddTodo()
-const { updateTodo, loading: updateTodoLoading } = useUpdateTodo()
-const loading = logicOr(addTodoLoading, updateTodoLoading)
+const { addTodo, loading: addTodoLoading } = useAddTodo();
+const { updateTodo, loading: updateTodoLoading } = useUpdateTodo();
+const loading = logicOr(addTodoLoading, updateTodoLoading);
 
-const error = ref<boolean>(false)
+const error = ref<boolean>(false);
 
 const checkTodo = () => {
-    error.value = !newTodo.value.text
-}
+    error.value = !newTodo.value.text;
+};
 
 const saveTodo = async () => {
-    checkTodo()
+    checkTodo();
     if (!error.value) {
         if (props.todoId) {
-            emit('save', await updateTodo(newTodo, props.todoId))
+            emit("save", await updateTodo(newTodo, props.todoId));
         } else {
-            emit('save', await addTodo(newTodo))
+            emit("save", await addTodo(newTodo));
         }
     }
-}
+};
 </script>
 
 <template>
@@ -67,7 +67,7 @@ const saveTodo = async () => {
                 placeholder="Votre future todo"
             >
                 <template #suffix>
-                    <Button
+                    <FwbButton
                         square
                         outline
                         :color="error ? 'red' : 'blue'"
@@ -81,7 +81,7 @@ const saveTodo = async () => {
                             v-show="props.update"
                             :icon="['fas', 'pencil']"
                         />
-                    </Button>
+                    </FwbButton>
                 </template>
             </FormInput>
             <Loader

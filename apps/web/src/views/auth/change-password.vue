@@ -1,42 +1,42 @@
 <script setup lang="ts">
-import { Modal, Button, Alert, useToast } from 'flowbite-vue'
-import { useModal } from '~/hooks/modal'
-import { useRouter } from 'vue-router'
-import ChangePasswordForm from '~/components/Auth/ChangePassword/ChangePasswordForm.vue'
-import { useChangePassword } from '~/hooks/auth/changePassword'
+import { FwbModal, FwbButton, FwbAlert, useToast } from "flowbite-vue";
+import { useModal } from "~/hooks/modal";
+import { useRouter } from "vue-router";
+import ChangePasswordForm from "~/components/Auth/ChangePassword/ChangePasswordForm.vue";
+import { useChangePassword } from "~/hooks/auth/changePassword";
 
-const router = useRouter()
+const router = useRouter();
 
 const { modalOpen, modalClose } = useModal({
     initialValue: true,
     onClose: () => {
-        router.push({ name: 'home' })
+        router.push({ name: "home" });
     },
-})
+});
 
-const toast = useToast()
+const toast = useToast();
 
 const { fields, isValid, changePassword, error, isError } = useChangePassword({
     onData: () => {
         toast.add({
             time: 50_000,
-            text: 'Votre mot de passe a bien été modifié.',
-            type: 'success',
-        })
-        router.push({ name: 'home' })
+            text: "Votre mot de passe a bien été modifié.",
+            type: "success",
+        });
+        router.push({ name: "home" });
     },
-})
+});
 </script>
 
 <template>
-    <Modal :open="modalOpen" @close="modalClose">
+    <FwbModal :open="modalOpen" @close="modalClose">
         <template #header>
             <h1 class="text-3xl">Changer le mot de passe</h1>
         </template>
         <template #body>
-            <Alert v-if="error" type="danger" class="mb-4">{{
+            <FwbAlert v-if="error" type="danger" class="mb-4">{{
                 error.text
-            }}</Alert>
+            }}</FwbAlert>
             <ChangePasswordForm
                 v-model="fields"
                 v-model:error="isError"
@@ -45,16 +45,16 @@ const { fields, isValid, changePassword, error, isError } = useChangePassword({
         </template>
         <template #footer>
             <div class="flex justify-center gap-4">
-                <Button
+                <FwbButton
                     color="alternative"
                     type="button"
                     @click.prevent="modalClose"
-                    >Annuler</Button
+                    >Annuler</FwbButton
                 >
-                <Button :disabled="!isValid" @click.prevent="changePassword"
-                    >Changer le mot de passe</Button
+                <FwbButton :disabled="!isValid" @click.prevent="changePassword"
+                    >Changer le mot de passe</FwbButton
                 >
             </div>
         </template>
-    </Modal>
+    </FwbModal>
 </template>

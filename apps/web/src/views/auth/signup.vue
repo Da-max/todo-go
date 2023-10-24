@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { Modal } from "flowbite-vue";
-import { Button } from "flowbite-vue";
+import { FwbModal, FwbButton } from "flowbite-vue";
 import { ref } from "vue";
 import SignupForm from "~/components/Auth/Signup/SignupForm.vue";
 import { useRouter } from "vue-router";
@@ -24,7 +23,7 @@ const router = useRouter();
 </script>
 
 <template>
-    <Modal :open="modalOpen" @close="modalClose">
+    <FwbModal :open="modalOpen" @close="modalClose">
         <template #header>
             <h1>Créer un compte</h1>
         </template>
@@ -33,17 +32,17 @@ const router = useRouter();
         </template>
         <template #footer>
             <div class="inline-flex w-full items-center flex-col">
-                <Button class="mb-4" @click.prevent="signUp"
-                    >Créer le compte</Button
+                <FwbButton class="mb-4" @click.prevent="signUp"
+                    >Créer le compte</FwbButton
                 >
-                <Button
+                <FwbButton
                     class="mb-4"
                     size="sm"
                     color="alternative"
                     @click.prevent="modalClose"
-                    >Annuler</Button
+                    >Annuler</FwbButton
                 >
             </div>
         </template>
-    </Modal>
+    </FwbModal>
 </template>

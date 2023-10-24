@@ -1,39 +1,39 @@
 <script setup lang="ts">
-import { Modal, Button } from 'flowbite-vue'
-import { useRouter } from 'vue-router'
-import { onMounted, ref } from 'vue'
-import { useUserStore } from '~/stores/user'
-import RequestForm from '~/components/Auth/ResetPassword/RequestForm.vue'
-import { useModal } from '~/hooks/modal'
+import { FwbModal, FwbButton } from "flowbite-vue";
+import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { useUserStore } from "~/stores/user";
+import RequestForm from "~/components/Auth/ResetPassword/RequestForm.vue";
+import { useModal } from "~/hooks/modal";
 
-const router = useRouter()
-const userStore = useUserStore()
-const form = ref<InstanceType<typeof RequestForm> | null>(null)
+const router = useRouter();
+const userStore = useUserStore();
+const form = ref<InstanceType<typeof RequestForm> | null>(null);
 const { modalOpen, modalClose } = useModal({
     initialValue: true,
     onClose: () => {
-        router.push({ name: 'home' })
+        router.push({ name: "home" });
     },
-})
+});
 
 const sendRequestResetPassword = async () => {
     if (form.value) {
-        const res = await form.value.sendRequestEmail()
+        const res = await form.value.sendRequestEmail();
         if (res) {
-            await router.push({ name: 'home' })
+            await router.push({ name: "home" });
         }
     }
-}
+};
 
 onMounted(() => {
     if (userStore.isAuthenticated) {
-        router.push({ name: 'home' })
+        router.push({ name: "home" });
     }
-})
+});
 </script>
 
 <template>
-    <Modal :open="modalOpen" @close="modalClose">
+    <FwbModal :open="modalOpen" @close="modalClose">
         <template #header>
             <h1 class="text-3xl">Mot de passe perdu</h1>
         </template>
@@ -53,16 +53,16 @@ onMounted(() => {
         </template>
         <template #footer>
             <div class="flex items-center justify-center flex-col gap-4">
-                <Button @click.prevent="sendRequestResetPassword"
-                    >Se connecter</Button
+                <FwbButton @click.prevent="sendRequestResetPassword"
+                    >Se connecter</FwbButton
                 >
-                <Button
+                <FwbButton
                     color="alternative"
                     size="sm"
                     @click.prevent="modalClose"
-                    >Annuler</Button
+                    >Annuler</FwbButton
                 >
             </div>
         </template>
-    </Modal>
+    </FwbModal>
 </template>
