@@ -13,18 +13,18 @@ defineProps<Props>();
     <div class="flex flex-col gap-8">
         <div class="flex justify-around">
             <div class="flex flex-col gap-10">
-                <p>
-                    <FwbBadge class="mx-2">Email</FwbBadge>
+                <p class="flex">
+                    <FwbBadge>Email</FwbBadge>
                     {{ user.email }}
                 </p>
-                <p>
-                    <FwbBadge class="mx-2">Nom d’utilisateur </FwbBadge>
+                <p class="flex">
+                    <FwbBadge>Nom d’utilisateur </FwbBadge>
                     {{ user.username }}
                 </p>
             </div>
             <div class="flex flex-col gap-10">
-                <p>
-                    <FwbBadge class="mx-2">Est actif</FwbBadge>
+                <p class="flex">
+                    <FwbBadge>Est actif</FwbBadge>
                     <FontAwesomeIcon
                         v-if="user.isActive"
                         :icon="['fas', 'check']"
@@ -36,8 +36,8 @@ defineProps<Props>();
                         class="text-error"
                     />
                 </p>
-                <p>
-                    <FwbBadge class="mx-2">Est administrateur </FwbBadge>
+                <p class="flex">
+                    <FwbBadge>Est administrateur </FwbBadge>
                     <FontAwesomeIcon
                         v-if="user.isAdmin"
                         :icon="['fas', 'check']"
