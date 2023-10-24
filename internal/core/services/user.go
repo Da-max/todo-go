@@ -108,15 +108,17 @@ func (service *UserService) Update(id string, username string, email string, pas
 		return nil, errors.Unauthorized
 	}
 
-	cryptPassword, err := service.authRepository.GeneratePassword(password)
+	if user.Password != password {
+		cryptPassword, err := service.authRepository.GeneratePassword(password)
 
-	if err != nil {
-		return nil, errors.Internal
+		if err != nil {
+			return nil, errors.Internal
+		}
+		user.Password = cryptPassword
 	}
 
 	user.Username = username
 	user.Email = email
-	user.Password = cryptPassword
 	user.IsAdmin = isAdmin
 	user.IsActive = isActive
 

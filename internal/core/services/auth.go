@@ -46,6 +46,7 @@ func (service *AuthService) Login(username string, password string) (*domain.Tok
 	}
 
 	if res, err := service.authRepository.CheckPassword(user, password); !res || err != nil {
+		fmt.Println(err)
 		return nil, errors.NotFound
 	}
 

@@ -54,9 +54,9 @@ func (r *Repository) GetByUsername(username string) (*domain.User, error) {
 }
 
 func (r *Repository) GetByEmail(email string) (*domain.User, error) {
-	var user = &User{Email: email}
+	var user = &User{}
 
-	if res := r.DB.First(user); res.Error != nil {
+	if res := r.DB.Where(User{Email: email}).First(user); res.Error != nil {
 		return nil, res.Error
 	}
 

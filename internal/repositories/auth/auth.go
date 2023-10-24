@@ -39,18 +39,14 @@ func (r *Repository) GetCurrentUser(token *domain.Token) (*domain.User, error) {
 		return nil, err
 	}
 
-	var (
-		id, find               = t.Get("ID")
-		username, findUsername = t.Get("Username")
-	)
+	var id, find = t.Get("ID")
 
-	if !find || !findUsername {
+	if !find {
 		return nil, errors.New("context not found")
 	}
 
 	if res := r.DB.Where(model.User{
-		Username: username.(string),
-		ID:       id.(string),
+		ID: id.(string),
 	}).First(userObj); res.Error != nil {
 		return nil, err
 	}
@@ -69,8 +65,8 @@ func (r *Repository) CheckPassword(user *domain.User, password string) (bool, er
 
 func (r *Repository) GenerateTokens(user *domain.User, expiresIn time.Duration) (*domain.Tokens, error) {
 	var (
-		claims   = map[string]interface{}{"Username": user.Username, "ID": user.ID}
-		rtClaims = map[string]interface{}{"Username": user.Username, "ID": user.ID, "Sub": 1}
+		claims   = map[string]interface{}{"ID": user.ID}
+		rtClaims = map[string]interface{}{"ID": user.ID, "Sub": 1}
 	)
 
 	jwtauth.SetExpiryIn(claims, expiresIn)
