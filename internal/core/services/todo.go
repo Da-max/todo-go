@@ -23,7 +23,7 @@ func (srv *TodoService) checkUserTodo(userId string, token *domain.Token) (bool,
 	user, err := srv.authRepository.GetCurrentUser(token)
 
 	if err != nil {
-		return false, errors.Internal
+		return false, errors.Unauthorized
 	}
 
 	if (user.ID != userId || !user.IsActive) && !user.IsAdmin {
@@ -38,7 +38,13 @@ func (srv *TodoService) GetByUserId(userId string, token *domain.Token) ([]*doma
 		return nil, errors.Unauthorized
 	}
 
-	return srv.todoRepository.GetByUserId(userId)
+	res, err := srv.todoRepository.GetByUserId(userId)
+
+	if err != nil {
+		return nil, errors.NotFound
+	}
+
+	return res, nil
 }
 
 func (srv *TodoService) Create(text string, done bool, user domain.User, token *domain.Token) (*domain.Todo, error) {

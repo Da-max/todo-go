@@ -1,15 +1,27 @@
 package message
 
 import (
+	"crypto/tls"
+	errors2 "errors"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/utils/config"
 	"github.com/matcornic/hermes/v2"
+	"github.com/wneessen/go-mail"
 	"net/smtp"
-	"strconv"
 )
 
 type Repository struct {
 	h hermes.Hermes
+}
+
+type unencryptedAuth struct {
+	smtp.Auth
+}
+
+func (a unencryptedAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+	s := *server
+	s.TLS = true
+	return a.Auth.Start(&s)
 }
 
 func NewMessageRepository(h hermes.Hermes) *Repository {
@@ -20,26 +32,44 @@ func NewMessageRepository(h hermes.Hermes) *Repository {
 
 func (r *Repository) SendMessage(messageType domain.MessageType, subject string, to []string, args ...interface{}) error {
 
-	mail, err := r.generateMail(messageType, args...)
+	m, err := r.generateMail(messageType, args...)
 
 	if err != nil {
 		return err
 	}
 
 	var (
-		conf       = config.GetConfig()
-		mime       = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-		bMessage   = []byte("Subject: " + subject + "\n" + mime + mail)
-		auth       = smtp.PlainAuth("", conf.EmailFrom, conf.EmailPassword, conf.EmailHost)
-		portString = strconv.Itoa(conf.EmailPort)
+		conf    = config.GetConfig()
+		message = mail.NewMsg()
 	)
+	auth, err := mail.NewClient(conf.EmailHost, mail.WithPort(conf.EmailPort))
 
-	if err := smtp.SendMail(conf.EmailHost+":"+portString, auth, conf.EmailFrom, to, bMessage); err != nil {
+	if err != nil {
+		return err
+	}
+
+	if conf.Debug {
+		if err := auth.SetTLSConfig(&tls.Config{InsecureSkipVerify: true}); err != nil {
+			return err
+		}
+		auth.SetTLSPolicy(mail.NoTLS)
+		auth.SetSSL(false)
+	}
+
+	if err := message.From(conf.EmailFrom); err != nil {
+		return err
+	}
+	if err := message.To(to...); err != nil {
+		return err
+	}
+	message.Subject(subject)
+	message.SetBodyString("text/html", m)
+
+	if err := auth.DialAndSend(message); err != nil {
 		return err
 	}
 
 	return nil
-
 }
 
 func (r *Repository) generateMail(mailType domain.MessageType, args ...interface{}) (string, error) {
@@ -62,17 +92,17 @@ func (r *Repository) generateMail(mailType domain.MessageType, args ...interface
 	switch mailType {
 	case domain.RequestResetPassword:
 		if *token == "" || user == nil {
-			panic("Some params are missing")
+			return "", errors2.New("somme params missing")
 		}
 		res, err = r.generateRequestResetPasswordMail(user, *token)
 	case domain.ConfirmAccount:
 		if *token == "" || user == nil {
-			panic("Some params are missing")
+			return "", errors2.New("somme params missing")
 		}
 		res, err = r.generateConfirmAccountMail(user, *token)
 	case domain.ResetPassword:
 		if user == nil {
-			panic("Some params are missing")
+			return "", errors2.New("somme params missing")
 		}
 		res, err = r.generateResetPasswordMail(user)
 	case domain.DeleteAccount:

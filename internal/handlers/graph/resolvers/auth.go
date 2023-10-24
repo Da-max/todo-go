@@ -7,11 +7,11 @@ package resolvers
 import (
 	"context"
 	"fmt"
-	"github.com/Da-max/todo-go/internal/core/domain"
-	"github.com/Da-max/todo-go/internal/utils/auth"
 
+	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/handlers/graph/generated"
 	"github.com/Da-max/todo-go/internal/handlers/graph/model"
+	"github.com/Da-max/todo-go/internal/utils/auth"
 )
 
 // Login is the resolver for the login field.
@@ -52,11 +52,13 @@ func (r *mutationResolver) ConfirmAccount(ctx context.Context, input *model.Conf
 
 // UpdateAccount is the resolver for the updateAccount field.
 func (r *mutationResolver) UpdateAccount(ctx context.Context, input model.UpdateUser) (*model.User, error) {
-	var (
-		token            = ctx.Value(auth.TokenCtxKey).(*domain.Token)
-		currentUser, err = r.AuthService.GetCurrentUser(token)
-		user             *domain.User
-	)
+	var token, err = auth.GetTokenCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	currentUser, err := r.AuthService.GetCurrentUser(token)
+	user := &domain.User{}
 
 	if err != nil {
 		return nil, err
@@ -69,7 +71,6 @@ func (r *mutationResolver) UpdateAccount(ctx context.Context, input model.Update
 	}
 
 	return model.ToUserModel(user), nil
-
 }
 
 // ChangePassword is the resolver for the changePassword field.
@@ -110,12 +111,31 @@ func (r *mutationResolver) DeleteAccount(ctx context.Context) (*model.DeleteAcco
 
 // RequestConfirmAccount is the resolver for the requestConfirmAccount field.
 func (r *mutationResolver) RequestConfirmAccount(ctx context.Context) (*model.RequestConfirmAccount, error) {
-	panic(fmt.Errorf("not implemented: RequestConfirmAccount - requestConfirmAccount"))
+	var (
+		token     = ctx.Value(auth.TokenCtxKey).(*domain.Token)
+		user, err = r.AuthService.GetCurrentUser(token)
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := r.UserService.RequestConfirmAccount(user.ID, token); err != nil {
+		return nil, err
+	}
+
+	return &model.RequestConfirmAccount{Ok: true}, nil
 }
 
 // RequestResetPassword is the resolver for the requestResetPassword field.
 func (r *mutationResolver) RequestResetPassword(ctx context.Context, input model.RequestPasswordResetIdentifier) (*model.RequestResetPassword, error) {
-	panic(fmt.Errorf("not implemented: RequestResetPassword - requestResetPassword"))
+	res, err := r.AuthService.RequestResetPassword(input.Email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.RequestResetPassword{Ok: res}, nil
 }
 
 // ResetPassword is the resolver for the resetPassword field.
@@ -140,15 +160,18 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	}
 
 	return results, nil
-
 }
 
 // CurrentUser is the resolver for the currentUser field.
 func (r *queryResolver) CurrentUser(ctx context.Context) (*model.User, error) {
-	var (
-		token            = ctx.Value(auth.TokenCtxKey).(*domain.Token)
-		currentUser, err = r.AuthService.GetCurrentUser(token)
-	)
+	var token, err = auth.GetTokenCtx(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	currentUser, err := r.AuthService.GetCurrentUser(token)
+
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,7 @@ package model
 import "github.com/Da-max/todo-go/internal/core/domain"
 
 func ToUserModel(user *domain.User) *User {
-	return &User{Username: user.Username, ID: user.ID, IsAdmin: user.IsAdmin, IsActive: user.IsActive}
+	return &User{Username: user.Username, Email: user.Email, ID: user.ID, IsAdmin: user.IsAdmin, IsActive: user.IsActive}
 }
 
 func ToTodoModel(todo *domain.Todo) *Todo {

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"gorm.io/gorm"
 )
@@ -33,8 +34,9 @@ func (r *Repository) GetAll() ([]*domain.User, error) {
 }
 
 func (r *Repository) Get(id string) (*domain.User, error) {
-	var user *User = &User{}
-	if res := r.DB.First(user, id); res.Error != nil {
+	var user = &User{ID: id}
+	if res := r.DB.First(user); res.Error != nil {
+		fmt.Println(res.Error)
 		return nil, res.Error
 	}
 
@@ -42,9 +44,19 @@ func (r *Repository) Get(id string) (*domain.User, error) {
 }
 
 func (r *Repository) GetByUsername(username string) (*domain.User, error) {
-	var user *User = &User{}
+	var user = &User{}
 
-	if res := r.DB.Where("username = ?", username).First(user); res.Error != nil {
+	if res := r.DB.Where(User{Username: username}).First(user); res.Error != nil {
+		return nil, res.Error
+	}
+
+	return ToDomainModel(user), nil
+}
+
+func (r *Repository) GetByEmail(email string) (*domain.User, error) {
+	var user = &User{Email: email}
+
+	if res := r.DB.First(user); res.Error != nil {
 		return nil, res.Error
 	}
 
@@ -52,7 +64,7 @@ func (r *Repository) GetByUsername(username string) (*domain.User, error) {
 }
 
 func (r *Repository) Save(user *domain.User) error {
-	var modelUser *User = toDBModel(user)
+	var modelUser = toDBModel(user)
 
 	if res := r.DB.Save(modelUser); res.Error != nil {
 		return res.Error

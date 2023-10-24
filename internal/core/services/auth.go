@@ -25,7 +25,7 @@ func NewAuthService(authRepository ports.AuthRepository, userRepository ports.Us
 func (service *AuthService) GetCurrentUser(token *domain.Token) (*domain.User, error) {
 	res, err := service.authRepository.GetCurrentUser(token)
 	if err != nil {
-		return nil, errors.NotFound
+		return nil, errors.Unauthorized
 	}
 
 	return res, nil
@@ -101,23 +101,23 @@ func (service *AuthService) ChangePassword(id string, oldPassword string, newPas
 	return updateUser, nil
 }
 
-func (service *AuthService) RequestResetPassword(id string) (bool, error) {
-	var user, err = service.userRepository.Get(id)
+func (service *AuthService) RequestResetPassword(email string) (bool, error) {
+	var user, err = service.userRepository.GetByEmail(email)
 
 	if err != nil {
 		return false, errors.NotFound
 	}
 
-	var resetToken, errToken = service.authRepository.GenerateToken(id)
+	var resetToken, errToken = service.authRepository.GenerateToken(user.ID)
 
 	if errToken != nil {
 		return false, errors.Internal
 	}
 
 	go func() {
-		var mailError chan error = make(chan error, 1)
+		var mailError = make(chan error, 1)
 		if mailError <- service.messageRepository.SendMessage(domain.RequestResetPassword, "Demande de réinitialisation du mot de passe", []string{user.Email}, user, resetToken); mailError != nil {
-			fmt.Print("A message error occurred", mailError)
+			fmt.Print("A message error occurred : ", mailError)
 		}
 	}()
 

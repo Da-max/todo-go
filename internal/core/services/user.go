@@ -24,7 +24,7 @@ func NewUserService(authRepository ports.AuthRepository, userRepository ports.Us
 
 func (service *UserService) checkUser(token *domain.Token) (bool, error) {
 	if _, err := service.authRepository.GetCurrentUser(token); err != nil {
-		return false, errors.Internal
+		return false, errors.Unauthorized
 	}
 
 	return true, nil
@@ -45,7 +45,7 @@ func (service *UserService) checkAdmin(token *domain.Token) (bool, error) {
 	user, err := service.authRepository.GetCurrentUser(token)
 
 	if err != nil {
-		return false, errors.Internal
+		return false, errors.Unauthorized
 	}
 
 	return user.IsAdmin, nil
@@ -70,23 +70,29 @@ func (service *UserService) Create(username string, email string, password strin
 		return nil, errors.Internal
 	}
 
-	user := domain.NewUser(uuid.New().String(), username, email, cryptPassword, isActive, isAdmin)
+	userId := uuid.New().String()
+
+	if userId == "" {
+		return nil, errors.Internal
+	}
+
+	user := domain.NewUser(userId, username, email, cryptPassword, isActive, isAdmin)
 	token, tokenErr := service.authRepository.GenerateToken(user.ID)
 
 	if tokenErr != nil {
 		return nil, errors.Internal
 	}
 
-	go func() {
-		var mailError chan error = make(chan error, 1)
-		if mailError <- service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirmer votre compte", []string{user.Email}, &user, token); mailError != nil {
-			fmt.Print("A mail error occured", mailError)
-		}
-	}()
-
 	if err = service.userRepository.Save(&user); err != nil {
 		return nil, errors.Internal
 	}
+
+	go func() {
+		var mailError chan error = make(chan error, 1)
+		if mailError <- service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirmer votre compte", []string{email}, &user, token); mailError != nil {
+			fmt.Print("A mail error occurred", mailError)
+		}
+	}()
 
 	return &user, nil
 }

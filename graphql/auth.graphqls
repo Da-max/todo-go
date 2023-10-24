@@ -82,5 +82,5 @@ type Mutation {
     requestResetPassword(
         input: RequestPasswordResetIdentifier!
     ): RequestResetPassword!
-    resetPassword(input: ResetPasswordIdentifier!): Confirm! @isLogged
+    resetPassword(input: ResetPasswordIdentifier!): Confirm!
 }

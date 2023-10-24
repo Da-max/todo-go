@@ -26,6 +26,7 @@ type UserRepository interface {
 	GetAll() ([]*domain.User, error)
 	Get(id string) (*domain.User, error)
 	GetByUsername(username string) (*domain.User, error)
+	GetByEmail(email string) (*domain.User, error)
 	Save(user *domain.User) error
 	Remove(user *domain.User) error
 }

@@ -20,6 +20,7 @@ services:
             - "5000:5000"
         links:
             - db:database
+            - mailpit
         depends_on:
             - db
 
@@ -58,6 +59,12 @@ services:
             - db
         ports:
             - "8083:8080"
+
+    mailpit:
+        image: axllent/mailpit
+        ports:
+            - "8025:8025"
+        env_file: .env
 
 volumes:
     postgresdata:

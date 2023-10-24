@@ -13,8 +13,7 @@ type ChangePasswordConfirm struct {
 }
 
 type Confirm struct {
-	Ok    bool   `json:"ok"`
-	Token string `json:"token"`
+	Ok bool `json:"ok"`
 }
 
 type ConfirmIdentifier struct {

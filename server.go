@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/core/services"
 	"github.com/Da-max/todo-go/internal/handlers/graph/generated"
 	"github.com/Da-max/todo-go/internal/handlers/graph/resolvers"
@@ -16,6 +15,7 @@ import (
 	"github.com/Da-max/todo-go/internal/utils/config"
 	"github.com/Da-max/todo-go/internal/utils/postgres"
 	"github.com/matcornic/hermes/v2"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 
@@ -24,7 +24,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
-	"github.com/rs/cors"
 )
 
 func Router(config config.Config) *chi.Mux {
@@ -57,13 +56,19 @@ func Router(config config.Config) *chi.Mux {
 		}
 	)
 
-	r.Use(auth.AuthenticatorMiddleware())
+	if config.Debug {
+		r.Use(cors.AllowAll().Handler)
+	}
+
+	r.Use(auth.AuthenticatorMiddleware)
 
 	c := generated.Config{Resolvers: resolver, Directives: generated.DirectiveRoot{
 		IsLogged: func(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
-			var (
-				token = ctx.Value(auth.TokenCtxKey).(*domain.Token)
-			)
+			var token, err = auth.GetTokenCtx(ctx)
+
+			if err != nil {
+				return nil, err
+			}
 
 			if _, err := resolver.AuthService.GetCurrentUser(token); err != nil {
 				return nil, err
@@ -73,9 +78,14 @@ func Router(config config.Config) *chi.Mux {
 		},
 		IsActive: func(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 			var (
-				token        = ctx.Value(auth.TokenCtxKey).(*domain.Token)
-				userObj, err = resolver.AuthService.GetCurrentUser(token)
+				token, err = auth.GetTokenCtx(ctx)
 			)
+
+			if err != nil {
+				return nil, err
+			}
+
+			userObj, err := resolver.AuthService.GetCurrentUser(token)
 
 			if err != nil {
 				return nil, err
@@ -99,18 +109,6 @@ func Router(config config.Config) *chi.Mux {
 			WriteBufferSize: 1024,
 		},
 	})
-
-	if config.Debug {
-		// r.Use(cors.New(cors.Options{
-		// 	AllowedOrigins:   []string{"http://localhost:" + fmt.Sprint(config.FrontendPort), "http://localhost:5500"},
-		// 	AllowCredentials: true,
-		// 	Debug:            true,
-		// 	AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		// 	AllowedMethods:   []string{"POST"},
-		// 	All
-		// }).Handler)
-		r.Use(cors.AllowAll().Handler)
-	}
 	r.Handle("/query", srv)
 	r.Handle("/", playground.Handler("GraphQL playground", "/query"))
 

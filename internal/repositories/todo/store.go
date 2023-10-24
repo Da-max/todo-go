@@ -22,7 +22,7 @@ func (r *Repository) GetByUserId(userId string) ([]*domain.Todo, error) {
 		res   []*domain.Todo
 	)
 
-	if res := r.DB.Where("user_id = ?", userId).Find(todos); res.Error != nil {
+	if res := r.DB.Where(Todo{UserID: userId}).Find(&todos); res.Error != nil {
 		return nil, res.Error
 	}
 
@@ -39,7 +39,7 @@ func (r *Repository) GetAll() ([]*domain.Todo, error) {
 		res   []*domain.Todo
 	)
 
-	if res := r.DB.Find(todos); res.Error != nil {
+	if res := r.DB.Find(&todos); res.Error != nil {
 		return nil, res.Error
 	}
 
@@ -51,11 +51,9 @@ func (r *Repository) GetAll() ([]*domain.Todo, error) {
 }
 
 func (r *Repository) Get(id string) (*domain.Todo, error) {
-	var (
-		todo Todo
-	)
+	var todo = Todo{ID: id}
 
-	if res := r.DB.First(&todo, id); res.Error != nil {
+	if res := r.DB.First(&todo); res.Error != nil {
 		return nil, res.Error
 	}
 
@@ -65,7 +63,7 @@ func (r *Repository) Get(id string) (*domain.Todo, error) {
 func (r *Repository) Save(todo *domain.Todo) error {
 	var todoTable = toDBModel(todo)
 
-	if res := r.DB.Where(Todo{ID: todo.ID}).Assign(todoTable).FirstOrCreate(todoTable); res.Error != nil {
+	if res := r.DB.Save(todoTable); res.Error != nil {
 		return res.Error
 	}
 

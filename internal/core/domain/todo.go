@@ -16,10 +16,10 @@ func NewTodo(id string, text string, done bool, userID string) Todo {
 	}
 }
 
-func (todo Todo) MarkDoneTodo() {
+func (todo *Todo) MarkDoneTodo() {
 	todo.Done = true
 }
 
-func (todo Todo) MarkUndoneTodo() {
+func (todo *Todo) MarkUndoneTodo() {
 	todo.Done = false
 }

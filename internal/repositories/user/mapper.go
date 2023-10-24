@@ -6,6 +6,7 @@ import (
 
 func toDBModel(entity *domain.User) *User {
 	return &User{
+		ID:       entity.ID,
 		Username: entity.Username,
 		Email:    entity.Email,
 		Password: entity.Password,

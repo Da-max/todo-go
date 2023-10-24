@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"github.com/Da-max/todo-go/internal/core/domain"
+	"github.com/Da-max/todo-go/internal/handlers/graph/model"
 	"github.com/Da-max/todo-go/internal/repositories/user"
 	"github.com/go-chi/jwtauth/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -47,7 +48,10 @@ func (r *Repository) GetCurrentUser(token *domain.Token) (*domain.User, error) {
 		return nil, errors.New("context not found")
 	}
 
-	if res := r.DB.Where("username = ?", username).Where("id = ?", id).First(userObj); res.Error != nil {
+	if res := r.DB.Where(model.User{
+		Username: username.(string),
+		ID:       id.(string),
+	}).First(userObj); res.Error != nil {
 		return nil, err
 	}
 
