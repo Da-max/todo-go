@@ -6,8 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/Da-max/todo-go/internal/core/domain"
 	"github.com/Da-max/todo-go/internal/handlers/graph/generated"
 	"github.com/Da-max/todo-go/internal/handlers/graph/model"
@@ -37,13 +35,17 @@ func (r *mutationResolver) SignUp(ctx context.Context, input model.NewUser) (*mo
 
 // ConfirmAccount is the resolver for the confirmAccount field.
 func (r *mutationResolver) ConfirmAccount(ctx context.Context, input *model.ConfirmIdentifier) (*model.Confirm, error) {
-	var user, err = r.AuthService.GetCurrentUser(ctx.Value(auth.TokenCtxKey).(*domain.Token))
+	var token, err = auth.GetTokenCtx(ctx)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := r.UserService.ConfirmAccount(user.ID, model.ToTokenDomain(input.Token)); err != nil {
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := r.UserService.ConfirmAccount(domain.NewToken(input.Token), token); err != nil {
 		return nil, err
 	}
 
@@ -140,7 +142,11 @@ func (r *mutationResolver) RequestResetPassword(ctx context.Context, input model
 
 // ResetPassword is the resolver for the resetPassword field.
 func (r *mutationResolver) ResetPassword(ctx context.Context, input model.ResetPasswordIdentifier) (*model.Confirm, error) {
-	panic(fmt.Errorf("not implemented: ResetPassword - resetPassword"))
+	if _, err := r.AuthService.ResetPassword(input.Password, domain.NewToken(input.Token)); err != nil {
+		return nil, err
+	}
+
+	return &model.Confirm{Ok: true}, nil
 }
 
 // Users is the resolver for the users field.

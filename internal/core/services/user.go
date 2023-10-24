@@ -161,7 +161,7 @@ func (service *UserService) RequestConfirmAccount(id string, token *domain.Token
 	}
 
 	go func() {
-		var mailError chan error = make(chan error, 1)
+		var mailError = make(chan error, 1)
 
 		if mailError <- service.messageRepository.SendMessage(domain.ConfirmAccount, "Confirm your account", []string{currentUser.Email}, currentUser, confirmToken); mailError != nil {
 			fmt.Print("An message error occurred", mailError)
@@ -171,12 +171,24 @@ func (service *UserService) RequestConfirmAccount(id string, token *domain.Token
 	return true, nil
 }
 
-func (service *UserService) ConfirmAccount(id string, token *domain.Token) (*domain.User, error) {
-	if res, err := service.checkUserUser(id, token); !res || err != nil {
+func (service *UserService) ConfirmAccount(confirmToken *domain.Token, authToken *domain.Token) (*domain.User, error) {
+	var userId, err = service.authRepository.DecodeToken(confirmToken)
+
+	if err != nil {
 		return nil, errors.Unauthorized
 	}
 
-	var user, err = service.userRepository.Get(id)
+	askUser, err := service.authRepository.GetCurrentUser(authToken)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if userId != askUser.ID && !askUser.IsAdmin {
+		return nil, errors.Unauthorized
+	}
+
+	user, err := service.userRepository.Get(userId)
 
 	if err != nil {
 		return nil, errors.NotFound

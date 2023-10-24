@@ -9,6 +9,6 @@ type User struct {
 	Username string `gorm:"unique"`
 	Email    string `gorm:"unique"`
 	Password string
-	IsActive bool
-	IsAdmin  bool
+	IsActive bool `gorm:"default:false"`
+	IsAdmin  bool `gorm:"default:false"`
 }

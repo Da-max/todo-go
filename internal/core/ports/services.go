@@ -25,5 +25,5 @@ type UserService interface {
 	Update(id string, username string, email string, password string, isActive bool, isAdmin bool, token *domain.Token) (*domain.User, error)
 	Remove(id string, token *domain.Token) error
 	RequestConfirmAccount(id string, token *domain.Token) (bool, error)
-	ConfirmAccount(id string, token *domain.Token) (*domain.User, error)
+	ConfirmAccount(confirmToken *domain.Token, authToken *domain.Token) (*domain.User, error)
 }

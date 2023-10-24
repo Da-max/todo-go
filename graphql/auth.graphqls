@@ -74,7 +74,7 @@ type Query {
 type Mutation {
     login(input: Identifier!): Tokens!
     signUp(input: NewUser!): User!
-    confirmAccount(input: ConfirmIdentifier): Confirm!
+    confirmAccount(input: ConfirmIdentifier): Confirm! @isLogged
     updateAccount(input: UpdateUser!): User! @isActive
     changePassword(input: ChangePassword): ChangePasswordConfirm! @isActive
     deleteAccount: DeleteAccount! @isLogged
