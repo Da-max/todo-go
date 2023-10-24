@@ -1,24 +1,25 @@
-import * as colors from 'tailwindcss/colors'
-import * as themeColors from '@todo-go/colors'
+import * as colors from "tailwindcss/colors";
+import * as themeColors from "@todo-go/colors";
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: "media",
     content: [
-        './index.html',
-        './src/**/*.{vue,js,ts,jsx,tsx}',
-        '../../node_modules/flowbite-vue/**/*.{js,jsx,ts,tsx}',
-        '../../node_modules/flowbite/**/*.{js,jsx,ts,tsx}',
+        "./index.html",
+        "./src/**/*.{vue,js,ts,jsx,tsx}",
+        "../../node_modules/flowbite-vue/**/*.{js,jsx,ts,tsx}",
+        "../../node_modules/flowbite/**/*.{js,jsx,ts,tsx}",
     ],
     theme: {
         extend: {
             colors: {
                 blue: colors.indigo,
-                primary: themeColors['primary'],
-                secondary: themeColors['secondary'],
-                error: themeColors['error'],
-                success: themeColors['success'],
+                primary: themeColors["primary"],
+                secondary: themeColors["secondary"],
+                error: themeColors["error"],
+                success: themeColors["success"],
             },
         },
     },
-    plugins: [import('flowbite/plugin')],
-}
+    plugins: [import("flowbite/plugin")],
+};

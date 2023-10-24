@@ -1,29 +1,26 @@
 <script lang="ts" setup>
-import { Modal } from 'flowbite-vue'
-import { Button } from 'flowbite-vue'
-import { ref } from 'vue'
-import SignupForm from '~/components/Auth/Signup/SignupForm.vue'
-import { useRouter } from 'vue-router'
-import { useModal } from '~/hooks/modal'
+import { Modal } from "flowbite-vue";
+import { Button } from "flowbite-vue";
+import { ref } from "vue";
+import SignupForm from "~/components/Auth/Signup/SignupForm.vue";
+import { useRouter } from "vue-router";
+import { useModal } from "~/hooks/modal";
+import { useSignUp } from "~/hooks/auth/signup";
 
 const { modalOpen, modalClose } = useModal({
     initialValue: true,
     onClose: () => {
-        router.push({ name: 'home' })
+        router.push({ name: "home" });
     },
-})
+});
+const { fields, signUp, error } = useSignUp({
+    onData: () => {
+        modalClose();
+    },
+});
+const inputError = ref(false);
 
-const router = useRouter()
-const signUpForm = ref<InstanceType<typeof SignupForm> | null>(null)
-
-const signUp = function () {
-    if (signUpForm.value) {
-        signUpForm.value.signUp()
-        modalOpen.value = false
-    } else {
-        console.log('Merci de réessayer')
-    }
-}
+const router = useRouter();
 </script>
 
 <template>
@@ -32,7 +29,7 @@ const signUp = function () {
             <h1>Créer un compte</h1>
         </template>
         <template #body>
-            <SignupForm ref="signUpForm" />
+            <SignupForm v-model="fields" v-model:error="inputError" />
         </template>
         <template #footer>
             <div class="inline-flex w-full items-center flex-col">

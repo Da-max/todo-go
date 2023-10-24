@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import Todo from '../components/Todo/Todo.vue'
-import { Alert } from 'flowbite-vue'
-import { useUserStore } from '~/stores/user'
-import { useRequestConfirmAccount } from '~/hooks/auth/requestConfirmAccount'
-import { storeToRefs } from 'pinia'
+import Todo from "../components/Todo/Todo.vue";
+import { Alert } from "flowbite-vue";
+import { useUserStore } from "~/stores/user";
+import { useRequestConfirmAccount } from "~/hooks/auth/requestConfirmAccount";
+import { storeToRefs } from "pinia";
 
-const { user, isAuthenticated, isActive } = storeToRefs(useUserStore())
-const { requestConfirmAccount, error } = useRequestConfirmAccount()
+const { user, isAuthenticated, isActive } = storeToRefs(useUserStore());
+const { requestConfirmAccount, error } = useRequestConfirmAccount();
 </script>
 
 <template>
-    <div class="bg-gray-100 flex flex-col">
+    <div class="bg-gray-100 dark:bg-gray-700 dark:text-white flex flex-col">
         <Alert
             v-if="isAuthenticated && isActive"
             class="mb-8"
