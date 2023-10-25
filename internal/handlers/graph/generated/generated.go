@@ -514,10 +514,12 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../../../graphql/auth.graphqls", Input: `type User {
+	{Name: "../../../../graphql/auth.graphqls", Input: `scalar Email
+
+type User {
     id: ID!
     username: String!
-    email: String!
+    email: Email!
     isActive: Boolean!
     isAdmin: Boolean!
 }
@@ -549,7 +551,7 @@ type ChangePasswordConfirm {
 
 input NewUser {
     username: String!
-    email: String!
+    email: Email!
     password: String!
 }
 
@@ -560,7 +562,7 @@ input Identifier {
 
 input UpdateUser {
     username: String
-    email: String
+    email: Email
 }
 
 input ConfirmIdentifier {
@@ -568,7 +570,7 @@ input ConfirmIdentifier {
 }
 
 input RequestPasswordResetIdentifier {
-    email: String!
+    email: Email!
 }
 
 input ResetPasswordIdentifier {
@@ -590,7 +592,7 @@ type Query {
 type Mutation {
     login(input: Identifier!): Tokens!
     signUp(input: NewUser!): User!
-    confirmAccount(input: ConfirmIdentifier): Confirm!
+    confirmAccount(input: ConfirmIdentifier): Confirm! @isLogged
     updateAccount(input: UpdateUser!): User! @isActive
     changePassword(input: ChangePassword): ChangePasswordConfirm! @isActive
     deleteAccount: DeleteAccount! @isLogged
@@ -1150,8 +1152,28 @@ func (ec *executionContext) _Mutation_confirmAccount(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ConfirmAccount(rctx, fc.Args["input"].(*model.ConfirmIdentifier))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ConfirmAccount(rctx, fc.Args["input"].(*model.ConfirmIdentifier))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsLogged == nil {
+				return nil, errors.New("directive isLogged is not implemented")
+			}
+			return ec.directives.IsLogged(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Confirm); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/Da-max/todo-go/internal/handlers/graph/model.Confirm`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2834,7 +2856,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNEmail2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2844,7 +2866,7 @@ func (ec *executionContext) fieldContext_User_email(ctx context.Context, field g
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4881,7 +4903,7 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4919,7 +4941,7 @@ func (ec *executionContext) unmarshalInputRequestPasswordResetIdentifier(ctx con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4995,7 +5017,7 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOEmail2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5936,6 +5958,21 @@ func (ec *executionContext) marshalNDeleteAccount2ᚖgithubᚗcomᚋDaᚑmaxᚋt
 	return ec._DeleteAccount(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNEmail2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEmail2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6447,6 +6484,22 @@ func (ec *executionContext) unmarshalOConfirmIdentifier2ᚖgithubᚗcomᚋDaᚑm
 	}
 	res, err := ec.unmarshalInputConfirmIdentifier(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOEmail2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOEmail2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
