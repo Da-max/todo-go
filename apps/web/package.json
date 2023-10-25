@@ -19,11 +19,13 @@
         "@fortawesome/free-solid-svg-icons": "^6.1.1",
         "@fortawesome/vue-fontawesome": "^3.0.1",
         "@tanstack/vue-query": "^4.32.6",
+        "@vee-validate/zod": "^4.11.8",
         "@vueuse/core": "^9.0.2",
         "@vueuse/math": "^10.3.0",
         "flowbite": "^1.8.1",
         "flowbite-vue": "^0.1.0",
         "pinia": "^2.0.15",
+        "vee-validate": "^4.11.8",
         "villus": "^3.2.0",
         "vue-component-type-helpers": "^1.8.8",
         "vue-router": "4"
@@ -53,6 +55,7 @@
     "peerDependencies": {
         "eslint": "^8.19.0",
         "typescript": "^5.2.2",
+        "zod": "^3.22.4",
         "vite": "^4.4.11",
         "vue": "3.3.4"
     }

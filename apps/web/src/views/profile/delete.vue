@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { FwbModal, FwbButton, useToast } from "flowbite-vue";
 import ProfileDelete from "~/components/Profile/ProfileDelete.vue";
 import { ref } from "vue";
@@ -52,14 +52,14 @@ const { execute } = useDeleteAccount({
         <template #footer>
             <div class="flex gap-4 justify-around">
                 <FwbButton color="alternative" @click.prevent="modalClose"
-                    >Annuler</FwbButton
-                >
+                    >Annuler
+                </FwbButton>
                 <FwbButton
-                    color="red"
                     :disabled="!isValid"
+                    color="red"
                     @click.prevent="execute"
-                    >Supprimer</FwbButton
-                >
+                    >Supprimer
+                </FwbButton>
             </div>
         </template>
     </FwbModal>

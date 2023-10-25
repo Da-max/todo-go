@@ -1,31 +1,31 @@
-import { NewUser, UserFragment } from '@todo-go/core'
+import type { NewUser, UserFragment } from "@todo-go/core";
 
-export const USER_STORE_NAME = 'user' as const
+export const USER_STORE_NAME = "user" as const;
 
 export type userStoreState = {
-    user: UserFragment | undefined
-}
+    user: UserFragment | undefined;
+};
 
 export type userStoreActions = {
-    getCurrent: () => Promise<void>
-    disconnect: () => void
-}
+    getCurrent: () => Promise<void>;
+    disconnect: () => void;
+};
 
 export type userStoreGetters = {
-    isAuthenticated: () => boolean
-    isActive: () => boolean
-}
+    isAuthenticated: () => boolean;
+    isActive: () => boolean;
+};
 
 export type LoginFields = {
-    username: string
-    password: string
-}
+    username: string;
+    password: string;
+};
 
 export type SignUpFields = {
-    confirmPassword: string
-} & NewUser
+    confirmPassword: string;
+} & NewUser;
 
 export type ResetPasswordFields = {
-    password: string
-    confirmPassword: string
-}
+    password: string;
+    confirmPassword: string;
+};

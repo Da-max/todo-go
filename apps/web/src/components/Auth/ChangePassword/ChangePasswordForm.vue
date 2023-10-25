@@ -1,28 +1,24 @@
-<script setup lang="ts">
-import FormInput from '~/components/Utils/Form/FormInput.vue'
-import { ChangePassword } from '@todo-go/core'
-import { useVModels } from '@vueuse/core'
-import { computed, ref } from 'vue'
+<script lang="ts" setup>
+import FormInput from "~/components/Utils/Form/FormInput.vue";
+import { ChangePassword, ChangePasswordSchema } from "@todo-go/core";
+import { z } from "zod";
+import { useVModels } from "@vueuse/core";
 
 export interface Props {
-    modelValue: ChangePassword
-    error: boolean
+    modelValue: Partial<z.infer<ReturnType<typeof ChangePasswordSchema>>>;
+    error: boolean;
 }
+
 export interface Emits {
-    (e: 'update:modelValue', value: ChangePassword): void
+    (e: "update:modelValue", value: ChangePassword): void;
+
+    (e: "update:error", value: boolean): void;
 }
 
-const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
-const errorValue = ref(true)
+const props = defineProps<Props>();
+const emits = defineEmits<Emits>();
 
-const { modelValue } = useVModels(props, emits)
-const error = computed({
-    get: () => props.error && errorValue.value,
-    set: (newValue) => {
-        errorValue.value = newValue
-    },
-})
+const { modelValue, error } = useVModels(props, emits);
 </script>
 
 <template>
@@ -30,20 +26,23 @@ const error = computed({
         <FormInput
             v-model="modelValue.oldPassword"
             v-model:error="error"
-            type="password"
             label="Ancien mot de passe"
+            name="oldPassword"
+            type="password"
         />
         <FormInput
             v-model="modelValue.password"
             v-model:error="error"
-            type="password"
             label="Nouveau mot de passe"
+            name="password"
+            type="password"
         />
         <FormInput
             v-model="modelValue.confirmPassword"
             v-model:error="error"
-            type="password"
             label="Confirmer le nouveau mot de passe"
+            name="confirmPassword"
+            type="password"
         />
     </form>
 </template>

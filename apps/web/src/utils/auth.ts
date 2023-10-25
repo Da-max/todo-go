@@ -1,29 +1,30 @@
-import { RemovableRef, useLocalStorage } from '@vueuse/core'
-import { definePlugin } from 'villus'
+import { type RemovableRef, useLocalStorage } from "@vueuse/core";
+import { definePlugin } from "villus";
 
 class Auth {
-    private _token: RemovableRef<string | null>
-    constructor(token: string | null = '') {
-        this._token = useLocalStorage('token', token)
+    constructor(token: string | null = "") {
+        this._token = useLocalStorage("token", token);
     }
 
+    private _token: RemovableRef<string | null>;
+
     public get token(): string | null {
-        return this._token.value
+        return this._token.value;
     }
 
     public set token(v: string | null) {
         if (v) {
-            this._token.value = v
+            this._token.value = v;
         } else {
-            this._token.value = null
+            this._token.value = null;
         }
     }
 
     public villusPlugin = definePlugin(({ opContext }) => {
         opContext.headers.Authorization = this._token.value
             ? `BEARER ${this._token.value}`
-            : ''
-    })
+            : "";
+    });
 }
 
-export default new Auth()
+export default new Auth();

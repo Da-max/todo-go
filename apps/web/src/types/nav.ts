@@ -1,9 +1,9 @@
-import { RouteLocationRaw } from 'vue-router'
+import type { RouteLocationRaw } from "vue-router";
 
 export type NavItem = {
-    title: string
-    icon?: string[]
-    onClick: RouteLocationRaw | (() => void)
-}
+    title: string;
+    icon?: string[];
+    onClick: RouteLocationRaw | (() => void);
+};
 
-export type NavItems = NavItem[]
+export type NavItems = NavItem[];

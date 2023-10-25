@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useUserStore } from "~/stores/user";
-import { NavItems } from "~/types/nav";
+import type { NavItems } from "~/types/nav";
 import { FwbDropdown, FwbListGroup, FwbListGroupItem } from "flowbite-vue";
 
 const userStore = useUserStore();
@@ -47,7 +47,7 @@ const dropdownText = computed(() => {
 
 <template>
     <div ref="target">
-        <FwbDropdown placement="left" :text="dropdownText">
+        <FwbDropdown :text="dropdownText" placement="left">
             <FwbListGroup>
                 <FwbListGroupItem v-for="item in navItems" :key="item.title">
                     <a
@@ -61,12 +61,12 @@ const dropdownText = computed(() => {
                     >
                     <router-link
                         v-else-if="item.onClick"
-                        class="flex-1"
                         :to="item.onClick"
+                        class="flex-1"
                     >
                         <FontAwesomeIcon v-if="item.icon" :icon="item.icon" />
-                        {{ item.title }}</router-link
-                    >
+                        {{ item.title }}
+                    </router-link>
                 </FwbListGroupItem>
             </FwbListGroup>
         </FwbDropdown>

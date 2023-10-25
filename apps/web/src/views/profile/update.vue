@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { FwbModal, FwbButton } from "flowbite-vue";
 import { useModal } from "~/hooks/modal";
 import { useRouter } from "vue-router";
@@ -7,6 +7,7 @@ import { useUserStore } from "~/stores/user";
 import { useUpdateAccount } from "~/hooks/profile/useUpdateAccount";
 import Loader from "~/components/Utils/Loader.vue";
 import { ref } from "vue";
+import ModalFooter from "~/components/Utils/Modal/ModalFooter.vue";
 
 const router = useRouter();
 
@@ -34,8 +35,8 @@ const error = ref(false);
         </template>
         <template #body>
             <ProfileUpdate
-                v-model:error="error"
                 v-model="input"
+                v-model:error="error"
                 @keyup.enter="
                     () => {
                         if (!error) updateAccount();
@@ -44,22 +45,21 @@ const error = ref(false);
             />
         </template>
         <template #footer>
-            <div class="flex justify-center gap-8">
-                <FwbButton
-                    :disabled="error"
-                    type="button"
-                    @click="updateAccount"
-                    ><FontAwesomeIcon
+            <ModalFooter
+                :action-disabled="error"
+                @action="updateAccount"
+                @cancel="modalClose"
+            >
+                <template #action>
+                    <FontAwesomeIcon
                         v-if="!loading"
                         :icon="['fas', 'floppy-disk']"
                     />
                     <Loader v-else class="w-5 h-5" />
-                    Enregistrer les informations</FwbButton
-                >
-                <FwbButton color="alternative" @click="modalClose"
-                    >Annuler</FwbButton
-                >
-            </div>
+                    Enregistrer les informations
+                </template>
+                <template #cancel> Annuler </template>
+            </ModalFooter>
         </template>
     </FwbModal>
 </template>

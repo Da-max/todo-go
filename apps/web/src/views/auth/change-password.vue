@@ -1,9 +1,13 @@
-<script setup lang="ts">
-import { FwbModal, FwbButton, FwbAlert, useToast } from "flowbite-vue";
+<script lang="ts" setup>
+import { FwbModal, FwbButton, useToast } from "flowbite-vue";
 import { useModal } from "~/hooks/modal";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import ChangePasswordForm from "~/components/Auth/ChangePassword/ChangePasswordForm.vue";
 import { useChangePassword } from "~/hooks/auth/changePassword";
+import { ChangePasswordSchema } from "@todo-go/core";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
 
 const router = useRouter();
 
@@ -15,8 +19,9 @@ const { modalOpen, modalClose } = useModal({
 });
 
 const toast = useToast();
+const error = ref(false);
 
-const { fields, isValid, changePassword, error, isError } = useChangePassword({
+const { changePassword, fields } = useChangePassword({
     onData: () => {
         toast.add({
             time: 50_000,
@@ -25,6 +30,22 @@ const { fields, isValid, changePassword, error, isError } = useChangePassword({
         });
         router.push({ name: "home" });
     },
+    onError(error) {
+        toast.add({
+            time: 50_000,
+            text: `Une erreur est survenue, merci de vérifier que
+                    vous avez remplis tous les champs puis réessayer (${error.message})`,
+            type: "danger",
+        });
+    },
+});
+
+const { handleSubmit, errors } = useForm({
+    validationSchema: toTypedSchema(ChangePasswordSchema()),
+});
+
+const onSubmit = handleSubmit((values) => {
+    changePassword();
 });
 </script>
 
@@ -34,12 +55,9 @@ const { fields, isValid, changePassword, error, isError } = useChangePassword({
             <h1 class="text-3xl">Changer le mot de passe</h1>
         </template>
         <template #body>
-            <FwbAlert v-if="error" type="danger" class="mb-4">{{
-                error.text
-            }}</FwbAlert>
             <ChangePasswordForm
                 v-model="fields"
-                v-model:error="isError"
+                v-model:error="error"
                 @keyup.enter="changePassword"
             />
         </template>
@@ -49,11 +67,11 @@ const { fields, isValid, changePassword, error, isError } = useChangePassword({
                     color="alternative"
                     type="button"
                     @click.prevent="modalClose"
-                    >Annuler</FwbButton
-                >
-                <FwbButton :disabled="!isValid" @click.prevent="changePassword"
-                    >Changer le mot de passe</FwbButton
-                >
+                    >Annuler
+                </FwbButton>
+                <FwbButton @click.prevent="onSubmit"
+                    >Changer le mot de passe
+                </FwbButton>
             </div>
         </template>
     </FwbModal>

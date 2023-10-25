@@ -14,5 +14,5 @@ generates:
             notAllowEmptyString: true
             enumsAsTypes: true
             scalarSchemas:
-                String: z.string().min(1)
-                ID: z.string().min(1)
+                String: "z.string({ required_error: 'Ce champs est requis.', invalid_type_error: 'Ce champs est requis'}).min(1)"
+                Email: "z.string({ required_error: 'Ce champs est requis.', invalid_type_error: 'Ce champs est requis'}).email().min(5)"

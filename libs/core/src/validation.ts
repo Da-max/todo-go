@@ -27,9 +27,24 @@ export function ChangePasswordSchema(): z.ZodObject<
     Properties<ChangePassword>
 > {
     return z.object({
-        confirmPassword: z.string().min(1),
-        oldPassword: z.string().min(1),
-        password: z.string().min(1),
+        confirmPassword: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
+        oldPassword: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
+        password: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
     });
 }
 
@@ -37,28 +52,64 @@ export function ConfirmIdentifierSchema(): z.ZodObject<
     Properties<ConfirmIdentifier>
 > {
     return z.object({
-        token: z.string().min(1),
+        token: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
     });
 }
 
 export function IdentifierSchema(): z.ZodObject<Properties<Identifier>> {
     return z.object({
-        password: z.string().min(1),
-        username: z.string().min(1),
+        password: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
+        username: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
     });
 }
 
 export function NewTodoSchema(): z.ZodObject<Properties<NewTodo>> {
     return z.object({
-        text: z.string().min(1),
+        text: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
     });
 }
 
 export function NewUserSchema(): z.ZodObject<Properties<NewUser>> {
     return z.object({
-        email: z.string().min(1),
-        password: z.string().min(1),
-        username: z.string().min(1),
+        email: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .email()
+            .min(5),
+        password: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
+        username: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
     });
 }
 
@@ -66,7 +117,13 @@ export function RequestPasswordResetIdentifierSchema(): z.ZodObject<
     Properties<RequestPasswordResetIdentifier>
 > {
     return z.object({
-        email: z.string().min(1),
+        email: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .email()
+            .min(5),
     });
 }
 
@@ -74,14 +131,37 @@ export function ResetPasswordIdentifierSchema(): z.ZodObject<
     Properties<ResetPasswordIdentifier>
 > {
     return z.object({
-        password: z.string().min(1),
-        token: z.string().min(1),
+        password: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
+        token: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1),
     });
 }
 
 export function UpdateUserSchema(): z.ZodObject<Properties<UpdateUser>> {
     return z.object({
-        email: z.string().min(1).nullish(),
-        username: z.string().min(1).nullish(),
+        email: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .email()
+            .min(5)
+            .nullish(),
+        username: z
+            .string({
+                required_error: "Ce champs est requis.",
+                invalid_type_error: "Ce champs est requis",
+            })
+            .min(1)
+            .nullish(),
     });
 }

@@ -27,6 +27,7 @@ export type Scalars = {
     Boolean: { input: boolean; output: boolean };
     Int: { input: number; output: number };
     Float: { input: number; output: number };
+    Email: { input: any; output: any };
 };
 
 export type ChangePassword = {
@@ -131,7 +132,7 @@ export type NewTodo = {
 };
 
 export type NewUser = {
-    email: Scalars["String"]["input"];
+    email: Scalars["Email"]["input"];
     password: Scalars["String"]["input"];
     username: Scalars["String"]["input"];
 };
@@ -149,7 +150,7 @@ export type RequestConfirmAccount = {
 };
 
 export type RequestPasswordResetIdentifier = {
-    email: Scalars["String"]["input"];
+    email: Scalars["Email"]["input"];
 };
 
 export type RequestResetPassword = {
@@ -177,13 +178,13 @@ export type Tokens = {
 };
 
 export type UpdateUser = {
-    email?: InputMaybe<Scalars["String"]["input"]>;
+    email?: InputMaybe<Scalars["Email"]["input"]>;
     username?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type User = {
     __typename?: "User";
-    email: Scalars["String"]["output"];
+    email: Scalars["Email"]["output"];
     id: Scalars["ID"]["output"];
     isActive: Scalars["Boolean"]["output"];
     isAdmin: Scalars["Boolean"]["output"];
@@ -199,7 +200,7 @@ export type CurrentUserQuery = {
         id: string;
         username: string;
         isAdmin: boolean;
-        email: string;
+        email: any;
         isActive: boolean;
     };
 };
@@ -224,7 +225,7 @@ export type SignUpMutation = {
         id: string;
         username: string;
         isAdmin: boolean;
-        email: string;
+        email: any;
         isActive: boolean;
     };
 };
@@ -279,7 +280,7 @@ export type UpdateAccountMutation = {
         id: string;
         username: string;
         isAdmin: boolean;
-        email: string;
+        email: any;
         isActive: boolean;
     };
 };
@@ -313,7 +314,7 @@ export type UserFragment = {
     id: string;
     username: string;
     isAdmin: boolean;
-    email: string;
+    email: any;
     isActive: boolean;
 };
 

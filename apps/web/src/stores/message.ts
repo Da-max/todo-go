@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia'
-import {
+import { defineStore } from "pinia";
+import type {
     messageStoreActions,
     messageStoreState,
     MessageTypes,
-    MESSAGE_STORE_NAME,
-} from '../types/utils'
+} from "~/types/utils";
+import { MESSAGE_STORE_NAME } from "~/types/utils";
 
 export const useMessageStore = defineStore<
     typeof MESSAGE_STORE_NAME,
@@ -21,16 +21,16 @@ export const useMessageStore = defineStore<
                 text,
                 type,
                 id: new Date().toISOString(),
-            })
+            });
         },
         remove(id: string): boolean {
             const findedIndex: number = this.$state.messages.findIndex(
                 (m) => m.id === id,
-            )
+            );
             this.$state.messages = this.$state.messages.filter(
                 (_, i) => i !== findedIndex,
-            )
-            return findedIndex !== -1
+            );
+            return findedIndex !== -1;
         },
     },
-})
+});

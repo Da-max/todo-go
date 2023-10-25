@@ -1,7 +1,9 @@
+scalar Email
+
 type User {
     id: ID!
     username: String!
-    email: String!
+    email: Email!
     isActive: Boolean!
     isAdmin: Boolean!
 }
@@ -33,7 +35,7 @@ type ChangePasswordConfirm {
 
 input NewUser {
     username: String!
-    email: String!
+    email: Email!
     password: String!
 }
 
@@ -44,7 +46,7 @@ input Identifier {
 
 input UpdateUser {
     username: String
-    email: String
+    email: Email
 }
 
 input ConfirmIdentifier {
@@ -52,7 +54,7 @@ input ConfirmIdentifier {
 }
 
 input RequestPasswordResetIdentifier {
-    email: String!
+    email: Email!
 }
 
 input ResetPasswordIdentifier {

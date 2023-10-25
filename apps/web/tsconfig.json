@@ -1,9 +1,11 @@
 {
-    "extends": "@todo-go/core/tsconfig.json",
+    "extends": ["@todo-go/core/tsconfig.json", "@vue/tsconfig/tsconfig.json"],
     "compilerOptions": {
         "target": "esnext",
+        "verbatimModuleSyntax": false,
         "module": "esnext",
         "strict": true,
+        "moduleResolution": "node",
         "jsx": "preserve",
         "sourceMap": true,
         "lib": ["esnext", "dom"],

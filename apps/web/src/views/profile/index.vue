@@ -1,9 +1,10 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useUserStore } from "~/stores/user";
 import { FwbModal, FwbButton } from "flowbite-vue";
 import { useRouter } from "vue-router";
 import ProfileInformations from "~/components/Profile/ProfileInformations.vue";
 import { useModal } from "~/hooks/modal";
+import ModalFooter from "~/components/Utils/Modal/ModalFooter.vue";
 
 const store = useUserStore();
 const router = useRouter();
@@ -22,15 +23,15 @@ const { modalOpen, modalClose } = useModal({
         <template #body>
             <ProfileInformations
                 v-if="store.user"
-                class="text-sm"
                 :user="store.user"
+                class="text-sm"
             />
         </template>
         <template #footer>
             <div class="flex flex-col justify-center items-center gap-4">
-                <FwbButton color="alternative" @click.prevent="modalClose"
-                    >Retour</FwbButton
-                >
+                <ModalFooter @cancel="modalClose">
+                    <template #cancel>Retour</template>
+                </ModalFooter>
             </div>
         </template>
     </FwbModal>

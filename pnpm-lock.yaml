@@ -1,5 +1,9 @@
 lockfileVersion: "6.0"
 
+settings:
+    autoInstallPeers: true
+    excludeLinksFromLockfile: false
+
 importers:
     apps/mobile:
         dependencies:
@@ -88,6 +92,9 @@ importers:
             "@tanstack/vue-query":
                 specifier: ^4.32.6
                 version: 4.32.6(vue@3.3.4)
+            "@vee-validate/zod":
+                specifier: ^4.11.8
+                version: 4.11.8(vue@3.3.4)
             "@vueuse/core":
                 specifier: ^9.0.2
                 version: 9.0.2(vue@3.3.4)
@@ -109,6 +116,9 @@ importers:
             typescript:
                 specifier: ^5.2.2
                 version: 5.2.2
+            vee-validate:
+                specifier: ^4.11.8
+                version: 4.11.8(vue@3.3.4)
             villus:
                 specifier: ^3.2.0
                 version: 3.2.0(graphql@16.5.0)(vue@3.3.4)
@@ -124,6 +134,9 @@ importers:
             vue-router:
                 specifier: "4"
                 version: 4.0.0(vue@3.3.4)
+            zod:
+                specifier: ^3.22.4
+                version: 3.22.4
         devDependencies:
             "@rollup/plugin-graphql":
                 specifier: ^2.0.4
@@ -5419,6 +5432,19 @@ packages:
             "@urql/core": 2.3.6(graphql@15.8.0)
             graphql: 15.8.0
             wonka: 4.0.15
+        dev: false
+
+    /@vee-validate/zod@4.11.8(vue@3.3.4):
+        resolution:
+            {
+                integrity: sha512-qAyqDEigklMf669ZqIw9t95g0Ipzu9rMYUqcZpANlCvyaIAeBlJGcsv+2CewlqgwuC6BL9EAURLJ8Ux5WlBgXg==,
+            }
+        dependencies:
+            type-fest: 4.6.0
+            vee-validate: 4.11.8(vue@3.3.4)
+            zod: 3.22.4
+        transitivePeerDependencies:
+            - vue
         dev: false
 
     /@vitejs/plugin-vue@4.4.0(vite@4.4.11)(vue@3.3.4):
@@ -15505,6 +15531,14 @@ packages:
             }
         engines: { node: ">=8" }
 
+    /type-fest@4.6.0:
+        resolution:
+            {
+                integrity: sha512-rLjWJzQFOq4xw7MgJrCZ6T1jIOvvYElXT12r+y0CC6u67hegDHaxcPqb2fZHOGlqxugGQPNB1EnTezjBetkwkw==,
+            }
+        engines: { node: ">=16" }
+        dev: false
+
     /type-is@1.6.18:
         resolution:
             {
@@ -15909,6 +15943,19 @@ packages:
                 integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==,
             }
         engines: { node: ">= 0.8" }
+
+    /vee-validate@4.11.8(vue@3.3.4):
+        resolution:
+            {
+                integrity: sha512-ZuVpw0axWYBM3aVTD/bm94hcWHumqeUgNjptOqfBT0gyqyHaGYCrm0tSD/0bygEbWUDwEPJOQaEKaUGM82j8TQ==,
+            }
+        peerDependencies:
+            vue: ^3.3.4
+        dependencies:
+            "@vue/devtools-api": 6.5.0
+            type-fest: 4.6.0
+            vue: 3.3.4
+        dev: false
 
     /villus@3.2.0(graphql@16.5.0)(vue@3.3.4):
         resolution:
@@ -16907,7 +16954,3 @@ packages:
                 integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==,
             }
         dev: false
-
-settings:
-    autoInstallPeers: true
-    excludeLinksFromLockfile: false

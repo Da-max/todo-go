@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { UserFragment } from "@todo-go/core";
+<script lang="ts" setup>
+import type { UserFragment } from "@todo-go/core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { FwbButton, FwbBadge } from "flowbite-vue";
 
@@ -18,13 +18,13 @@ defineProps<Props>();
                     {{ user.email }}
                 </p>
                 <p class="flex">
-                    <FwbBadge>Nom d’utilisateur </FwbBadge>
+                    <FwbBadge>Nom d’utilisateur</FwbBadge>
                     {{ user.username }}
                 </p>
             </div>
             <div class="flex flex-col gap-10">
                 <p class="flex">
-                    <FwbBadge>Est actif</FwbBadge>
+                    <FwbBadge>Actif</FwbBadge>
                     <FontAwesomeIcon
                         v-if="user.isActive"
                         :icon="['fas', 'check']"
@@ -37,7 +37,7 @@ defineProps<Props>();
                     />
                 </p>
                 <p class="flex">
-                    <FwbBadge>Est administrateur </FwbBadge>
+                    <FwbBadge>Administrateur⋅ice</FwbBadge>
                     <FontAwesomeIcon
                         v-if="user.isAdmin"
                         :icon="['fas', 'check']"
@@ -54,19 +54,19 @@ defineProps<Props>();
         <div class="mt-10 flex justify-around gap-8 flex-wrap">
             <router-link :to="{ name: 'profile:update' }">
                 <FwbButton>
-                    <FontAwesomeIcon class="mr-2" :icon="['fas', 'pencil']" />
+                    <FontAwesomeIcon :icon="['fas', 'pencil']" class="mr-2" />
                     Modifier mes informations
                 </FwbButton>
             </router-link>
             <router-link :to="{ name: 'profile:delete' }">
                 <FwbButton color="red">
-                    <FontAwesomeIcon class="mr-2" :icon="['fas', 'trash']" />
+                    <FontAwesomeIcon :icon="['fas', 'trash']" class="mr-2" />
                     Supprimer mon compte
                 </FwbButton>
             </router-link>
             <router-link :to="{ name: 'auth:change-password' }">
                 <FwbButton color="yellow">
-                    <FontAwesomeIcon class="mr-2" :icon="['fas', 'key']" />
+                    <FontAwesomeIcon :icon="['fas', 'key']" class="mr-2" />
                     Modifier mon mot de passe
                 </FwbButton>
             </router-link>
