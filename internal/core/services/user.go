@@ -118,9 +118,13 @@ func (service *UserService) Update(id string, username string, email string, pas
 	}
 
 	user.Username = username
-	user.Email = email
 	user.IsAdmin = isAdmin
 	user.IsActive = isActive
+
+	if user.Email != email {
+		user.Email = email
+		user.IsActive = false
+	}
 
 	return user, service.userRepository.Save(user)
 }
