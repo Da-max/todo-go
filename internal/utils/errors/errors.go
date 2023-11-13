@@ -17,5 +17,5 @@ func Define(code string) Error {
 var (
 	NotFound     = Define("NOT FOUND")
 	Internal     = Define("INTERNAL")
-	Unauthorized = Define("Unauthorized")
+	Unauthorized = Define("UNAUTHORIZED")
 )
