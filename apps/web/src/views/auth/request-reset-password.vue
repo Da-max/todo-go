@@ -1,29 +1,23 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { FwbModal, FwbButton } from "flowbite-vue";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useUserStore } from "~/stores/user";
 import RequestForm from "~/components/Auth/ResetPassword/RequestForm.vue";
 import { useModal } from "~/hooks/modal";
+import { useRequestResetPassword } from "~/hooks/auth/requestResetPassword";
+import FormErrors from "~/components/Utils/Form/FormErrors.vue";
+import ModalFooter from "~/components/Utils/Modal/ModalFooter.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
-const form = ref<InstanceType<typeof RequestForm> | null>(null);
 const { modalOpen, modalClose } = useModal({
     initialValue: true,
     onClose: () => {
         router.push({ name: "home" });
     },
 });
-
-const sendRequestResetPassword = async () => {
-    if (form.value) {
-        const res = await form.value.sendRequestEmail();
-        if (res) {
-            await router.push({ name: "home" });
-        }
-    }
-};
+const { values, sendRequestEmail, error, errors } = useRequestResetPassword();
 
 onMounted(() => {
     if (userStore.isAuthenticated) {
@@ -39,8 +33,8 @@ onMounted(() => {
         </template>
         <template #body>
             <router-link
-                class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-500 hover:underline"
                 :to="{ name: 'login' }"
+                class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-500 hover:underline"
             >
                 <font-awesome-icon :icon="['fa', 'chevron-left']" />
                 Retour
@@ -49,20 +43,14 @@ onMounted(() => {
                 Merci de rentrer votre email afin de réinitialiser votre mot de
                 passe.
             </p>
-            <RequestForm ref="form" />
+            <FormErrors :errors="errors" />
+            <RequestForm v-model="values" />
         </template>
         <template #footer>
-            <div class="flex items-center justify-center flex-col gap-4">
-                <FwbButton @click.prevent="sendRequestResetPassword"
-                    >Se connecter</FwbButton
-                >
-                <FwbButton
-                    color="alternative"
-                    size="sm"
-                    @click.prevent="modalClose"
-                    >Annuler</FwbButton
-                >
-            </div>
+            <ModalFooter @action="sendRequestEmail" @cancel="modalClose">
+                <template #action> Envoyer la demande </template>
+                <template #cancel> Annuler </template>
+            </ModalFooter>
         </template>
     </FwbModal>
 </template>

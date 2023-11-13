@@ -1,46 +1,40 @@
 <script lang="ts" setup>
-import { useLogin } from '~/hooks/auth/login'
-import FormInput from '../../Utils/Form/FormInput.vue'
-import { computed, ref } from 'vue'
+import FormInput from "../../Utils/Form/FormInput.vue";
+import { z } from "zod";
+import { IdentifierSchema } from "@todo-go/core/src";
+import { Identifier } from "@todo-go/core";
+import { useVModels } from "@vueuse/core";
 
-const { fields, login, error } = useLogin()
+export type Props = {
+    modelValue: Partial<z.infer<ReturnType<typeof IdentifierSchema>>>;
+};
 
-const errorValue = ref(false)
-const errorComputed = computed({
-    get: () => {
-        return errorValue.value || !!error.value
-    },
-    set: (newError) => {
-        errorValue.value = newError
-    },
-})
+export type Emits = {
+    (e: "update:modelValue", value: Identifier): void;
+};
 
-defineExpose({
-    login,
-})
+const props = defineProps<Props>();
+const emits = defineEmits<Emits>();
+
+const { modelValue } = useVModels(props, emits);
 </script>
 <template>
     <form
         action="#"
         class="h-full text-md flex flex-col justify-center mx-20 mt-8 gap-8"
-        @keyup.enter="login"
     >
         <FormInput
-            v-model="fields.username"
-            v-model:error="errorComputed"
-            type="text"
+            v-model="modelValue.username"
             label="Nom d’utilisateur"
+            name="username"
+            type="text"
         />
 
         <FormInput
-            v-model="fields.password"
-            v-model:error="errorComputed"
-            type="password"
+            v-model="modelValue.password"
             label="Mot de passe"
-        >
-        </FormInput>
-        <p class="text-error my-4">
-            {{ error?.text }}
-        </p>
+            name="password"
+            type="password"
+        />
     </form>
 </template>

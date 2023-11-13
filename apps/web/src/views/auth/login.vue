@@ -1,11 +1,15 @@
 <script lang="ts" setup>
-import { FwbModal, FwbButton } from "flowbite-vue";
+import { FwbModal, FwbAlert } from "flowbite-vue";
 import LoginForm from "../../components/Auth/Login/LoginForm.vue";
-import { reactive, ref } from "vue";
+import { reactive } from "vue";
 import { Router, useRouter } from "vue-router";
 import { useUserStore } from "~/stores/user";
 import { whenever } from "@vueuse/core";
 import { storeToRefs } from "pinia";
+import { useModal } from "~/hooks/modal";
+import { useLogin } from "~/hooks/auth/login";
+import FormErrors from "~/components/Utils/Form/FormErrors.vue";
+import ModalFooter from "~/components/Utils/Modal/ModalFooter.vue";
 
 type State = {
     modalOpen: boolean;
@@ -16,20 +20,17 @@ const state = reactive<State>({
     modalOpen: true,
     router: useRouter(),
 });
-const { isAuthenticated, user } = storeToRefs(useUserStore());
-const loginForm = ref<InstanceType<typeof LoginForm> | null>(null);
 
-const modalClose = function () {
-    state.router.push({ name: "home" });
-};
+const { modalOpen, modalClose } = useModal({
+    initialValue: state.modalOpen,
+    onClose: () => {
+        state.router.push({ name: "home" });
+    },
+});
 
-const login = async () => {
-    if (loginForm.value) {
-        await loginForm.value.login();
-    } else {
-        console.log("Merci de réessayer");
-    }
-};
+const { isAuthenticated } = storeToRefs(useUserStore());
+
+const { fields, login, error, errors } = useLogin();
 
 whenever(
     isAuthenticated,
@@ -41,30 +42,31 @@ whenever(
 </script>
 
 <template>
-    <FwbModal :open="state.modalOpen" @close="modalClose">
+    <FwbModal :open="modalOpen" @close="modalClose">
         <template #header>
             <h1 class="text-3xl">Se connecter</h1>
         </template>
         <template #body>
-            <LoginForm ref="loginForm" />
+            <FormErrors :errors="errors" />
+            <FwbAlert v-if="error?.text" type="danger">
+                <template #default>{{
+                    error?.text ?? "Une erreur est survenue"
+                }}</template>
+            </FwbAlert>
+            <LoginForm v-model="fields" @keyup.enter="login" />
             <p class="font-medium text-sm">
                 <router-link
                     :to="{ name: 'request-reset-password' }"
                     class="text-blue-600 dark:text-blue-500 hover:underline"
-                    >Mot de passe oublié</router-link
-                >
+                    >Mot de passe oublié
+                </router-link>
             </p>
         </template>
         <template #footer>
-            <div class="inline-flex w-full items-center flex-col mb-4 gap-4">
-                <FwbButton @click.prevent="login">Se connecter</FwbButton>
-                <FwbButton
-                    color="alternative"
-                    size="sm"
-                    @click.prevent="modalClose"
-                    >Annuler</FwbButton
-                >
-            </div>
+            <ModalFooter @action="login" @cancel="modalClose">
+                <template #cancel> Annuler </template>
+                <template #action> Se connecter </template>
+            </ModalFooter>
         </template>
     </FwbModal>
 </template>

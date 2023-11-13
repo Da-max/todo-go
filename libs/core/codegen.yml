@@ -1,18 +1,18 @@
 schema: ./../../graphql/*.graphqls
 documents: "./src/graphql/**/*.ts"
 generates:
-    ./src/types/generated.ts:
+    ./src/generated/types.ts:
         plugins:
             - typescript
             - typescript-operations
-    ./src/validation.ts:
+    ./src/generated/validation.ts:
         plugins:
             - "@anatine/graphql-zod-validation"
         config:
             schema: zod
-            importFrom: ./types/generated
+            importFrom: ./types
             notAllowEmptyString: true
             enumsAsTypes: true
             scalarSchemas:
-                String: "z.string({ required_error: 'Ce champs est requis.', invalid_type_error: 'Ce champs est requis'}).min(1)"
-                Email: "z.string({ required_error: 'Ce champs est requis.', invalid_type_error: 'Ce champs est requis'}).email().min(5)"
+                String: "z.string({ required_error: 'Ce champs est requis.', invalid_type_error: 'Ce champs est requis.'}).min(1)"
+                Email: "z.string({ required_error: 'Ce champs est requis.', invalid_type_error: 'Ce champs est requis.'}).email().min(5)"

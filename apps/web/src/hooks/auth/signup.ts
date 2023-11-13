@@ -7,8 +7,10 @@ import {
 } from "@todo-go/core";
 import { SignUpFields } from "~/types/auth";
 import { ErrorTypes } from "~/types/utils";
-import { useForm } from "../form";
 import { useUtils } from "../utils";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { NewUserSchema } from "@todo-go/core/src";
 
 export function useSignUp(
     options?: Partial<{
@@ -36,33 +38,23 @@ export function useSignUp(
             options?.onError ? options.onError(err) : "";
         },
     });
+    const { handleSubmit, errors } = useForm({
+        validationSchema: toTypedSchema(NewUserSchema()),
+    });
 
-    async function signUp() {
-        if (
-            fields.value.email &&
-            fields.value.username &&
-            fields.value.password &&
-            fields.value.password === fields.value.confirmPassword
-        ) {
-            error.value = null;
-            const { data } = await signupMutation({
-                input: {
-                    username: fields.value.username,
-                    email: fields.value.email,
-                    password: fields.value.password,
-                },
-            });
-        } else {
-            setError(
-                ErrorTypes.FILL,
-                `Merci de vérifier que vous avez remplis tout les champs 
-                        et que les deux mots de passe sont identiques.`,
-            );
-        }
-    }
+    const signUp = handleSubmit(async () => {
+        const { data } = await signupMutation({
+            input: {
+                username: fields.value.username,
+                email: fields.value.email,
+                password: fields.value.password,
+            },
+        });
+    });
 
     return {
         error,
+        errors,
         fields,
         signUp,
     };

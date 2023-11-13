@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { FwbModal, FwbButton, useToast } from "flowbite-vue";
 import { useModal } from "~/hooks/modal";
-import { ref } from "vue";
 import { useRouter } from "vue-router";
 import ChangePasswordForm from "~/components/Auth/ChangePassword/ChangePasswordForm.vue";
 import { useChangePassword } from "~/hooks/auth/changePassword";
-import { ChangePasswordSchema } from "@todo-go/core";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
+
+import FormErrors from "~/components/Utils/Form/FormErrors.vue";
+import ModalFooter from "~/components/Utils/Modal/ModalFooter.vue";
 
 const router = useRouter();
 
@@ -19,9 +18,8 @@ const { modalOpen, modalClose } = useModal({
 });
 
 const toast = useToast();
-const error = ref(false);
 
-const { changePassword, fields } = useChangePassword({
+const { changePassword, fields, errors } = useChangePassword({
     onData: () => {
         toast.add({
             time: 50_000,
@@ -39,40 +37,25 @@ const { changePassword, fields } = useChangePassword({
         });
     },
 });
-
-const { handleSubmit, errors } = useForm({
-    validationSchema: toTypedSchema(ChangePasswordSchema()),
-});
-
-const onSubmit = handleSubmit((values) => {
-    changePassword();
-});
 </script>
 
 <template>
     <FwbModal :open="modalOpen" @close="modalClose">
         <template #header>
-            <h1 class="text-3xl">Changer le mot de passe</h1>
+            <h1 class="text-3xl">Changer mon mot de passe</h1>
         </template>
         <template #body>
+            <FormErrors :errors="errors" />
             <ChangePasswordForm
                 v-model="fields"
-                v-model:error="error"
                 @keyup.enter="changePassword"
             />
         </template>
         <template #footer>
-            <div class="flex justify-center gap-4">
-                <FwbButton
-                    color="alternative"
-                    type="button"
-                    @click.prevent="modalClose"
-                    >Annuler
-                </FwbButton>
-                <FwbButton @click.prevent="onSubmit"
-                    >Changer le mot de passe
-                </FwbButton>
-            </div>
+            <ModalFooter @action="changePassword" @cancel="modalClose">
+                <template #action> Changer le mot de passe </template>
+                <template #cancel> Annuler </template>
+            </ModalFooter>
         </template>
     </FwbModal>
 </template>

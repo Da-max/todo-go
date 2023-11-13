@@ -8,6 +8,7 @@ import { useUpdateAccount } from "~/hooks/profile/useUpdateAccount";
 import Loader from "~/components/Utils/Loader.vue";
 import { ref } from "vue";
 import ModalFooter from "~/components/Utils/Modal/ModalFooter.vue";
+import FormErrors from "~/components/Utils/Form/FormErrors.vue";
 
 const router = useRouter();
 
@@ -17,9 +18,9 @@ const { modalOpen, modalClose } = useModal({
         router.push({ name: "home" });
     },
 });
-const { input, updateAccount, loading } = useUpdateAccount({
+const { input, updateAccount, loading, errors } = useUpdateAccount({
     onData: () => {
-        router.push({ name: "home" });
+        modalClose();
     },
 });
 
@@ -34,15 +35,8 @@ const error = ref(false);
             <h1 class="text-3xl">Mettre à jour mes informations</h1>
         </template>
         <template #body>
-            <ProfileUpdate
-                v-model="input"
-                v-model:error="error"
-                @keyup.enter="
-                    () => {
-                        if (!error) updateAccount();
-                    }
-                "
-            />
+            <FormErrors :errors="errors" />
+            <ProfileUpdate v-model="input" @keyup.enter="updateAccount" />
         </template>
         <template #footer>
             <ModalFooter
@@ -58,7 +52,7 @@ const error = ref(false);
                     <Loader v-else class="w-5 h-5" />
                     Enregistrer les informations
                 </template>
-                <template #cancel> Annuler </template>
+                <template #cancel>Annuler</template>
             </ModalFooter>
         </template>
     </FwbModal>

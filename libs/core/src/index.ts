@@ -1,4 +1,4 @@
 export * from "./graphql/todos";
-export * from "./types/generated";
 export * from "./graphql/auth";
+export * from "./types";
 export * from "./validation";
