@@ -23,30 +23,27 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 
 FROM init as base
 
-VOLUME ["/app/node_modules", "/app/libs/core/node_modules"]
-
-COPY --from=install /app/node_modules /app/node_modules
-COPY --from=install /app/libs/core/node_modules /app/libs/core/node_modules
 
 FROM base as mobile
 
-VOLUME ["/app/apps/mobile/node_modules"]
+VOLUME ["/app/node_modules", "/app/libs/core/node_modules", "/app/apps/mobile/node_modules"]
 
 COPY --from=install /app/apps/mobile/node_modules /app/apps/mobile/node_modules
 COPY --from=install /app/node_modules /app/node_modules
+COPY --from=install /app/libs/core/node_modules /app/libs/core/node_modules
 
 WORKDIR /app
-
-ENV REACT_NATIVE_PACKAGER_HOSTNAME="192.168.1.29"
 
 CMD ["pnpm", "run", "--parallel", "-r", "--filter", "!web", "start"]
 
 FROM base as web
 
-VOLUME ["/app/apps/web/node_modules"]
+VOLUME ["/app/node_modules", "/app/libs/core/node_modules", "/app/apps/web/node_modules"]
 
 COPY --from=install /app/node_modules /app/node_modules
 COPY --from=install /app/apps/web/node_modules /app/apps/web/node_modules
+COPY --from=install /app/libs/core/node_modules /app/libs/core/node_modules
+
 
 WORKDIR /app
 

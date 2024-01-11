@@ -1,5 +1,6 @@
 {
     "name": "@todo-go/colors",
     "version": "1.0.0",
-    "main": "./colors.js"
+    "main": "./colors.js",
+    "typings": "./colors.ts"
 }

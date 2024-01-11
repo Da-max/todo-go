@@ -1,10 +1,13 @@
 import { Tab, TabView } from "@rneui/themed";
 import { useState } from "react";
-import { Login } from "./Login/Login";
-import { SignUp } from "./SignUp/SignUp";
+import { Login } from "../../components/Auth/Login/Login";
+import { SignUp } from "../../components/Auth/SignUp/SignUp";
 
-export const Auth = () => {
-    const items = [{ title: "Login" }, { title: "SignUp" }];
+export const Index = () => {
+    const items = [
+        { title: "Se connecter", content: <Login /> },
+        { title: "Créer un compte", content: <SignUp /> },
+    ];
     const [value, setValue] = useState(0);
     return (
         <>
@@ -18,16 +21,13 @@ export const Auth = () => {
                 value={value}
                 onChange={setValue}
             >
-                <TabView.Item
-                    style={{ width: "100%", justifyContent: "center" }}
-                >
-                    <Login />
-                </TabView.Item>
-                <TabView.Item
-                    style={{ width: "100%", justifyContent: "center" }}
-                >
-                    <SignUp />
-                </TabView.Item>
+                {items.map((i) => (
+                    <TabView.Item
+                        style={{ width: "100%", justifyContent: "center" }}
+                    >
+                        {i.content}
+                    </TabView.Item>
+                ))}
             </TabView>
         </>
     );
